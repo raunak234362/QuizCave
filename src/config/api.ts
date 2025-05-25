@@ -1,0 +1,29 @@
+import axios from "axios";
+console.log("API URL:", import.meta.env.VITE_BASE_URL);
+
+const instance = axios.create({
+  baseURL: import.meta.env.VITE_BASE_URL,
+  withCredentials: false,
+  headers: {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS",
+  },
+  proxy: false,
+  httpsAgent: {
+    rejectUnauthorized: false,
+  },
+});
+
+
+// Add request interceptor to handle CORS
+instance.interceptors.request.use((config) => {
+    // Add token if it exists
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  });
+  
+
+export default instance;
