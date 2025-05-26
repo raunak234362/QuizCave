@@ -6,6 +6,7 @@ import StudentDashboard from "../components/students/StudentDashboard/Dashboard"
 import Dashboard from "../components/admin/Dashboard/Dashboard";
 import StudentLayout from "../components/students/StudentLayout";
 import Profile from "../components/admin/Profile/Profile";
+import Contest from "../components/admin/Contest/Contest";
 
 const routes: RouteObject[] = [
   {
@@ -13,36 +14,39 @@ const routes: RouteObject[] = [
     Component: LoginPage,
   },
   {
-    path:"dashboard",
+    path: "dashboard",
     Component: App,
-    children:[
-    {
-      path: "admin",
-      Component:Layout,
-      children:[
-        {
-          path: "dashboard",
-          Component: Dashboard,
-        },
-        {
-          path: "profile",
-          
-          Component: Profile,
-        }
-      ]
-    },
-    {
-      path: "student",
-      Component:StudentLayout,
-      children:[
-        {
-          path: "dashboard",
-          Component: StudentDashboard,
-        },
-      ]
-    }
-    ]
-  }
+    children: [
+      {
+        path: "admin",
+        Component: Layout,
+        children: [
+          {
+            path: "dashboard",
+            Component: Dashboard,
+          },
+          {
+            path: "contest",
+            Component: Contest,
+          },
+          {
+            path: "profile",
+            Component: Profile,
+          },
+        ],
+      },
+      {
+        path: "student",
+        Component: StudentLayout,
+        children: [
+          {
+            path: "dashboard",
+            Component: StudentDashboard,
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 export default routes;

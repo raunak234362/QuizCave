@@ -17,7 +17,7 @@ const Profile: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex justify-center items-center min-h-scree p-4">
+    <div className="flex justify-center items-center min-h-fit p-4">
       <div className="shadow-md rounded-2xl p-6 w-full ">
         <div className="flex flex-row items-center text-center gap-5">
           <div>

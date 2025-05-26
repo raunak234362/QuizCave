@@ -33,7 +33,7 @@ const LoginPage = () => {
         console.log("Role:", response.role);
         sessionStorage.setItem("token", response.accessToken);
         if (response.role === "admin") {
-          navigate("/dashboard/admin/dashboard");
+          navigate("/dashboard/admin/profile");
         }else if (response.role === "student") {
         navigate("/dashboard/student");
         }
