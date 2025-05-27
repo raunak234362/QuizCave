@@ -51,6 +51,12 @@ const ResultCard = ({ item }: ResultCardProps) => {
         >
           Declare
         </button>
+        <button
+          onClick={handleDeclareClick}
+          className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+        >
+          Show the results
+        </button>
       </div>
     </div>
   );
