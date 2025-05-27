@@ -34,6 +34,7 @@ export interface ContestData {
   _id: string;
   name: string;
   description: string;
+  duration: string; 
   startDate: string;
   declared: boolean;
   endDate: string;
@@ -41,4 +42,34 @@ export interface ContestData {
   status: "active" | "inactive" | "completed";
   createdBy: string;
   createdAt: string;
+}
+
+export interface ContestResultData {
+  _id: string;
+  name: string;
+  set: string;
+  startDate: string; // ISO 8601 date string
+  endDate: string;   // ISO 8601 date string
+  active: boolean;
+  registration: boolean;
+  declared: boolean;
+  createdBy: string; // user ID
+  participants: string[]; // array of user IDs
+  unEvaluated: number;
+}
+
+export interface ResultCardProps {
+  item: {
+    _id: string;
+    name: string;
+    set: string;
+    startDate: string;
+    endDate: string;
+    active: boolean;
+    registration: boolean;
+    declared: boolean;
+    createdBy: string;
+    participants: string[];
+    unEvaluated: number;
+  };
 }

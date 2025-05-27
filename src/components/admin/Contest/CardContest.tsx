@@ -10,6 +10,8 @@ interface CardContestProps {
 const CardContest = ({ id }: CardContestProps) => {
   console.log("Received Contest ID in CardContest:", id);
   const [contestDetails, setContestDetails] = useState<ContestData>();
+  const [showSetQuestion, setShowSetQuestion] = useState("");
+  const [showFilledQuestion, setShowFilledQuestion] = useState();
   useEffect(() => {
     const fetchContestDetails = async () => {
       const response = await Service.fetchContestDetails({
@@ -19,9 +21,22 @@ const CardContest = ({ id }: CardContestProps) => {
       setContestDetails(response);
       console.log("Contest Details:", response);
     };
+    const fetchContestQuestions = async () => {
+      const response = await Service.fetchContestDetails({
+        id,
+        token: sessionStorage.getItem("token") || "",
+      });
+      setShowSetQuestion(response);
+      console.log("Contest Questions:", response);
+    };
 
+    fetchContestQuestions();
     fetchContestDetails();
   }, [id]);
+  console.log("Contest Details State:", showSetQuestion);
+  const toggleShowQues = () => {
+    setShowFilledQuestion(showFilledQuestion);
+  };
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-200">
@@ -33,6 +48,10 @@ const CardContest = ({ id }: CardContestProps) => {
         {contestDetails?.set}
       </p>
       <p className="text-sm text-gray-600 mb-1">
+        <span className="font-medium text-gray-700">Duration:</span> (
+        {contestDetails?.duration || "Not specified"} minutes)
+      </p>
+      <p className="text-sm text-gay-600 mb-1">
         <span className="font-medium text-gray-700">Start Date:</span>{" "}
         {new Date(contestDetails?.startDate || "").toLocaleDateString()}
       </p>
@@ -56,6 +75,81 @@ const CardContest = ({ id }: CardContestProps) => {
           Edit
         </button>
       </div>
+      {showFilledQuestion && (
+        <div className="h-full mt-10 top-0  overflow-y-auto">
+          <div className="absolute z-20 top-0 left-0 w-full h-full overflow-y-auto bg-gray-900 bg-opacity-20 flex items-center justify-center">
+            <div className="bg-white w-[70%] h-full overflow-y-auto mt-4 p-6 rounded-lg shadow-md">
+              <div className="flex flex-row justify-between">
+                <h3 className="text-lg font-semibold mb-2">Questions:</h3>
+                <button
+                  onClick={toggleShowQues}
+                  className="bg-red-300 rounded-lg p-5"
+                >
+                  Close
+                </button>
+              </div>
+              {/* {console.log(contestDetails)} */}
+              {/* {contestDetails?.questions?.map((question, index) => (
+                <div key={index} className="border-b border-gray-300 pb-3">
+                  <h4 className="font-semibold mb-1">{question.question}</h4>
+                  <p>
+                    <strong>Type:</strong> {question.type}
+                  </p>
+                  <p>
+                    <strong>Marks:</strong> {question.marks}
+                  </p>
+
+                  {question.type === "mcq" && (
+                    <div>
+                      <p>
+                        <strong>Options:</strong>{" "}
+                        {question?.mcqOptions?.join(", ")}
+                      </p>
+                      <p>
+                        <strong>Single Answer:</strong> {question?.answer}
+                      </p>
+                    </div>
+                  )}
+                  {question.type === "image" && (
+                    <img
+                      src={question?.imageUrl}
+                      alt="Question"
+                      className="mt-2 w-32 h-auto"
+                    />
+                  )}
+                  {question.type === "multiple" && (
+                    <div>
+                      <p>
+                        <strong>Sub Questions:</strong>
+                      </p>
+                      <ul>
+                        {question?.multipleQuestion.map(
+                          (question, subIndex) => (
+                            <li key={subIndex}>
+                              {question?.multipleQuestion}
+                              {question?.multipleAnswer}
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  {question.type === "short" && (
+                    <p>
+                      <strong>Answer:</strong> {question?.answer}
+                    </p>
+                  )}
+                  {question.type === "long" && (
+                    <p>
+                      <strong>Answer:</strong> {question?.answer}
+                    </p>
+                  )}
+                </div>
+              ))} */}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

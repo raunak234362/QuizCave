@@ -48,6 +48,20 @@ const SideBar = () => {
               </li>
               <li>
                 <NavLink
+                  to="result"
+                  className={({ isActive }) =>
+                    `flex items-center text-center px-8 py-2 rounded-md ${
+                      isActive
+                        ? "bg-teal-400 font-semibold text-center text-white"
+                        : "text-gray-300 hover:bg-teal-700 hover:text-white"
+                    }`
+                  }
+                >
+                  Results
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
                   to="profile"
                   className={({ isActive }) =>
                     `flex items-center text-center px-8 py-2 rounded-md ${
