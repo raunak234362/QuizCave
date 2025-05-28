@@ -73,3 +73,14 @@ export interface ResultCardProps {
     unEvaluated: number;
   };
 }
+
+export interface ResultDetails {
+  _id: string;
+  contestId: string;
+  declared: boolean;
+  sumbittedOn: string; // ISO Date string
+  timeTaken: number; // in milliseconds
+  totalMarks: number;
+  userId: UserData;
+  __v?: number;
+}

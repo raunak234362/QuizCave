@@ -101,7 +101,7 @@ class Service {
                 }
             });
             console.log("Result Details Response:", response.data);
-            return response.data.data;
+            return response.data;
         } catch (error) {
             if (error instanceof Error) {
                 throw new Error("Failed to fetch result details: " + error.message);
