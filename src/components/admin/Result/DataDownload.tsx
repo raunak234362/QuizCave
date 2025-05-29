@@ -36,6 +36,9 @@ interface DataDownloadProps {
   data: ContestResult[];
   filename?: string;
   title?: string;
+  username?: string;
+  marks?: number;
+  college?: string;
 }
 
 const styles = StyleSheet.create({
@@ -66,7 +69,7 @@ const styles = StyleSheet.create({
     color: "red",
   },
   smallText: {
-    fontSize: 8,
+    fontSize: 10,
     color: "#666",
   },
 });
@@ -75,6 +78,9 @@ export default function DataDownload({
   data,
   filename = "contest-results",
   title = "WBT Contest Results",
+  username,
+  marks,
+  college = "N/A",
 }: DataDownloadProps) {
   const [format, setFormat] = useState<string>("csv");
   const [isDownloading, setIsDownloading] = useState(false);
@@ -178,6 +184,9 @@ export default function DataDownload({
     <Document>
       <Page style={styles.page} size="A4">
         <Text style={styles.header}>{title}</Text>
+        <Text style={styles.subHeader}>Name- {username}</Text>
+        <Text style={styles.subHeader}>Marks- {marks}/100</Text>
+        <Text style={styles.subHeader}>College- {college}</Text>
         {data.map((result, index) => (
           <View key={result._id} style={styles.section}>
             <Text>
@@ -194,6 +203,12 @@ export default function DataDownload({
               result.questionId !== null &&
               "answer" in result.questionId
                 ? (result.questionId as { answer?: string }).answer || " "
+                : (typeof result.questionId === "object" &&
+                  result.questionId !== null &&
+                  "multipleAnswer" in result.questionId)
+                ? Array.isArray((result.questionId as { multipleAnswer?: string[] }).multipleAnswer)
+                  ? (result.questionId as { multipleAnswer?: string[] }).multipleAnswer?.join(", ") || " "
+                  : " "
                 : " "}
             </Text>
             <Text style={{ fontWeight: "bold" }}>Answers: </Text>
@@ -205,32 +220,6 @@ export default function DataDownload({
                 ? JSON.stringify(result.answer)
                 : " "}
             </Text>
-
-            {/* {result.answers && result.answers.length > 0 ? (
-              result.answers.map((ans: Answer, i) => (
-                <View key={i} style={{ marginBottom: 4 }}>
-                  <Text style={styles.questionText}>
-                    Q{i + 1}: {ans.question}
-                  </Text>
-                  <Text
-                    style={
-                      ans.isCorrect
-                        ? styles.answerCorrect
-                        : styles.answerIncorrect
-                    }
-                  >
-                    Given Answer: {ans.givenAnswer}
-                  </Text>
-                  {!ans.isCorrect && (
-                    <Text style={styles.smallText}>
-                      Correct Answer: {ans.correctAnswer}
-                    </Text>
-                  )}
-                </View>
-              ))
-            ) : (
-              <Text>No answers provided</Text>
-            )} */}
           </View>
         ))}
       </Page>

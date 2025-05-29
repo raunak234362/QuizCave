@@ -219,13 +219,19 @@ const ResultCard = ({ item }: ResultCardProps) => {
                     </button>
 
                     {downloadResultId === result.userId.name && (
+                      
                       <DataDownload
                         data={result.answers || []}
                         filename={`results_${item._id}_${result.userId.name}`} // unique filename
-                        title="Download Contest Results"
+                        title="WBT Contest Results"
+                        username={result.userId.name}
+                        marks={result.totalMarks}
+                        college={result.userId.college || "N/A"}
                       />
                     )}
                   </div>
+                  // name	college	course	deparment	phone	email	address-city	total marks
+
                 ))}
               </div>
             ) : (

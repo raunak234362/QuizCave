@@ -24,6 +24,7 @@ export interface UserData {
   email: string;
   phone: string;
   userId: string;
+  college: string;
   role: "admin" | "user" | string; // you can extend with more roles if needed
   designation: string;
   profilePic: string;
