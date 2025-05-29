@@ -31,10 +31,10 @@ export interface UserData {
 }
 
 export interface ContestData {
-  _id: string;
+  _id: UserData;
   name: string;
   description: string;
-  duration: string; 
+  duration: string;
   startDate: string;
   declared: boolean;
   endDate: string;
@@ -49,7 +49,7 @@ export interface ContestResultData {
   name: string;
   set: string;
   startDate: string; // ISO 8601 date string
-  endDate: string;   // ISO 8601 date string
+  endDate: string; // ISO 8601 date string
   active: boolean;
   registration: boolean;
   declared: boolean;
@@ -75,12 +75,34 @@ export interface ResultCardProps {
 }
 
 export interface ResultDetails {
-  _id: string;
+  _id: UserData;
   contestId: string;
   declared: boolean;
   sumbittedOn: string; // ISO Date string
   timeTaken: number; // in milliseconds
   totalMarks: number;
+  answers: [];
   userId: UserData;
   __v?: number;
 }
+
+
+// interface Question {
+//   _id?: string;
+//   answer?: string[];
+//   questionId: {
+//     question?: string;
+//     mcqOptions?: string[];
+//     multipleQuestion?: string[];
+//     questionImage?: string;
+//     answer?: string;
+//     multipleAnswer?: string[];
+//     difficult?: "easy" | "medium" | "hard" | string;
+//   };
+// }
+
+// interface PdfCreatorProps {
+//   question?: Question[];
+//   username?: string;
+//   marks?: number;
+// }

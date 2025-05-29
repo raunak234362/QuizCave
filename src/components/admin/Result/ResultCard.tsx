@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { ResultCardProps, ResultDetails } from "../../Interfaces";
 import Service from "../../../config/Service";
+import DataDownload from "./DataDownload";
 
 const ResultCard = ({ item }: ResultCardProps) => {
   const [results, setResults] = useState<ResultDetails[]>([]);
@@ -9,6 +10,12 @@ const ResultCard = ({ item }: ResultCardProps) => {
   const [loading, setLoading] = useState(false);
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
+  const [downloadResultId, setDownloadResultId] = useState<string | null>(null);
+
+  const handleDownloadClick = (resultId: string) => {
+    console.log("Download clicked for result ID:", resultId);
+    setDownloadResultId(resultId);
+  };
 
   const fetchResultDetails = async (id: string) => {
     const response = await Service.declareResult({
@@ -57,6 +64,9 @@ const ResultCard = ({ item }: ResultCardProps) => {
     setFilteredResults(filtered);
   };
 
+  console.log("Filtered Results:", filteredResults.map((result) => ({
+    result
+  })));
   return (
     <>
       <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-200">
@@ -161,8 +171,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
               <div className="space-y-3">
                 {filteredResults.map((result) => (
                   <div
-                    key={result._id}
-                    className="flex flex-row justify-between p-3 border border-gray-200 rounded-md shadow-sm bg-gray-50"
+                  className="flex flex-row justify-between p-3 border border-gray-200 rounded-md shadow-sm bg-gray-50"
                   >
                     <div>
                       <p className="text-sm text-gray-700 font-medium">
@@ -201,6 +210,21 @@ const ResultCard = ({ item }: ResultCardProps) => {
                         className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-4"
                       />
                     </div>
+                    {/* Your existing JSX */}
+                    <button
+                      onClick={() => handleDownloadClick(result.userId.name)} // or another unique string id
+                      className="bg-green-600 text-white py-2 rounded-md"
+                    >
+                      Download Results
+                    </button>
+
+                    {downloadResultId === result.userId.name && (
+                      <DataDownload
+                        data={result.answers || []}
+                        filename={`results_${item._id}_${result.userId.name}`} // unique filename
+                        title="Download Contest Results"
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -212,6 +236,8 @@ const ResultCard = ({ item }: ResultCardProps) => {
           </div>
         </div>
       )}
+      {/* Hidden PDF container for rendering PDF content */}
+      <div id="pdf" style={{ display: "none" }}></div>
     </>
   );
 };
