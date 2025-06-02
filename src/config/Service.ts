@@ -1,4 +1,4 @@
-import type { UserToken } from "../components/Interfaces";
+import type { registrationFormData, UserToken } from "../components/Interfaces";
 import api from "./api";
 
 class Service {
@@ -109,6 +109,23 @@ class Service {
                 throw new Error("Failed to fetch result details");
             }
         }
+    }
+    static async AddStudentForm({formDataToSend}: {formDataToSend: registrationFormData}) {
+        try {
+            const response = await api.post("/user/register", formDataToSend, {
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            });
+            return response.data;
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new Error("Failed to add student form: " + error.message);
+            } else {
+                throw new Error("Failed to add student form");
+            }
+        }
+
     }
 }
 export default Service;

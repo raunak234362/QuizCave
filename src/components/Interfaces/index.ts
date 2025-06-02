@@ -87,6 +87,40 @@ export interface ResultDetails {
   __v?: number;
 }
 
+export interface Address {
+  streetLine1: string;
+  streetLine2: string;
+  city: string;
+  state: string;
+  country: string;
+  zip: string;
+}
+
+// Define interface for form data
+export interface registrationFormData {
+  profilePic: string | File;
+  resume: string | File;
+  marksheet: string | File;
+  name: string;
+  email: string;
+  phone: string;
+  altPhone: string;
+  password: string;
+  dob: string;
+  studentId: string;
+  gender: string;
+  fatherName: string;
+  motherName: string;
+  currentSemester: string;
+  branch: string;
+  course: string;
+  college: string;
+  cgpa: string;
+  passingYear: string;
+  backlog: string;
+  permAddress: Address;
+  currAddress: Address;
+}
 
 // interface Question {
 //   _id?: string;

@@ -8,11 +8,16 @@ import StudentLayout from "../components/students/StudentLayout";
 import Profile from "../components/admin/Profile/Profile";
 import Contest from "../components/admin/Contest/Contest";
 import Result from "../components/admin/Result/Result";
+import Registration from "../components/Login/Registration";
 
 const routes: RouteObject[] = [
   {
     path: "/",
     Component: LoginPage,
+  },
+  {
+    path: "/registration",
+    Component: Registration,
   },
   {
     path: "dashboard",

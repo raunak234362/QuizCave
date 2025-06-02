@@ -6,7 +6,7 @@ import type { UserRequestApi } from "../Interfaces";
 import AuthService from "../../config/AuthService";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const {
@@ -136,12 +136,12 @@ const LoginPage = () => {
           <div className="text-center">
             <p className="text-sm text-gray-600">
               Don't have an account?{" "}
-              <a
-                href="#"
+              <NavLink
+                to="/registration"
                 className="font-semibold text-blue-600 hover:text-blue-500 transition-colors"
               >
                 Sign up here
-              </a>
+              </NavLink>
             </p>
           </div>
         </div>
