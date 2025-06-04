@@ -1,19 +1,58 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useState, type ChangeEvent } from "react";
-import { useForm } from "react-hook-form";
-import LOGO from "../../assets/logo.png";
-import type { registrationFormData } from "../Interfaces";
-import Service from "../../config/Service";
-// Define interfaces for address structure
+import type React from "react";
 
-// Course semester mapping type
-type CourseSemesterMap = {
-  [key: string]: string[];
-};
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useForm, type SubmitHandler } from "react-hook-form";
 
-const RegisterStudent = () => {
-  const [formData, setFormData] = useState<registrationFormData>({
+// Define interfaces for type safety
+interface Address {
+  streetLine1: string;
+  streetLine2: string;
+  city: string;
+  state: string;
+  country: string;
+  zip: string;
+}
+
+interface FormData {
+  profilePic: File | string;
+  resume: File | string;
+  name: string;
+  email: string;
+  phone: string;
+  altPhone: string;
+  password: string;
+  dob: string;
+  studentId: string;
+  gender: string;
+  fatherName: string;
+  motherName: string;
+  currentSemester: string;
+  marksheet: File | string;
+  branch: string;
+  course: string;
+  college: string;
+  cgpa: string;
+  passingYear: string;
+  backlog: string;
+  permAddress: Address;
+  currAddress: Address;
+}
+
+type CourseType =
+  | "BE/BTECH"
+  | "BCA"
+  | "BBA"
+  | "BCOM"
+  | "MBA"
+  | "MTECH"
+  | "DIPLOMA";
+
+const RegisterStudent: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
     profilePic: "",
     resume: "",
     name: "",
@@ -54,19 +93,18 @@ const RegisterStudent = () => {
 
   const {
     register,
+    setValue,
     handleSubmit,
     watch,
-    setValue,
     formState: { errors },
-  } = useForm<registrationFormData>({
-    defaultValues: formData,
-  });
+  } = useForm<FormData>();
 
   const [isSameAddress, setIsSameAddress] = useState<boolean>(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [resumeName, setResumeName] = useState<string>("");
+  const navigate = useNavigate();
 
-  const courseSemesterMap: CourseSemesterMap = {
+  const courseSemesterMap: Record<CourseType, string[]> = {
     "BE/BTECH": ["Semester-7", "Semester-8", "Passout"],
     BCA: ["Semester-5", "Semester-6", "Passout"],
     BBA: ["Semester-5", "Semester-6", "Passout"],
@@ -76,36 +114,27 @@ const RegisterStudent = () => {
     DIPLOMA: ["Semester-3", "Semester-4", "Passout"],
   };
 
-  const handleCourseChange = (e: ChangeEvent<HTMLSelectElement>): void => {
-    const selectedCourse = e.target.value;
+  const handleCourseChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
+    const selectedCourse = e.target.value as CourseType;
     setFormData({ ...formData, course: selectedCourse, currentSemester: "" });
-    setValue("course", selectedCourse);
-    setValue("currentSemester", "");
   };
 
-  const handleSemesterChange = (e: ChangeEvent<HTMLSelectElement>): void => {
+  const handleSemesterChange = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ): void => {
     setFormData({ ...formData, currentSemester: e.target.value });
-    setValue("currentSemester", e.target.value);
   };
 
   const getSemesters = (): string[] => {
-    const selectedCourse = watch("course") || formData.course;
+    const selectedCourse = formData.course as CourseType;
     return courseSemesterMap[selectedCourse] || [];
   };
 
   const handleCheckboxChange = (): void => {
-    const newSameAddress = !isSameAddress;
-    setIsSameAddress(newSameAddress);
-
-    if (newSameAddress) {
-      const permAddress = watch("permAddress") || formData.permAddress;
-      setValue("currAddress.streetLine1", permAddress.streetLine1);
-      setValue("currAddress.streetLine2", permAddress.streetLine2);
-      setValue("currAddress.city", permAddress.city);
-      setValue("currAddress.state", permAddress.state);
-      setValue("currAddress.country", permAddress.country);
-      setValue("currAddress.zip", permAddress.zip);
-
+    setIsSameAddress(!isSameAddress);
+    if (!isSameAddress) {
       setFormData((prevState) => ({
         ...prevState,
         currAddress: { ...prevState.permAddress },
@@ -114,770 +143,653 @@ const RegisterStudent = () => {
   };
 
   const handleFileChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    fileType: "profile" | "resume" | "marksheet"
+    e: React.ChangeEvent<HTMLInputElement>,
+    fileType: "profile" | "marksheet" | "resume"
   ): void => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setFormData((prevState) => ({
-      ...prevState,
-      [fileType]: file,
-    }));
-
     if (fileType === "profile") {
       setProfilePreview(URL.createObjectURL(file));
+      setFormData((prevState) => ({
+        ...prevState,
+        profilePic: file,
+      }));
+    } else if (fileType === "marksheet") {
+      setFormData((prevState) => ({
+        ...prevState,
+        marksheet: file,
+      }));
     } else if (fileType === "resume") {
       setResumeName(file.name);
+      setFormData((prevState) => ({
+        ...prevState,
+        resume: file,
+      }));
     }
   };
 
-  const onSubmit = async (data: registrationFormData) => {
-    const formDataToSend = new FormData();
-
-    // Append files safely
-    ["resume", "profilePic", "marksheet"].forEach((key) => {
-      const file = data[key as keyof registrationFormData];
-      if (file instanceof File) {
-        formDataToSend.append(key, file);
-      } else if (typeof file === "string") {
-        formDataToSend.append(key, file);
-      }
-    });
-
-    // Append other fields (excluding files)
-    for (const [key, value] of Object.entries(data)) {
-      if (!["resume", "profilePic", "marksheet"].includes(key)) {
-        if (typeof value === "object" && value !== null) {
-          // Handle nested address objects
-          for (const [subKey, subValue] of Object.entries(value)) {
-            formDataToSend.append(`${key}.${subKey}`, subValue as string);
-          }
-        } else {
-          formDataToSend.append(key, value as string);
-        }
-      }
-    }
-
-    try {
-      const response = await Service.AddStudentForm({
-        data,
-      });
-      console.log("Registration successful:", response);
-      sessionStorage.setItem("role", response.role);
-      sessionStorage.setItem("token", response.accessToken);
-    } catch (error) {
-      console.error("Registration failed:", error);
-      // Add toast/notification here
-    }
+  const onSubmit: SubmitHandler<FormData> = async (data) => {
+    console.log("Form data:", data);
+    // Add your submission logic here
   };
 
   const date = new Date();
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-          {/* Header Section */}
-          <div className="flex flex-col">
-            <div
-              className={`flex flex-row ${
-                profilePreview !== null ? "justify-between" : "justify-center"
-              } flex-wrap items-center mx-4 my-5`}
-            >
-              <div className="flex items-center">
-                <div className="w-48 h-auto flex items-center justify-center text-white font-bold text-xl">
-                  <img src={LOGO} alt="Logo" />
-                </div>
-              </div>
+    <div>
+      <div className="flex flex-col border 2xl:mx-[20%] lg:mx-[10%] my-3 rounded-lg p-4 bg-white shadow-lg shadow-green-500/50 md:mx-[10%]">
+        <div className="flex flex-col">
+          <div
+            className={`flex flex-row ${
+              profilePreview !== null ? "justify-between" : "justify-center"
+            } flex-wrap items-center mx-10 my-5`}
+          >
+            <img
+              src="/placeholder.svg?height=120&width=200"
+              className="w-[20%] items-center ml-2 mb-5 lg:w-[30%] xl:w-[30%] md:w-[30%] sm:w-[30%]"
+              alt="Logo"
+            />
 
-              {profilePreview && (
-                <div className="flex justify-end">
-                  <img
-                    src={profilePreview || "/placeholder.svg"}
-                    alt="Profile Preview"
-                    className="rounded-full w-28 h-28 object-cover border-4 border-green-500"
-                  />
-                </div>
+            {profilePreview && (
+              <div className="right-0 flex justify-end">
+                <img
+                  src={profilePreview || "/placeholder.svg"}
+                  alt="Profile Preview"
+                  className="my-auto rounded-full w-28 h-28"
+                />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-row items-center justify-end mx-5">
+            <h1 className="w-full font-bold text-center text-gray-800 2xl:items-center 2xl:text-2xl pl-28 lg:text-2xl lg:pl-14 md:text-xl md:pl-14 sm:text-xl">
+              New Student Registration Form
+            </h1>
+            <h1 className="items-center px-1 py-1 font-bold text-center text-gray-800 rounded-md 2xl:text-md xl:text-md lg:text-sm md:text-md sm:text-xs bg-green-50 w-fit">
+              {date.toLocaleDateString()}
+            </h1>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div
+            id="studentDetails"
+            className="flex-row p-5 m-4 rounded-lg bg-green-50"
+          >
+            <p className="font-bold text-green-800 2xl:text-xl xl:text-xl lg:text-xl md:text-lg sm:text-lg">
+              Student Details
+            </p>
+            <div>
+              <label htmlFor="name" className="text-sm">
+                Student Name
+              </label>
+              <div className="flex flex-row w-full gap-3 mt-2 2xl:text-md md:text-sm">
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Name"
+                  id="name"
+                  {...register("name", { required: "Name is required" })}
+                />
+              </div>
+              {errors.name && (
+                <span className="text-red-500 text-sm">
+                  {errors.name.message}
+                </span>
               )}
             </div>
-
-            <div className="flex flex-row items-center justify-between mx-5 mb-6">
-              <h1 className="text-2xl font-bold text-gray-800 text-center flex-1">
-                New Student Registration Form
-              </h1>
-              <div className="bg-green-50 px-3 py-2 rounded-md">
-                <span className="text-sm font-semibold text-green-800">
-                  {date.toLocaleDateString()}
+            <div className="mt-3">
+              <label htmlFor="email" className="text-sm">
+                Personal Email
+              </label>
+              <input
+                className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                type="email"
+                placeholder="Email"
+                id="email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: "Invalid email address",
+                  },
+                })}
+              />
+              {errors.email && (
+                <span className="text-red-500 text-sm">
+                  {errors.email.message}
                 </span>
+              )}
+            </div>
+            <div className="mt-3 text-sm">
+              <label htmlFor="studentId">Student College ID</label>
+              <input
+                className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                type="text"
+                placeholder="Student ID"
+                id="studentId"
+                {...register("studentId", {
+                  required: "Student ID is required",
+                })}
+              />
+              {errors.studentId && (
+                <span className="text-red-500 text-sm">
+                  {errors.studentId.message}
+                </span>
+              )}
+            </div>
+            {/* Contacts */}
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
+              <div className="mt-3 w-full sm:w-[560px]">
+                <label htmlFor="phone" className="text-sm">
+                  Student Contact Number
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="tel"
+                  placeholder="Contact Number"
+                  id="phone"
+                  {...register("phone", {
+                    required: "Phone number is required",
+                  })}
+                />
+                {errors.phone && (
+                  <span className="text-red-500 text-sm">
+                    {errors.phone.message}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 w-full sm:w-[560px]">
+                <label htmlFor="altPhone" className="text-sm">
+                  Alternate Contact Number
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="tel"
+                  placeholder="Alternative Contact Number"
+                  id="altPhone"
+                  {...register("altPhone")}
+                />
               </div>
             </div>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {/* Student Details Section */}
-            <div className="bg-green-50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-green-800 mb-4">
-                Student Details
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Student Name *
-                  </label>
-                  <input
-                    placeholder="Student Name"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                    type="text"
-                    {...register("name", { required: "Name is required" })}
-                  />
-                  {errors.name && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Personal Email *
-                  </label>
-                  <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                    type="email"
-                    placeholder="Enter email address"
-                    {...register("email", {
-                      required: "Email is required",
-                      pattern: {
-                        value: /^\S+@\S+$/i,
-                        message: "Invalid email address",
-                      },
-                    })}
-                  />
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="studentId"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Student College ID *
-                  </label>
-                  <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                    type="text"
-                    placeholder="Enter student ID"
-                    {...register("studentId", {
-                      required: "Student ID is required",
-                    })}
-                  />
-                  {errors.studentId && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.studentId.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Contact Number *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="tel"
-                      placeholder="Enter contact number"
-                      {...register("phone", {
-                        required: "Contact number is required",
-                      })}
-                    />
-                    {errors.phone && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.phone.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="altPhone"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Alternate Contact Number
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="tel"
-                      placeholder="Enter alternate number"
-                      {...register("altPhone")}
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label
-                      htmlFor="gender"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Gender *
-                    </label>
-                    <select
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      {...register("gender", {
-                        required: "Gender is required",
-                      })}
-                    >
-                      <option value="">Select Gender</option>
-                      <option value="male">Male</option>
-                      <option value="female">Female</option>
-                      <option value="other">Other</option>
-                    </select>
-                    {errors.gender && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.gender.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="dob"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Date of Birth *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="date"
-                      {...register("dob", {
-                        required: "Date of birth is required",
-                      })}
-                    />
-                    {errors.dob && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.dob.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="password"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Password *
-                  </label>
-                  <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                    type="password"
-                    placeholder="Enter password (minimum 6 characters)"
-                    {...register("password", {
-                      required: "Password is required",
-                      minLength: {
-                        value: 6,
-                        message: "Password must be at least 6 characters",
-                      },
-                    })}
-                  />
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
+            {/*gender, dob*/}
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
+              <div className="mt-3 w-full sm:w-[560px]">
+                <label htmlFor="gender" className="text-sm">
+                  Gender
+                </label>
+                <select
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  id="gender"
+                  {...register("gender", { required: "Gender is required" })}
+                >
+                  <option value="">Select Gender</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+                {errors.gender && (
+                  <span className="text-red-500 text-sm">
+                    {errors.gender.message}
+                  </span>
+                )}
               </div>
-            </div>
-
-            {/* Personal Information Section */}
-            <div className="bg-green-50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-green-800 mb-4">
-                Personal Information
-              </h2>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="fatherName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Father's Name *
-                  </label>
-                  <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                    type="text"
-                    placeholder="Enter father's name"
-                    {...register("fatherName", {
-                      required: "Father's name is required",
-                    })}
-                  />
-                  {errors.fatherName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.fatherName.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label
-                    htmlFor="motherName"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Mother's Name *
-                  </label>
-                  <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                    type="text"
-                    placeholder="Enter mother's name"
-                    {...register("motherName", {
-                      required: "Mother's name is required",
-                    })}
-                  />
-                  {errors.motherName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.motherName.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* College Details Section */}
-            <div className="bg-green-50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-green-800 mb-4">
-                College Details
-              </h2>
-
-              <div className="space-y-4">
-                <div>
-                  <label
-                    htmlFor="college"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    College Name *
-                  </label>
-                  <input
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                    type="text"
-                    placeholder="Enter college name"
-                    {...register("college", {
-                      required: "College name is required",
-                    })}
-                  />
-                  {errors.college && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.college.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label
-                      htmlFor="course"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Course *
-                    </label>
-                    <select
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      {...register("course", {
-                        required: "Course is required",
-                      })}
-                      onChange={handleCourseChange}
-                    >
-                      <option value="">Select Your Course</option>
-                      <optgroup label="Technical">
-                        <option value="DIPLOMA">Diploma</option>
-                        <option value="BE/BTECH">B.E/B.Tech</option>
-                        <option value="MTECH">M.Tech</option>
-                        <option value="BCA">
-                          Bachelor's of Computer Applications
-                        </option>
-                      </optgroup>
-                      <optgroup label="Non-Technical">
-                        <option value="MBA">
-                          Master's of Business Administrations
-                        </option>
-                        <option value="BBA">
-                          Bachelor's of Business Administrations
-                        </option>
-                        <option value="BCOM">Bachelor's of Commerce</option>
-                      </optgroup>
-                    </select>
-                    {errors.course && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.course.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="branch"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Branch *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="text"
-                      placeholder="Enter branch"
-                      {...register("branch", {
-                        required: "Branch is required",
-                      })}
-                    />
-                    {errors.branch && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.branch.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="currentSemester"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Current Semester *
-                    </label>
-                    <select
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      {...register("currentSemester", {
-                        required: "Current semester is required",
-                      })}
-                      onChange={handleSemesterChange}
-                    >
-                      <option value="">Select Semester</option>
-                      {getSemesters().map((semester) => (
-                        <option key={semester} value={semester}>
-                          {semester}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.currentSemester && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.currentSemester.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label
-                      htmlFor="cgpa"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      CGPA *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="10"
-                      placeholder="Enter CGPA"
-                      {...register("cgpa", { required: "CGPA is required" })}
-                    />
-                    {errors.cgpa && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.cgpa.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="backlog"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Number of Backlogs *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="number"
-                      min="0"
-                      placeholder="Enter number of backlogs"
-                      {...register("backlog", {
-                        required: "Number of backlogs is required",
-                      })}
-                    />
-                    {errors.backlog && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.backlog.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="passingYear"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Year of Passing *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="number"
-                      min="2000"
-                      max="2030"
-                      placeholder="Enter passing year"
-                      {...register("passingYear", {
-                        required: "Passing year is required",
-                      })}
-                    />
-                    {errors.passingYear && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.passingYear.message}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                {/* File Uploads */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div>
-                    <label
-                      htmlFor="marksheet"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Upload Marksheet *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-                      type="file"
-                      placeholder="Upload marksheet"
-                      {...register("marksheet", {
-                        required: "Marksheet is required",
-                      })}
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => handleFileChange(e, "marksheet")}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="profile"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Upload Profile Image *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-                      type="file"
-                      placeholder="Upload profile image"
-                      accept="image/*"
-                      onChange={(e) => handleFileChange(e, "profile")}
-                    />
-                  </div>
-
-                  <div>
-                    <label
-                      htmlFor="resume"
-                      className="block text-sm font-medium text-gray-700 mb-1"
-                    >
-                      Upload Resume *
-                    </label>
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      placeholder="Upload resume"
-                      {...register("resume", {
-                        required: "Resume is required",
-                      })}
-                      onChange={(e) => handleFileChange(e, "resume")}
-                    />
-                    {resumeName && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        Selected: {resumeName}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Address Section */}
-            <div className="bg-green-50 rounded-lg p-6">
-              <h2 className="text-xl font-bold text-green-800 mb-4">
-                Address Information
-              </h2>
-
-              <div className="space-y-6">
-                {/* Permanent Address */}
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                    Permanent Address
-                  </h3>
-                  <div className="space-y-3">
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="text"
-                      placeholder="Street Line 1 *"
-                      {...register("permAddress.streetLine1", {
-                        required: "Street Line 1 is required",
-                      })}
-                    />
-                    {errors.permAddress?.streetLine1 && (
-                      <p className="text-red-500 text-sm">
-                        {errors.permAddress.streetLine1.message}
-                      </p>
-                    )}
-
-                    <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                      type="text"
-                      placeholder="Street Line 2"
-                      {...register("permAddress.streetLine2")}
-                    />
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                        type="text"
-                        placeholder="City *"
-                        {...register("permAddress.city", {
-                          required: "City is required",
-                        })}
-                      />
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                        type="text"
-                        placeholder="State *"
-                        {...register("permAddress.state", {
-                          required: "State is required",
-                        })}
-                      />
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                        type="text"
-                        placeholder="Country *"
-                        {...register("permAddress.country", {
-                          required: "Country is required",
-                        })}
-                      />
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                        type="text"
-                        placeholder="ZIP Code *"
-                        {...register("permAddress.zip", {
-                          required: "ZIP code is required",
-                        })}
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Same Address Checkbox */}
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="sameAddress"
-                    checked={isSameAddress}
-                    onChange={handleCheckboxChange}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                  />
-                  <label
-                    htmlFor="sameAddress"
-                    className="ml-2 text-sm text-gray-700"
-                  >
-                    Current address is same as permanent address
-                  </label>
-                </div>
-
-                {/* Current Address */}
-                {!isSameAddress && (
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                      Current Address
-                    </h3>
-                    <div className="space-y-3">
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                        type="text"
-                        placeholder="Street Line 1 *"
-                        {...register("currAddress.streetLine1", {
-                          required:
-                            !isSameAddress && "Street Line 1 is required",
-                        })}
-                      />
-
-                      <input
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                        type="text"
-                        placeholder="Street Line 2"
-                        {...register("currAddress.streetLine2")}
-                      />
-
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                        <input
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                          type="text"
-                          placeholder="City *"
-                          {...register("currAddress.city", {
-                            required: !isSameAddress && "City is required",
-                          })}
-                        />
-                        <input
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                          type="text"
-                          placeholder="State *"
-                          {...register("currAddress.state", {
-                            required: !isSameAddress && "State is required",
-                          })}
-                        />
-                        <input
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                          type="text"
-                          placeholder="Country *"
-                          {...register("currAddress.country", {
-                            required: !isSameAddress && "Country is required",
-                          })}
-                        />
-                        <input
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none transition-colors"
-                          type="text"
-                          placeholder="ZIP Code *"
-                          {...register("currAddress.zip", {
-                            required: !isSameAddress && "ZIP code is required",
-                          })}
-                        />
-                      </div>
-                    </div>
-                  </div>
+              <div className="mt-3 w-full sm:w-[560px]">
+                <label htmlFor="dob" className="text-sm">
+                  Date of Birth
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="date"
+                  id="dob"
+                  {...register("dob", {
+                    required: "Date of birth is required",
+                  })}
+                />
+                {errors.dob && (
+                  <span className="text-red-500 text-sm">
+                    {errors.dob.message}
+                  </span>
                 )}
               </div>
             </div>
 
-            {/* Submit Button */}
-            <div className="flex justify-center pt-6">
-              <button
-                type="submit"
-                className="px-8 py-4 bg-green-600 text-white font-bold text-lg rounded-lg shadow-lg hover:bg-green-700 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 transition-colors duration-200"
-              >
-                Submit Registration
-              </button>
+            <div className="relative mt-3 group">
+              <label htmlFor="password" className="text-sm">
+                Password
+              </label>
+              <input
+                className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500"
+                type="password"
+                placeholder="Password"
+                id="password"
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must be at least 6 characters",
+                  },
+                })}
+              />
+              {errors.password && (
+                <span className="text-red-500 text-sm">
+                  {errors.password.message}
+                </span>
+              )}
             </div>
-          </form>
-        </div>
+          </div>
+          {/*personal information*/}
+          <div className="flex flex-col p-5 m-4 rounded-lg bg-green-50">
+            <p className="font-bold text-green-800 2xl:text-xl xl:text-xl lg:text-xl md:text-lg sm:text-lg">
+              Personal Information
+            </p>
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
+              <div className="mt-3 w-full sm:w-[560px]">
+                <label htmlFor="fatherName" className="text-sm">
+                  Father Name
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Father Name"
+                  id="fatherName"
+                  {...register("fatherName", {
+                    required: "Father's name is required",
+                  })}
+                />
+                {errors.fatherName && (
+                  <span className="text-red-500 text-sm">
+                    {errors.fatherName.message}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 w-full sm:w-[560px]">
+                <label htmlFor="motherName" className="text-sm">
+                  Mother Name
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Mother Name"
+                  id="motherName"
+                  {...register("motherName", {
+                    required: "Mother's name is required",
+                  })}
+                />
+                {errors.motherName && (
+                  <span className="text-red-500 text-sm">
+                    {errors.motherName.message}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          {/*college details*/}
+          <div className="flex-row p-5 m-4 rounded-lg bg-green-50">
+            <p className="font-bold text-green-800 2xl:text-xl xl:text-xl lg:text-xl md:text-lg sm:text-lg">
+              College Details
+            </p>
+            <div className="mt-3">
+              <label htmlFor="college" className="text-sm">
+                College Name
+              </label>
+              <input
+                className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                type="text"
+                placeholder="College Name"
+                id="college"
+                {...register("college", {
+                  required: "College name is required",
+                })}
+              />
+              {errors.college && (
+                <span className="text-red-500 text-sm">
+                  {errors.college.message}
+                </span>
+              )}
+            </div>
+
+            {/*cgpa,backlogs, year of passing*/}
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="course" className="text-sm">
+                  Course
+                </label>
+                <select
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  id="course"
+                  {...register("course", { required: "Course is required" })}
+                  onChange={handleCourseChange}
+                >
+                  <option value="">Select Your Course</option>
+                  <optgroup label="Technical">
+                    <option value="DIPLOMA">Diploma</option>
+                    <option value="BE/BTECH">B.E/B.Tech</option>
+                    <option value="MTECH">M.Tech</option>
+                    <option value="BCA">
+                      {"Bachelor's of Computer Applications"}
+                    </option>
+                  </optgroup>
+                  <optgroup label="Non-Technical">
+                    <option value="MBA">
+                      {"Master's of Business Administrations"}
+                    </option>
+                    <option value="BBA">
+                      {"Bachelor's of Business Administrations"}
+                    </option>
+                    <option value="BCOM">{"Bachelor's of Commerce"}</option>
+                  </optgroup>
+                </select>
+                {errors.course && (
+                  <span className="text-red-500 text-sm">
+                    {errors.course.message}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="branch" className="text-sm">
+                  Branch
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Branch"
+                  id="branch"
+                  {...register("branch", { required: "Branch is required" })}
+                />
+                {errors.branch && (
+                  <span className="text-red-500 text-sm">
+                    {errors.branch.message}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="currentSemester" className="text-sm">
+                  Select Semester
+                </label>
+                <select
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  id="currentSemester"
+                  {...register("currentSemester", {
+                    required: "Current semester is required",
+                  })}
+                  onChange={handleSemesterChange}
+                >
+                  <option value="">Current Semester</option>
+                  {getSemesters()?.map((semester) => (
+                    <option key={semester} value={semester}>
+                      {semester}
+                    </option>
+                  ))}
+                </select>
+                {errors.currentSemester && (
+                  <span className="text-red-500 text-sm">
+                    {errors.currentSemester.message}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="cgpa" className="text-sm">
+                  CGPA
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="10"
+                  placeholder="CGPA"
+                  id="cgpa"
+                  {...register("cgpa", { required: "CGPA is required" })}
+                />
+                {errors.cgpa && (
+                  <span className="text-red-500 text-sm">
+                    {errors.cgpa.message}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="backlog" className="text-sm">
+                  No. of Backlog
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="number"
+                  min="0"
+                  placeholder="No. of Backlog"
+                  id="backlog"
+                  {...register("backlog", {
+                    required: "Number of backlogs is required",
+                  })}
+                />
+                {errors.backlog && (
+                  <span className="text-red-500 text-sm">
+                    {errors.backlog.message}
+                  </span>
+                )}
+              </div>
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="passingYear" className="text-sm">
+                  Year of Passing
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="number"
+                  min="2000"
+                  max="2030"
+                  placeholder="Passing Year"
+                  id="passingYear"
+                  {...register("passingYear", {
+                    required: "Passing year is required",
+                  })}
+                />
+                {errors.passingYear && (
+                  <span className="text-red-500 text-sm">
+                    {errors.passingYear.message}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/*files*/}
+            <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="marksheet" className="text-sm">
+                  Upload Marksheet
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="file"
+                  id="marksheet"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleFileChange(e, "marksheet")}
+                />
+              </div>
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="profile" className="text-sm">
+                  Upload Profile Image
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="file"
+                  id="profile"
+                  accept="image/*"
+                  onChange={(e) => handleFileChange(e, "profile")}
+                />
+              </div>
+              <div className="mt-3 w-full sm:w-[375px]">
+                <label htmlFor="resume" className="text-sm">
+                  Upload Resume
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="file"
+                  id="resume"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => handleFileChange(e, "resume")}
+                />
+                {resumeName && (
+                  <div className="mt-2">
+                    <p>Resume: {resumeName}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/*address*/}
+          <div className="flex-row p-5 m-4 rounded-lg bg-green-50">
+            <div className="mt-3">
+              <p className="text-2xl font-bold text-green-800"></p>
+              <label htmlFor="permanentAddress" className="font-bold">
+                Permanent Address
+              </label>
+              <input
+                className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                type="text"
+                placeholder="Street Line 1"
+                id="permanentStreetLine1"
+                {...register("permAddress.streetLine1", {
+                  required: "Street address is required",
+                })}
+              />
+              {errors.permAddress?.streetLine1 && (
+                <span className="text-red-500 text-sm">
+                  {errors.permAddress.streetLine1.message}
+                </span>
+              )}
+              <input
+                className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                type="text"
+                placeholder="Street Line 2"
+                id="permanentStreetLine2"
+                {...register("permAddress.streetLine2")}
+              />
+              {/*address[4 fields]*/}
+              <div className="flex gap-2">
+                <input
+                  className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="City"
+                  id="permanentCity"
+                  {...register("permAddress.city", {
+                    required: "City is required",
+                  })}
+                />
+                <input
+                  className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="State"
+                  id="permanentState"
+                  {...register("permAddress.state", {
+                    required: "State is required",
+                  })}
+                />
+                <input
+                  className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Country"
+                  id="permanentCountry"
+                  {...register("permAddress.country", {
+                    required: "Country is required",
+                  })}
+                />
+                <input
+                  className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Zip Code"
+                  id="permanentZip"
+                  {...register("permAddress.zip", {
+                    required: "Zip code is required",
+                  })}
+                />
+              </div>
+            </div>
+            <div className="mt-3">
+              <label className="inline-flex items-center">
+                <input
+                  type="checkbox"
+                  checked={isSameAddress}
+                  onChange={handleCheckboxChange}
+                  className="form-checkbox"
+                />
+                <span className="ml-2">Same as Permanent Address</span>
+              </label>
+            </div>
+            {!isSameAddress && (
+              <div className="mt-3">
+                <label htmlFor="currentAddress" className="font-bold">
+                  Current Address
+                </label>
+                <input
+                  className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Street Line 1"
+                  id="currentStreetLine1"
+                  {...register("currAddress.streetLine1", {
+                    required: !isSameAddress,
+                  })}
+                />
+                <input
+                  className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                  type="text"
+                  placeholder="Street Line 2"
+                  id="currentStreetLine2"
+                  {...register("currAddress.streetLine2")}
+                />
+                <div className="flex gap-2">
+                  <input
+                    className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                    type="text"
+                    placeholder="City"
+                    id="currentCity"
+                    {...register("currAddress.city", {
+                      required: !isSameAddress,
+                    })}
+                  />
+                  <input
+                    className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                    type="text"
+                    placeholder="State"
+                    id="currentState"
+                    {...register("currAddress.state", {
+                      required: !isSameAddress,
+                    })}
+                  />
+                  <input
+                    className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                    type="text"
+                    placeholder="Country"
+                    id="currentCountry"
+                    {...register("currAddress.country", {
+                      required: !isSameAddress,
+                    })}
+                  />
+                  <input
+                    className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
+                    type="text"
+                    placeholder="Zip Code"
+                    id="currentZip"
+                    {...register("currAddress.zip", {
+                      required: !isSameAddress,
+                    })}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="flex items-center justify-center">
+            <button
+              className="px-4 py-3 text-xl font-bold text-white bg-green-600 rounded-lg shadow-lg hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+              type="submit"
+            >
+              Submit
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
