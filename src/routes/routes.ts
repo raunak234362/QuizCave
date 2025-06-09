@@ -9,6 +9,7 @@ import Profile from "../components/admin/Profile/Profile";
 import Contest from "../components/admin/Contest/Contest";
 import Result from "../components/admin/Result/Result";
 import Registration from "../components/Login/Registration";
+import StudentProfile from "../components/students/Profile/StudentProfile";
 
 const routes: RouteObject[] = [
   {
@@ -28,7 +29,7 @@ const routes: RouteObject[] = [
         Component: Layout,
         children: [
           {
-            path: "dashboard",
+            path: "",
             Component: Dashboard,
           },
           {
@@ -53,6 +54,10 @@ const routes: RouteObject[] = [
             path: "dashboard",
             Component: StudentDashboard,
           },
+          {
+            path:"profile",
+            Component: StudentProfile,
+          }
         ],
       },
     ],
