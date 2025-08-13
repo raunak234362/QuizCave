@@ -11,7 +11,7 @@ const Layout = () => {
   //     setSidebarOpen((prev) => !prev);
   //   }, [setSidebarOpen]);
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden md:flex-row bg-gradient-to-tr from-teal-100 to-teal-500">
+    <div className="flex flex-col w-screen h-screen overflow-hidden md:flex-row bg-linear-to-bl/srgb  from-teal-200 to-indigo-100  ">
       <div className="flex flex-col w-full">
         {/* <NotificationReceiver /> */}
 
@@ -31,7 +31,7 @@ const Layout = () => {
               <Header />
             </div>
             <div
-              className={`flex h-[90vh] border-4 p-3 rounded-lg border-white  bg-gradient-to-t from-gray-50/70 to-gray-100/50 overflow-hidden flex-grow transition-all duration-300 `}
+              className={`flex h-[90vh] border-4 p-3 rounded-lg border-white backdrop-blur-3xl overflow-hidden flex-grow transition-all duration-300 `}
             >
               <Outlet />
             </div>

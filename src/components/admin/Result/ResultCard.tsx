@@ -69,7 +69,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
   })));
   return (
     <>
-      <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-200">
+      <div className="bg-white/50 backdrop-blur-3xl shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow duration-300 border border-white">
         <h2 className="text-xl font-semibold text-gray-800 mb-2">
           {item?.name || "Loading..."}
         </h2>
