@@ -13,6 +13,7 @@ export interface UserResponse {
 export interface UserRequestApi {
   userId: string;
   password: string;
+  role: "admin" | "user" | string;
 }
 
 export interface UserToken {

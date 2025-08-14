@@ -20,7 +20,6 @@ const LoginPage = () => {
     },
   });
 
-
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -34,8 +33,8 @@ const LoginPage = () => {
         sessionStorage.setItem("token", response.accessToken);
         if (response.role === "admin") {
           navigate("/dashboard/admin/profile");
-        }else if (response.role === "student") {
-        navigate("/dashboard/student");
+        } else if (response.role === "student") {
+          navigate("/dashboard/student");
         }
       })
       .catch((error) => {
@@ -57,7 +56,7 @@ const LoginPage = () => {
       </div>
 
       {/* Form Section */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-teal-50 to-teal-200">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-linear-to-r from-teal-50 to-teal-200">
         <div className="max-w-md w-full space-y-8">
           {/* Header */}
           <div className="text-center">
@@ -69,6 +68,26 @@ const LoginPage = () => {
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="mb-6">
+              <label className="mr-4">
+                <input
+                  type="radio"
+                  value="admin"
+                  {...register("role")}
+                  className="mr-2"
+                />
+                Admin
+              </label>
+              <label className="ml-4">
+                <input
+                  type="radio"
+                  value="student"
+                  {...register("role")}
+                  className="mr-2"
+                />
+                Student
+              </label>
+            </div>
             <div className="bg-white/50 p-8 rounded-2xl shadow-xl border border-gray-100">
               {/* Username Field */}
               <div className="space-y-2">
@@ -120,7 +139,6 @@ const LoginPage = () => {
                   </p>
                 )}
               </div>
-
 
               {/* Submit Button */}
               <button
