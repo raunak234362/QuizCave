@@ -10,6 +10,7 @@ import Contest from "../components/admin/Contest/Contest";
 import Result from "../components/admin/Result/Result";
 import Registration from "../components/Login/Registration";
 import StudentProfile from "../components/students/Profile/StudentProfile";
+import ContestMain from "../components/students/contest/ContestMain";
 
 const routes: RouteObject[] = [
   {
@@ -57,6 +58,10 @@ const routes: RouteObject[] = [
           {
             path:"profile",
             Component: StudentProfile,
+          },
+          {
+            path: "contest",
+            Component: ContestMain,
           }
         ],
       },

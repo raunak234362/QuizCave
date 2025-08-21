@@ -127,9 +127,9 @@ class Service {
         }
 
     }
-    static async studentContestData({ token }: UserToken) {
+    static async getAllStudentContestData({ token }: UserToken) {
         try {
-            const response = await api.get("api/v1/contest/all", {
+            const response = await api.get("/contest/all", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
@@ -144,9 +144,9 @@ class Service {
             }
         }
     }
-    static async studentContestDetails({ id, token }: { id: string, token: string }) {
+    static async getStudentContestDetails({ id, token }: { id: string, token: string }) {
         try {
-            const response = await api.get(`api/v1/contest/${id}`, {
+            const response = await api.get(`/contest/${id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
@@ -163,7 +163,7 @@ class Service {
     }
     static async studentContestAttempt({ id, token }: { id: string, token: string }) {
         try {
-            const response = await api.post(`api/v1/contest/attempt/${id}/`, {
+            const response = await api.post(`/contest/attempt/${id}/`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
