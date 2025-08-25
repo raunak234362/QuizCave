@@ -5,7 +5,7 @@ import type { ContestData } from "../../Interfaces";
 
 
 interface ContestListProps {
-  onSelectContest: (contest: ContestData) => void; // ✅ must accept ContestData
+  onSelectContest: (contest: ContestData) => void; 
 }
 
 const ContestList = ({ onSelectContest }: ContestListProps) => {
@@ -19,7 +19,7 @@ const ContestList = ({ onSelectContest }: ContestListProps) => {
         setContests(data);
       } catch (error) {
         console.error("Error fetching contests:", error);
-      }
+      } 
     };
     fetchContests();
   }, [token]);
