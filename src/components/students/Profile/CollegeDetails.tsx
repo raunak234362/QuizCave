@@ -1,37 +1,57 @@
 import React from "react";
-import  type { registrationFormData } from "../../Interfaces/index";
+import type { registrationFormData } from "../../Interfaces/index";
+import { MdSchool, MdCalendarToday, MdGrade, MdFileCopy } from "react-icons/md";
 
 interface CollegeDetailsProps {
   formData: registrationFormData;
 }
 
 const CollegeDetails: React.FC<CollegeDetailsProps> = ({ formData }) => {
+  const formatValue = (value: string | number | undefined) => {
+    return value || "N/A";
+  };
+
+  interface CardProps {
+    title: string;
+    value: string | number | undefined;
+    icon: React.ReactNode;
+  }
+
+  const Card: React.FC<CardProps> = ({ title, value, icon }) => (
+    <div className="flex items-center p-4 bg-gray-50 rounded-lg shadow-inner border border-gray-200 transition-transform transform hover:scale-105">
+      <div className="text-green-600 text-2xl mr-4">{icon}</div>
+      <div>
+        <h3 className="text-sm text-gray-600 font-medium">{title}</h3>
+        <p className="text-lg text-gray-900 font-semibold">
+          {formatValue(value)}
+        </p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-white p-6 rounded-2xl shadow-md">
       <h2 className="text-gray-800 text-xl font-semibold mb-4">
-        College Details
+        College Details 🎓
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <div>
-          <h3 className="text-gray-700 font-medium">College ID</h3>
-          <p className="text-lg text-gray-900">{formData.studentId}</p>
-        </div>
-        <div>
-          <h3 className="text-gray-700 font-medium">Current Semester</h3>
-          <p className="text-lg text-gray-900">{formData.currentSemester}</p>
-        </div>
-        <div>
-          <h3 className="text-gray-700 font-medium">Passing Year</h3>
-          <p className="text-lg text-gray-900">{formData.passingYear}</p>
-        </div>
-        <div>
-          <h3 className="text-gray-700 font-medium">Marks/CGPA</h3>
-          <p className="text-lg text-gray-900">{formData.cgpa}</p>
-        </div>
-        <div>
-          <h3 className="text-gray-700 font-medium">Backlogs</h3>
-          <p className="text-lg text-gray-900">{formData.backlog}</p>
-        </div>
+        <Card
+          title="College ID"
+          value={formData.studentId}
+          icon={<MdSchool />}
+        />
+        <Card
+          title="Current Semester"
+          value={formData.currentSemester}
+          icon={<MdCalendarToday />}
+        />
+        <Card
+          title="Passing Year"
+          value={formData.passingYear}
+          icon={<MdCalendarToday />}
+        />
+        <Card title="Marks/CGPA" value={formData.cgpa} icon={<MdGrade />} />
+        <Card title="Backlogs" value={formData.backlog} icon={<MdFileCopy />} />
       </div>
     </div>
   );

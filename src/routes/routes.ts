@@ -11,6 +11,7 @@ import StudentResult from "../components/students/Result/result";
 import Registration from "../components/Login/Registration";
 import StudentProfile from "../components/students/Profile/StudentProfile";
 import ContestMain from "../components/students/contest/ContestMain";
+import ContestRules from "../components/students/contest/ContestRules";
 
 const routes: RouteObject[] = [
   {
@@ -51,23 +52,27 @@ const routes: RouteObject[] = [
         path: "student",
         Component: StudentLayout,
         children: [
-         
           {
-            path:"profile",
+            path: "profile",
             Component: StudentProfile,
           },
           {
             path: "contest",
             Component: ContestMain,
           },
+          {},
           {
             path: "result",
             Component: StudentResult,
-          }
+          },
         ],
       },
-      
     ],
+  },
+  {
+    path: "rules",
+    Component: ContestRules,
+    // If you need to pass props, use a wrapper component or handle via loader/context
   },
 ];
 

@@ -1,4 +1,5 @@
 import type { ContestData } from "../../Interfaces";
+import { Link } from "react-router-dom";
 
 interface Props {
   contest: ContestData;
@@ -16,12 +17,13 @@ const ContestCard = ({ contest, onClick }: Props) => {
       <p className="text-xs text-gray-500">
         Ends: {new Date(contest.endDate).toLocaleString()}
       </p>
-      <button
-        onClick={onClick}
+      <Link
+        to={`/contest/rules`}
+        target="_blank"
         className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
       >
         Attend
-      </button>
+      </Link>
     </div>
   );
 };

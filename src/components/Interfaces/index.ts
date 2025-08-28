@@ -43,6 +43,7 @@ export interface ContestData {
   status: "active" | "inactive" | "completed";
   createdBy: string;
   createdAt: string;
+  rules: string;
 }
 
 export interface ContestResultData {

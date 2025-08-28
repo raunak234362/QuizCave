@@ -14,7 +14,7 @@ export default function ContestMain() {
         <ContestList onSelectContest={setSelectedContest} />
       ) : (
         <ContestAttempt
-          contest={selectedContest}
+          Contest={selectedContest}
           onBack={() => setSelectedContest(null)}
         />
       )}
