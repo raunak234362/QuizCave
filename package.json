@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.7",
+    "@hirohe/react-watermark": "^0.5.0",
     "@material-tailwind/react": "^2.1.10",
     "@react-pdf/renderer": "^4.3.0",
     "@tailwindcss/vite": "^4.1.7",
     "axios": "^1.9.0",
+    "html-react-parser": "^5.2.6",
     "lucide-react": "^0.511.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

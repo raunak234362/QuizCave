@@ -19,8 +19,8 @@ class AuthService {
         },
       };
       console.log("Config:", api);
-      const endpoint = "/user/login"; 
-
+      // const endpoint = "/admin/user/login";
+      const endpoint = "/user/login";
       const response = await api.post(endpoint, formData.toString(), config);
 
       if (response.status === 200) {
