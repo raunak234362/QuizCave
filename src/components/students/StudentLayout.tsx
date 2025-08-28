@@ -31,7 +31,7 @@ const Layout = () => {
               <Header />
             </div>
             <div
-              className={`flex h-[90vh] border-4 p-3 rounded-lg border-white  bg-gradient-to-t from-gray-50/70 to-gray-100/50 overflow-hidden flex-grow transition-all duration-300 `}
+              className={`flex h-[90vh] border-4 rounded-lg border-white  bg-gradient-to-t from-gray-50/70 to-gray-100/50 overflow-hidden flex-grow transition-all duration-300 `}
             >
               <Outlet />
             </div>
