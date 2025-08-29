@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Watermark } from "@hirohe/react-watermark";
+import type { ResultDetails } from "../../Interfaces";
+import Service from "../../../config/Service";
 
 export interface QuestionType {
   _id: string;
@@ -17,16 +19,18 @@ interface QuestionProps {
   Question: QuestionType;
   number: number;
   onSaveAnswer: (qid: string, value: any) => void;
+  result: ResultDetails | null;
 }
 
-export const Question = ({ Question, number, onSaveAnswer }: QuestionProps) => {
+export const Question = ({ Question, number, onSaveAnswer,result }: QuestionProps) => {
   const [answered, setAnswered] = useState(false);
   const [answer, setAnswer] = useState<string[]>([]);
-  const [timeLeft, setTimeLeft] = useState(30); // 🔹 30 sec per question
-
+  const [timeLeft, setTimeLeft] = useState(10); // 🔹 10 sec per question
+  const token = sessionStorage.getItem("token") || "";
+  const resultId= result?._id;
   // 🔹 Timer effect
   useEffect(() => {
-    setTimeLeft(30); // reset timer for new question
+    setTimeLeft(10); // reset timer for new question
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -40,8 +44,12 @@ export const Question = ({ Question, number, onSaveAnswer }: QuestionProps) => {
     return () => clearInterval(timer);
   }, [Question._id]);
 
-  const handleSaveNext = () => {
+  const handleSaveNext = async () => {
+    const submitData = { question: Question._id, answer }
+    const response = await Service.AddAnswerById({ resultId, submitData, token });
+    console.log("Answer saved response:", response);
     if (answered) {
+
       onSaveAnswer(Question._id, answer);
     } else {
       alert("Please attempt the question before proceeding.");

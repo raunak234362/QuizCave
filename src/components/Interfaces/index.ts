@@ -21,6 +21,7 @@ export interface UserToken {
 }
 
 export interface UserData {
+  _id: string;
   name: string;
   email: string;
   phone: string;
@@ -33,7 +34,7 @@ export interface UserData {
 }
 
 export interface ContestData {
-  _id: UserData;
+  _id: string;
   name: string;
   description: string;
   duration: string;
@@ -78,7 +79,7 @@ export interface ResultCardProps {
 }
 
 export interface ResultDetails {
-  _id: UserData;
+  _id: string;
   contestId: string;
   declared: boolean;
   sumbittedOn: string; // ISO Date string
@@ -124,19 +125,34 @@ export interface registrationFormData {
   currAddress: Address;
 }
 
-// interface Question {
-//   _id?: string;
-//   answer?: string[];
-//   questionId: {
-//     question?: string;
-//     mcqOptions?: string[];
-//     multipleQuestion?: string[];
-//     questionImage?: string;
-//     answer?: string;
-//     multipleAnswer?: string[];
-//     difficult?: "easy" | "medium" | "hard" | string;
-//   };
-// }
+export interface QuestionData {
+  _id: string;
+  question: string;
+  mcqOptions: string[];
+  multipleQuestion: string[];
+  difficult: "easy" | "medium" | "hard" | string;
+  type: "mcq" | string;
+}
+
+export interface Question {
+  _id?: string;
+  answer?: string[];
+  questionId: {
+    question?: string;
+    mcqOptions?: string[];
+    multipleQuestion?: string[];
+    questionImage?: string;
+    answer?: string;
+    multipleAnswer?: string[];
+    difficult?: "easy" | "medium" | "hard" | string;
+  };
+}
+
+export interface AnswerData {
+  resultId: string;
+  questionId: string;
+  answer: string[];
+}
 
 // interface PdfCreatorProps {
 //   question?: Question[];

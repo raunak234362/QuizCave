@@ -1,6 +1,5 @@
 import { useState } from "react";
 import ContestList from "./ContestList";
-import ContestAttempt from "./ContestAttempt";
 import type { ContestData } from "../../Interfaces";
 
 export default function ContestMain() {
@@ -10,14 +9,8 @@ export default function ContestMain() {
 
   return (
     <div className="p-6">
-      {!selectedContest ? (
         <ContestList onSelectContest={setSelectedContest} />
-      ) : (
-        <ContestAttempt
-          Contest={selectedContest}
-          onBack={() => setSelectedContest(null)}
-        />
-      )}
+     
     </div>
   );
 }
