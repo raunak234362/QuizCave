@@ -93,16 +93,13 @@ const RegisterStudent: React.FC = () => {
 
   const {
     register,
-    setValue,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<FormData>();
 
   const [isSameAddress, setIsSameAddress] = useState<boolean>(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [resumeName, setResumeName] = useState<string>("");
-  const navigate = useNavigate();
 
   const courseSemesterMap: Record<CourseType, string[]> = {
     "BE/BTECH": ["Semester-7", "Semester-8", "Passout"],

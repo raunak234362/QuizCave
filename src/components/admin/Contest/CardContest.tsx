@@ -1,7 +1,7 @@
 // CardContest.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Service from "../../../config/Service";
-import type { ContestData } from "../../Interfaces";
+import type { ContestData, UserToken } from "../../Interfaces/index";
 
 interface CardContestProps {
   id: string;
@@ -14,17 +14,19 @@ const CardContest = ({ id }: CardContestProps) => {
   const [showFilledQuestion, setShowFilledQuestion] = useState();
   useEffect(() => {
     const fetchContestDetails = async () => {
+      const token = sessionStorage.getItem("token") || "";
       const response = await Service.fetchContestDetails({
         id,
-        token: sessionStorage.getItem("token") || "",
+        token: { token } as UserToken,
       });
       setContestDetails(response);
       console.log("Contest Details:", response);
     };
     const fetchContestQuestions = async () => {
+      const token = sessionStorage.getItem("token") || "";
       const response = await Service.fetchContestDetails({
         id,
-        token: sessionStorage.getItem("token") || "",
+        token: { token } as UserToken,
       });
       setShowSetQuestion(response);
       console.log("Contest Questions:", response);

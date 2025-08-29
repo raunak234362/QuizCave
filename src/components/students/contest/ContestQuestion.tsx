@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Watermark } from "@hirohe/react-watermark";
-import type { ResultDetails } from "../../Interfaces";
+import type { ResultDetails, UserToken } from "../../Interfaces";
 import Service from "../../../config/Service";
 
 export interface QuestionType {
@@ -18,17 +18,18 @@ export interface QuestionType {
 interface QuestionProps {
   Question: QuestionType;
   number: number;
+  token:UserToken;
   onSaveAnswer: (qid: string, value: any) => void;
-  result: ResultDetails | null;
+  resultId: string;
 }
 
-export const Question = ({ Question, number, onSaveAnswer,result }: QuestionProps) => {
-  const [answered, setAnswered] = useState(false);
+export const Question = ({ Question, number, onSaveAnswer, resultId }: QuestionProps) => {
+  const [answered, setAnswered] =  useState<boolean[]>([]);
   const [answer, setAnswer] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState(10); // 🔹 10 sec per question
-  const token = sessionStorage.getItem("token") || "";
-  const resultId= result?._id;
-  // 🔹 Timer effect
+  const token = sessionStorage.getItem("token");
+  const resultID = resultId || "";
+
   useEffect(() => {
     setTimeLeft(10); // reset timer for new question
     const timer = setInterval(() => {
@@ -46,7 +47,7 @@ export const Question = ({ Question, number, onSaveAnswer,result }: QuestionProp
 
   const handleSaveNext = async () => {
     const submitData = { question: Question._id, answer }
-    const response = await Service.AddAnswerById({ resultId, submitData, token });
+    const response = await Service.AddAnswerById({ resultID, submitData, token });
     console.log("Answer saved response:", response);
     if (answered) {
 

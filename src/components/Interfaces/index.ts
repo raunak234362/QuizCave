@@ -17,7 +17,7 @@ export interface UserRequestApi {
 }
 
 export interface UserToken {
-  token: string;
+  token?: string;
 }
 
 export interface UserData {
@@ -149,8 +149,8 @@ export interface Question {
 }
 
 export interface AnswerData {
-  resultId: string;
-  questionId: string;
+  resultId?: string;
+  question: string;
   answer: string[];
 }
 

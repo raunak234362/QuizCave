@@ -89,7 +89,7 @@ const AssessmentPage = ({ resultDetails, contest, questionDetails }: Props) => {
         <Question
           key={q._id}
           Question={q}
-          result={resultDetails}
+          resultId={resultDetails?._id}
           number={index + 1}
           onSaveAnswer={handleSaveAnswer}
         />

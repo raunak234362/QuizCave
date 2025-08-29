@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Service from "../../../config/Service";
-import type { ContestResultData } from "../../Interfaces";
+import type { ContestResultData, UserToken } from "../../Interfaces/index";
 import ResultCard from "./ResultCard";
 
 const Result = () => {
@@ -8,7 +8,7 @@ const Result = () => {
   const fetchResult = async () => {
     try {
       const token = sessionStorage.getItem("token") || "";
-      const response = await Service.fetchResult({ token });
+      const response = await Service.fetchResult({ token: { token } as UserToken });
       setResult(response);
       console.log("Contest Result Response:", response);
       // Process the response as needed

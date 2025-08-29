@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ResultCardProps, ResultDetails } from "../../Interfaces";
+import type { ResultCardProps, ResultDetails, UserToken } from "../../Interfaces/index";
 import Service from "../../../config/Service";
 import DataDownload from "./DataDownload";
 
@@ -18,9 +18,10 @@ const ResultCard = ({ item }: ResultCardProps) => {
   };
 
   const fetchResultDetails = async (id: string) => {
+    const token = sessionStorage.getItem("token") || "";
     const response = await Service.declareResult({
       id,
-      token: sessionStorage.getItem("token") || "",
+      token: { token } as UserToken,
     });
     console.log("Result Details:", response);
   };
@@ -28,9 +29,10 @@ const ResultCard = ({ item }: ResultCardProps) => {
   const handleShowResults = async () => {
     try {
       setLoading(true);
+      const token = sessionStorage.getItem("token") || "";
       const response = await Service.fetchResultDetails({
         id: item._id,
-        token: sessionStorage.getItem("token") || "",
+        token: { token } as UserToken,
       });
       const data = response?.data || [];
       setResults(data);
