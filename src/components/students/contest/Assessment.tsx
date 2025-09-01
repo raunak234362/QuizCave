@@ -14,21 +14,21 @@ interface Props {
   questionDetails: QuestionData[] | null;
 }
 
-// const shuffleQuestions = (questions: QuestionData[]) => {
-//   const shuffledQuestions = [...questions];
-//   let currentIndex = shuffledQuestions.length;
+const shuffleQuestions = (questions: QuestionData[]) => {
+  const shuffledQuestions = [...questions];
+  let currentIndex = shuffledQuestions.length;
 
-//   while (currentIndex !== 0) {
-//     const randomIndex = Math.floor(Math.random() * currentIndex);
-//     currentIndex--;
+  while (currentIndex !== 0) {
+    const randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
 
-//     const temporaryValue = shuffledQuestions[currentIndex];
-//     shuffledQuestions[currentIndex] = shuffledQuestions[randomIndex];
-//     shuffledQuestions[randomIndex] = temporaryValue;
-//   }
+    const temporaryValue = shuffledQuestions[currentIndex];
+    shuffledQuestions[currentIndex] = shuffledQuestions[randomIndex];
+    shuffledQuestions[randomIndex] = temporaryValue;
+  }
 
-//   return shuffledQuestions;
-// };
+  return shuffledQuestions;
+};
 
 export function Assessment({ contest, resultDetails, questionDetails }: Props) {
   const [assessmentPage, setAssessmentPage] = useState(false);
@@ -51,6 +51,7 @@ export function Assessment({ contest, resultDetails, questionDetails }: Props) {
         <AssessmentPage
           resultDetails={resultDetails}
           contest={contest}
+          shuffleQuestions={shuffleQuestions}
           questionDetails={questionDetails}
         />
       )}

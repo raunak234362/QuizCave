@@ -18,16 +18,25 @@ export interface QuestionType {
 interface QuestionProps {
   Question: QuestionType;
   number: number;
-  token:UserToken;
+  token: UserToken;
   onSaveAnswer: (qid: string, value: any) => void;
   resultId: string;
+  handleNextQuestion: any;
+  shuffleQuestions: any;
 }
 
-export const Question = ({ Question, number, onSaveAnswer, resultId }: QuestionProps) => {
-  const [answered, setAnswered] =  useState<boolean[]>([]);
+export const Question = ({
+  Question,
+  number,
+  onSaveAnswer,
+  resultId,
+  handleNextQuestion,
+}: QuestionProps) => {
+  const [answered, setAnswered] = useState<boolean>(false);
   const [answer, setAnswer] = useState<string[]>([]);
   const [timeLeft, setTimeLeft] = useState(10); // 🔹 10 sec per question
-  const token = sessionStorage.getItem("token");
+  const token =
+    (sessionStorage.getItem("token") as UserToken) || ("" as UserToken);
   const resultID = resultId || "";
 
   useEffect(() => {
@@ -46,11 +55,15 @@ export const Question = ({ Question, number, onSaveAnswer, resultId }: QuestionP
   }, [Question._id]);
 
   const handleSaveNext = async () => {
-    const submitData = { question: Question._id, answer }
-    const response = await Service.AddAnswerById({ resultID, submitData, token });
+    const submitData = { question: Question._id, answer };
+    const response = await Service.AddAnswerById({
+      resultId,
+      submitData,
+      token,
+    });
     console.log("Answer saved response:", response);
     if (answered) {
-
+      handleNextQuestion();
       onSaveAnswer(Question._id, answer);
     } else {
       alert("Please attempt the question before proceeding.");
@@ -67,11 +80,11 @@ export const Question = ({ Question, number, onSaveAnswer, resultId }: QuestionP
 
       <div className="h-[78vh] w-full">
         {/* 🔹 This block renders the question text, regardless of type */}
-        {(Question?.question || Question?.text) && (
-          <div className="text-black font-semibold text-xl flex justify-between">
-            <span>{`${number}) ${Question?.question || Question?.text}`}</span>
-            {Question?.difficult && (
-              <span className="text-red-500 font-mono text-lg">
+        {Question?.question && (
+          <>
+            <div className="text-black font-semibold text-xl flex flex-row justify-between select-none">
+              <span>{`${number}) ${Question?.question}`}</span>
+              <span className="text-red-500 font-medium font-mono text-lg">
                 {Question.difficult === "easy"
                   ? "1"
                   : Question.difficult === "medium"
@@ -79,11 +92,17 @@ export const Question = ({ Question, number, onSaveAnswer, resultId }: QuestionP
                   : "5"}{" "}
                 marks
               </span>
-            )}
-          </div>
+            </div>
+          </>
         )}
 
-        {/* 🔹 This block renders the MCQ options, only if type is "mcq" */}
+        {Question?.questionImage && (
+          <img
+            src={`${import.meta.env.VITE_IMG_URL}/${Question?.questionImage}`}
+            alt="Question"
+            className="mx-10 h-96"
+          />
+        )}
         {Question.type === "mcq" && Question.mcqOptions && (
           <div className="flex flex-col mt-4">
             {Question.mcqOptions.map((option, index) => (
@@ -103,7 +122,76 @@ export const Question = ({ Question, number, onSaveAnswer, resultId }: QuestionP
             ))}
           </div>
         )}
+        {Question?.type === "multiple" && (
+          <>
+            {Question?.multipleQuestion?.map((option, index) => (
+              <div
+                key={index}
+                className="flex flex-row items-center ml-0 w-full mx-10"
+              >
+                <label className="text-lg font-semibold w-1/4 text-center select-none">{`${
+                  index + 1
+                }) ${option}`}</label>
+                <input
+                  type="text"
+                  placeholder={`Answer for ${option}`}
+                  onChange={(e) => {
+                    e.preventDefault();
+                    setAnswered(true);
+                    setAnswer((prev) => {
+                      prev[index] = e.target.value;
+                      return prev;
+                    });
+                  }}
+                  className="border-2 w-1/2 border-gray-300 rounded-lg p-2 my-5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+            ))}
+          </>
+        )}
 
+        {Question?.type === "short" && (
+          <>
+            <input
+              type="text"
+              placeholder="Answer"
+              onChange={(e) => {
+                e.preventDefault();
+                setAnswered(true);
+                setAnswer([e.target.value]);
+              }}
+              className="border-2 border-gray-300 rounded-lg p-2 w-1/3 my-5"
+            />
+          </>
+        )}
+
+        {Question?.type === "numerical" && (
+          <>
+            <input
+              type="number"
+              placeholder="Answer"
+              onChange={(e) => {
+                e.preventDefault();
+                setAnswered(true);
+                setAnswer([e.target.value]);
+              }}
+              className="border-2 border-gray-300 rounded-lg p-2 w-1/3 my-5"
+            />
+          </>
+        )}
+        {Question?.type === "long" && (
+          <>
+            <textarea
+              placeholder="Answer"
+              onChange={(e) => {
+                e.preventDefault();
+                setAnswered(true);
+                setAnswer([e.target.value]);
+              }}
+              className="border-2 border-gray-300 rounded-lg p-2 w-1/3 h-1/3 my-5 mx-10"
+            />
+          </>
+        )}
         {/*
           Add other input fields here for different question types:
           - short/numerical: <input type="text" ... />

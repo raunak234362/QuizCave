@@ -1,53 +1,32 @@
-"use client";
+// AssessmentPage.tsx
 
 import React, { useState, useEffect } from "react";
 import type {
   ContestData,
   QuestionData,
   ResultDetails,
+  UserToken,
 } from "../../Interfaces/index";
 import { Question } from "./ContestQuestion";
+import { Header } from "./Header";
+
 
 interface Props {
   contest: ContestData | null;
   resultDetails: ResultDetails | null;
   questionDetails: QuestionData[] | null;
+  shuffleQuestions: any;
 }
 
-const AssessmentPage = ({ resultDetails, contest, questionDetails }: Props) => {
-  const [next, setNext] = useState(0);
+const AssessmentPage = ({
+  resultDetails,
+  contest,
+  questionDetails,
+  shuffleQuestions,
+}: Props) => {
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
 
-  const handleTabChange = () => {
-    setNext(questionDetails?.length ?? 0);
-  };
-
-  const handleContextMenu = (e: MouseEvent) => {
-    e.preventDefault();
-  };
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key.startsWith("F") || e.key === "Escape") {
-      e.preventDefault();
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("contextmenu", handleContextMenu);
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("visibilitychange", handleTabChange);
-
-    // Request full screen
-    document.documentElement.requestFullscreen?.({ navigationUI: "hide" });
-
-    return () => {
-      window.removeEventListener("contextmenu", handleContextMenu);
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("visibilitychange", handleTabChange);
-    };
-  }, []);
-
-  // ✅ Callback to save answers from Question component
   const handleSaveAnswer = (qid: string, value: any) => {
     setAnswers((prev) => ({
       ...prev,
@@ -55,12 +34,21 @@ const AssessmentPage = ({ resultDetails, contest, questionDetails }: Props) => {
     }));
   };
 
-  console.log("Rendering AssessmentPage with props:", {
-    resultDetails,
-    contest,
-    questionDetails,
-    answers,
-  });
+  // This function handles moving to the next question
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < (questionDetails?.length ?? 0) - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      alert("You have reached the end of the exam.");
+      // Add logic to auto-submit the exam here
+    }
+  };
+
+  // Add all your other useEffects and functions here, like the full-screen one
+  useEffect(() => {
+    // Request full screen
+    document.documentElement.requestFullscreen?.({ navigationUI: "hide" });
+  }, []);
 
   if (!contest || !resultDetails || !questionDetails) {
     return (
@@ -79,21 +67,61 @@ const AssessmentPage = ({ resultDetails, contest, questionDetails }: Props) => {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">{contest.name} Assessment</h1>
-      <p className="text-gray-600 mb-4">
-        Total Questions: {questionDetails.length}
-      </p>
+      <div className="flex w-full h-[85vh]">
+        {/* Left side: The Question component */}
+        <div className="w-3/4 p-5 overflow-y-auto">
+          {questionDetails[currentQuestionIndex] && (
+            <Question
+              key={questionDetails[currentQuestionIndex]._id}
+              Question={{
+                ...questionDetails[currentQuestionIndex],
+                type: questionDetails[currentQuestionIndex].type as
+                  | "short"
+                  | "numerical"
+                  | "long"
+                  | "multiple"
+                  | "mcq",
+                difficult: ["easy", "medium", "hard"].includes(
+                  questionDetails[currentQuestionIndex].difficult
+                )
+                  ? (questionDetails[currentQuestionIndex].difficult as
+                      | "easy"
+                      | "medium"
+                      | "hard")
+                  : undefined,
+              }}
+              resultId={resultDetails?._id}
+              number={currentQuestionIndex + 1}
+              shuffleQuestions={shuffleQuestions}
+              handleNextQuestion={handleNextQuestion}
+              onSaveAnswer={handleSaveAnswer}
+              token={resultDetails?.token as UserToken}
+            />
+          )}
+        </div>
 
-      {/* ✅ Pass correct props */}
-      {questionDetails.map((q, index) => (
-        <Question
-          key={q._id}
-          Question={q}
-          resultId={resultDetails?._id}
-          number={index + 1}
-          onSaveAnswer={handleSaveAnswer}
-        />
-      ))}
+        {/* Right side: The Question Panel */}
+        <div className="w-1/4 p-5 border-l border-gray-300 overflow-y-auto">
+          <h3 className="text-xl font-bold mb-4">Question Panel</h3>
+          <div className="grid grid-cols-5 gap-3">
+            {questionDetails.map((q, index) => (
+              <button
+                key={q._id}
+                className={`p-3 rounded-lg text-sm font-bold border ${
+                  answers[q._id]
+                    ? "bg-green-500 text-white"
+                    : index === currentQuestionIndex
+                    ? "bg-blue-500 text-white"
+                    : "bg-gray-200 text-black"
+                }`}
+                onClick={() => setCurrentQuestionIndex(index)}
+              >
+                {index + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

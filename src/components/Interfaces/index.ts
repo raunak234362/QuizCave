@@ -79,6 +79,7 @@ export interface ResultCardProps {
 }
 
 export interface ResultDetails {
+  token: UserToken;
   _id: string;
   contestId: string;
   declared: boolean;
