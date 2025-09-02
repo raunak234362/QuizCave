@@ -119,6 +119,29 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
               </p>
             )}
           </div>
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-semibold text-gray-700"
+            >
+              Email Address
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              value={editedData.email || ""}
+              onChange={handleChange}
+              className={`w-full border ${
+                validationErrors.email ? "border-red-500" : "border-gray-300"
+              } rounded-lg p-3 mt-1 focus:ring-2 focus:ring-green-400`}
+            />
+            {validationErrors.email && (
+              <p className="text-red-500 text-xs mt-1">
+                {validationErrors.email}
+              </p>
+            )}
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -157,7 +180,83 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
               />
             </div>
           </div>
+
         </div>
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-800">Current Address</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="curr-streetLine1"
+                className="block text-sm text-gray-600"
+              >
+                Street Line 1
+              </label>
+              <input
+                id="curr-streetLine1"
+                name="currAddress-streetLine1"
+                type="text"
+                value={editedData.currAddress?.streetLine1 || ""}
+                onChange={handleAddressChange}
+                className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="curr-city"
+                className="block text-sm text-gray-600"
+              >
+                City
+              </label>
+              <input
+                id="curr-city"
+                name="currAddress-city"
+                type="text"
+                value={editedData.currAddress?.city || ""}
+                onChange={handleAddressChange}
+                className="w-full border border-gray-300 rounded-lg p-2 mt-1 focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="space-y-4">
+          <h3 className="font-semibold text-gray-800">Parents' Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="fatherName"
+                className="block text-sm font-semibold text-gray-700"
+              >
+                Father's Name
+              </label>
+              <input
+                id="fatherName"
+                name="fatherName"
+                type="text"
+                value={editedData.fatherName || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="motherName"
+                className="block text-sm font-semibold text-gray-700"
+              >
+                Mother's Name
+              </label>
+              <input
+                id="motherName"
+                name="motherName"
+                type="text"
+                value={editedData.motherName || ""}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg p-3 mt-1 focus:ring-2 focus:ring-green-400"
+              />
+            </div>
+          </div>
+        </div>
+        <div className="border-t border-gray-300 pt-4"></div>
 
         <div className="flex justify-end gap-4 mt-8">
           <button

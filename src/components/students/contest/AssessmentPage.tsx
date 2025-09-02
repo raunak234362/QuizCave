@@ -1,6 +1,6 @@
 // AssessmentPage.tsx
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import type {
   ContestData,
   QuestionData,
@@ -8,8 +8,8 @@ import type {
   UserToken,
 } from "../../Interfaces/index";
 import { Question } from "./ContestQuestion";
-import { Header } from "./Header";
-
+import { Counterdown } from "./Counterdown";
+import Service from "../../../config/Service";
 
 interface Props {
   contest: ContestData | null;
@@ -26,27 +26,80 @@ const AssessmentPage = ({
 }: Props) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
+  const [questionStatuses, setQuestionStatuses] = useState<{
+    [key: string]: string;
+  }>({});
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSaveAnswer = (qid: string, value: any) => {
+  const handleSaveAnswer = (
+    qid: string,
+    value: any,
+    status: string = "attempted"
+  ) => {
     setAnswers((prev) => ({
       ...prev,
       [qid]: value,
     }));
+    setQuestionStatuses((prev) => ({
+      ...prev,
+      [qid]: status,
+    }));
   };
 
-  // This function handles moving to the next question
   const handleNextQuestion = () => {
     if (currentQuestionIndex < (questionDetails?.length ?? 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
       alert("You have reached the end of the exam.");
-      // Add logic to auto-submit the exam here
     }
   };
 
-  // Add all your other useEffects and functions here, like the full-screen one
+  const handleTimeUp = async () => {
+    try {
+      alert("⏰ Time is up! Submitting your answers...");
+      await Service.studentContestSubmit({
+        id: resultDetails?._id ?? "",
+        token: resultDetails?.token ?? ("" as UserToken),
+        answers,
+      });
+      alert("✅ Your answers have been submitted automatically.");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Auto-submit failed:", error);
+      alert("❌ Submission failed. Please contact support.");
+    }
+  };
+
+  const handleFinalSubmit = async () => {
+    console.log(resultDetails);
+    
+    if (!resultDetails?._id) {
+      alert("Missing result ID. Cannot submit.");
+      return;
+    }
+
+    const confirmSubmit = window.confirm(
+      " Are you sure you want to submit your final answers? You won’t be able to change them afterward."
+    );
+    if (!confirmSubmit) return;
+
+    try {
+      setSubmitting(true);
+      await Service.finalSubmitAnswers({
+        resultId: resultDetails._id,
+        token: resultDetails.token,
+      });
+      alert(" Final answers submitted successfully!");
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Final submit failed:", error);
+      alert(" Failed to submit final answers. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   useEffect(() => {
-    // Request full screen
     document.documentElement.requestFullscreen?.({ navigationUI: "hide" });
   }, []);
 
@@ -65,11 +118,35 @@ const AssessmentPage = ({
     );
   }
 
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        alert("⚠️ Switching tabs is not allowed!");
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
   return (
-    <div>
-      <div className="flex w-full h-[85vh]">
-        {/* Left side: The Question component */}
-        <div className="w-3/4 p-5 overflow-y-auto">
+    <div className="flex flex-col h-screen bg-gray-50">
+      {/* 🔹 Header with Timer */}
+      <div className="flex justify-between items-center bg-white shadow p-4">
+        <h1 className="text-xl font-bold text-gray-800">
+          {contest?.name || "Assessment"}
+        </h1>
+        <Counterdown
+          duration={Number(contest?.duration) || 30}
+          onCountdownEnd={handleTimeUp}
+        />
+      </div>
+
+      {/* 🔹 Main Body */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left side: Question */}
+        <div className="w-3/4 p-6 overflow-y-auto">
           {questionDetails[currentQuestionIndex] && (
             <Question
               key={questionDetails[currentQuestionIndex]._id}
@@ -96,29 +173,87 @@ const AssessmentPage = ({
               handleNextQuestion={handleNextQuestion}
               onSaveAnswer={handleSaveAnswer}
               token={resultDetails?.token as UserToken}
+              answer={answers[questionDetails[currentQuestionIndex]._id]}
             />
           )}
         </div>
 
-        {/* Right side: The Question Panel */}
-        <div className="w-1/4 p-5 border-l border-gray-300 overflow-y-auto">
-          <h3 className="text-xl font-bold mb-4">Question Panel</h3>
+        {/* Right side: Question Panel */}
+        <div className="w-1/4 p-5 border-l bg-white shadow-inner overflow-y-auto flex flex-col">
+          <h3 className="text-lg font-bold mb-4 text-gray-700">
+            Question Panel
+          </h3>
           <div className="grid grid-cols-5 gap-3">
-            {questionDetails.map((q, index) => (
-              <button
-                key={q._id}
-                className={`p-3 rounded-lg text-sm font-bold border ${
-                  answers[q._id]
-                    ? "bg-green-500 text-white"
-                    : index === currentQuestionIndex
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-200 text-black"
-                }`}
-                onClick={() => setCurrentQuestionIndex(index)}
-              >
-                {index + 1}
-              </button>
-            ))}
+            {questionDetails.map((q, index) => {
+              const status = questionStatuses[q._id];
+              let buttonClass =
+                "bg-gray-200 text-black hover:scale-105 transition-transform duration-200";
+
+              if (status === "attempted") {
+                buttonClass =
+                  "bg-green-500 text-white hover:bg-green-600 hover:scale-105 transition-transform duration-200";
+              } else if (status === "review") {
+                buttonClass =
+                  "bg-yellow-400 text-black hover:bg-yellow-500 hover:scale-105 transition-transform duration-200";
+              }
+
+              if (index === currentQuestionIndex) {
+                buttonClass =
+                  "bg-blue-500 text-white ring-2 ring-blue-300 hover:bg-blue-600 hover:scale-110 transition-transform duration-200";
+              }
+
+              return (
+                <button
+                  key={q._id}
+                  className={`p-3 rounded-xl text-sm font-bold border shadow-sm ${buttonClass}`}
+                  onClick={() => setCurrentQuestionIndex(index)}
+                  title={
+                    status === "attempted"
+                      ? "Attempted"
+                      : status === "review"
+                      ? "Marked for Review"
+                      : "Unattempted"
+                  }
+                >
+                  {index + 1}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Legend */}
+          <div className="mt-6 space-y-2 text-sm">
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-green-500"></span>
+              <span>Attempted</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-yellow-400"></span>
+              <span>Marked for Review</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-gray-300"></span>
+              <span>Unattempted</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-blue-500"></span>
+              <span>Current Question</span>
+            </div>
+          </div>
+
+          {/* Final Submit Button */}
+          <div className="mt-8">
+            <button
+              onClick={handleFinalSubmit}
+              disabled={submitting}
+              className={`w-full py-3 rounded-lg font-bold text-white transition-colors ${
+                submitting
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-red-500 hover:bg-red-600"
+              }`}
+            >
+              {submitting ? "Submitting..." : "Final Submit"}
+            </button>
           </div>
         </div>
       </div>

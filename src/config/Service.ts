@@ -10,7 +10,7 @@ import api from "./api";
 class Service {
   static async fetchUserData({ token }: UserToken) {
     try {
-      const response = await api.get("/admin/user", {
+      const response = await api.get("/user", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -314,6 +314,34 @@ class Service {
         throw new Error("Failed to add answer by id: " + error.message);
       } else {
         throw new Error("Failed to add answer by id");
+      }
+    }
+  }
+
+  static async finalSubmitAnswers({
+    resultId,
+    token,
+  }: {
+    resultId: string;
+    token: UserToken;
+  }) {
+    try {
+      const response = await api.post(
+        `/result/submit/${resultId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to submit final answers: " + error.message);
+      } else {
+        throw new Error("Failed to submit final answers");
       }
     }
   }
