@@ -18,10 +18,8 @@ const ResultCard = ({ item }: ResultCardProps) => {
   };
 
   const fetchResultDetails = async (id: string) => {
-    const token = sessionStorage.getItem("token") || "";
     const response = await Service.declareResult({
-      id,
-      token: { token } as UserToken,
+      id
     });
     console.log("Result Details:", response);
   };
@@ -29,10 +27,8 @@ const ResultCard = ({ item }: ResultCardProps) => {
   const handleShowResults = async () => {
     try {
       setLoading(true);
-      const token = sessionStorage.getItem("token") || "";
       const response = await Service.fetchResultDetails({
-        id: item._id,
-        token: { token } as UserToken,
+        id: item._id
       });
       const data = response?.data || [];
       setResults(data);

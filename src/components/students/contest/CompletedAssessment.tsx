@@ -1,6 +1,6 @@
 import React from "react";
 import Service from "../../../config/Service"; // Corrected import path
-import type { ContestData, UserToken } from "../../Interfaces";
+import type { ContestData } from "../../Interfaces";
 
 
 // Assuming a specific type for the result object
@@ -25,19 +25,11 @@ export const CompletedAssessment: React.FC<CompletedAssessmentProps> = ({
         alert("Submission failed: Contest ID is missing.");
         return;
       }
-      const tokenString = sessionStorage.getItem("token");
-      if (!tokenString) {
-        alert("You are not authenticated. Please log in again.");
-        return;
-      }
 
-      // Convert token string to UserToken object
-      const token: UserToken = JSON.parse(tokenString);
 
       // Use the service to submit the final answers
       await Service.studentContestSubmit({
         id: result._id,
-        token: token,
         answers: result.answers,
       });
 

@@ -4,10 +4,9 @@ import type { UserData } from "../../Interfaces";
 
 const Profile: React.FC = () => {
   const [user, setUser] = useState<UserData>();
-  const token = sessionStorage.getItem("token");
   
   const fetchUserData = async () => {
-    const response = await Service.fetchUserData(token ? { token } : { token: "" });
+    const response = await Service.fetchUserData();
     setUser(response);
   };
 

@@ -6,9 +6,10 @@ import type {
   UserToken,
 } from "../components/Interfaces/index";
 import api from "./api";
-
+const token = sessionStorage.getItem("token") || "";
+console.log("Service Token:", token);
 class Service {
-  static async fetchUserData({ token }: UserToken) {
+  static async fetchUserData() {
     try {
       const response = await api.get("/user", {
         headers: {
@@ -25,7 +26,7 @@ class Service {
       }
     }
   }
-  static async fetchContestData({ token }: UserToken) {
+  static async fetchContestData() {
     try {
       const response = await api.get("/admin/contest/all", {
         headers: {
@@ -45,10 +46,8 @@ class Service {
   }
   static async fetchContestDetails({
     id,
-    token,
   }: {
     id: string;
-    token: UserToken;
   }) {
     try {
       const response = await api.get(`/admin/contest/${id}`, {
@@ -66,7 +65,7 @@ class Service {
       }
     }
   }
-  static async fetchResult({ token }: { token: UserToken }) {
+  static async fetchResult() {
     try {
       const response = await api.get(`admin/result/all`, {
         headers: {
@@ -84,7 +83,7 @@ class Service {
       }
     }
   }
-  static async declareResult({ id, token }: { id: string; token: UserToken }) {
+  static async declareResult({ id }: { id: string}) {
     try {
       const response = await api.get(`/admin/result/${id}/declare`, {
         headers: {
@@ -103,11 +102,9 @@ class Service {
     }
   }
   static async fetchResultDetails({
-    id,
-    token,
+    id
   }: {
     id: string;
-    token: UserToken;
   }) {
     try {
       const response = await api.get(`/admin/result/results/${id}`, {
@@ -126,23 +123,21 @@ class Service {
       }
     }
   }
+
   static async AddStudentForm({
-    data,
-    token,
+    formDataToSend,
   }: {
-    data: registrationFormData;
-    token: UserToken;
+    formDataToSend: FormData;
   }) {
     try {
-      const response = await api.post("/user/register", data, {
+      const response = await api.post("/user/register", formDataToSend, {
         headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
+          // Do NOT set Content-Type explicitly when sending FormData
         },
       });
       console.log("Add Student Form Response:", response.data);
       return response.data;
-      
     } catch (error) {
       if (error instanceof Error) {
         throw new Error("Failed to add student form: " + error.message);
@@ -151,7 +146,8 @@ class Service {
       }
     }
   }
-  static async getAllStudentContestData({ token }: UserToken) {
+
+  static async getAllStudentContestData() {
     try {
       const response = await api.get("/contest/all", {
         headers: {
@@ -171,11 +167,9 @@ class Service {
     }
   }
   static async getStudentContestDetails({
-    id,
-    token,
+    id
   }: {
     id: string;
-    token: UserToken;
   }) {
     try {
       const response = await api.get(`/contest/${id}`, {
@@ -197,10 +191,8 @@ class Service {
   }
   static async studentContestAttempt({
     id,
-    token,
   }: {
     id: ContestData["_id"];
-    token: UserToken;
   }) {
     try {
       const response = await api.post(`/contest/attempt/${id}/`, {
@@ -218,7 +210,7 @@ class Service {
       }
     }
   }
-  static async studentContestResultAll({ token }: UserToken) {
+  static async studentContestResultAll() {
     try {
       const response = await api.get("/result/all", {
         headers: {
@@ -239,10 +231,8 @@ class Service {
   }
   static async studentContestResultDetails({
     id,
-    token,
   }: {
     id: string;
-    token: UserToken;
   }) {
     try {
       const response = await api.get(`/result/${id}`, {
@@ -264,11 +254,9 @@ class Service {
   }
   static async studentContestSubmit({
     id,
-    token,
     answers,
   }: {
     id: string;
-    token: UserToken;
     answers: any;
   }) {
     try {
@@ -291,15 +279,12 @@ class Service {
   static async AddAnswerById({
     resultId,
     submitData,
-    token,
   }: {
     resultId: string;
     submitData: AnswerData;
-    token: UserToken;
   }) {
     console.log("Service - AddAnswerById called with:", {
       resultId,
-      token,
       submitData,
     });
     try {
@@ -324,11 +309,9 @@ class Service {
   }
 
   static async finalSubmitAnswers({
-    resultId,
-    token,
+    resultId
   }: {
     resultId: string | null | undefined;
-    token: UserToken;
   }) {
     try {
       const response = await api.post(
@@ -342,7 +325,7 @@ class Service {
         }
       );
       console.log("Final submit response:", response.data);
-      
+
       return response.data;
     } catch (error) {
       if (error instanceof Error) {

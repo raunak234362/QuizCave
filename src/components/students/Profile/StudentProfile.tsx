@@ -53,13 +53,8 @@
         setLoading(true);
         setError(null);
         try {
-          const token = sessionStorage.getItem("token");
-          if (!token) {
-            setError("User not authenticated. Please login.");
-            setLoading(false);
-            return;
-          }
-          const userData = await Service.fetchUserData({ token });
+        
+          const userData = await Service.fetchUserData();
 
           setFormData({
             ...emptyFormData,

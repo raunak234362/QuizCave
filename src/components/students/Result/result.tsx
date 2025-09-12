@@ -17,7 +17,6 @@ export default function ResultPage({ id, token }: ResultPageProps) {
       try {
         const data = await Service.studentContestResultDetails({
           id,
-          token,
         });
         setResult(data);
       } catch (err: any) {

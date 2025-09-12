@@ -12,21 +12,17 @@ const CardContest = ({ id }: CardContestProps) => {
   const [contestDetails, setContestDetails] = useState<ContestData>();
   const [showSetQuestion, setShowSetQuestion] = useState("");
   const [showFilledQuestion, setShowFilledQuestion] = useState();
-  const token = sessionStorage.getItem("token") || "";
   useEffect(() => {
     const fetchContestDetails = async () => {
       const response = await Service.fetchContestDetails({
         id,
-        token: { token } as UserToken,
       });
       setContestDetails(response);
       console.log("Contest Details:", response);
     };
     const fetchContestQuestions = async () => {
-      const token = sessionStorage.getItem("token") || "";
       const response = await Service.fetchContestDetails({
         id,
-        token: { token } as UserToken,
       });
       setShowSetQuestion(response);
       console.log("Contest Questions:", response);

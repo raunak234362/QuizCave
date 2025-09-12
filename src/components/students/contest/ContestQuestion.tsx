@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Watermark } from "@hirohe/react-watermark";
-import type { ResultDetails, UserToken } from "../../Interfaces";
 import Service from "../../../config/Service";
 
 export interface QuestionType {
@@ -18,7 +17,6 @@ export interface QuestionType {
 interface QuestionProps {
   Question: QuestionType;
   number: number;
-  token: UserToken;
   resultId: string;
   handleNextQuestion: any;
   shuffleQuestions: any;
@@ -35,15 +33,13 @@ export const Question = ({
 }: QuestionProps) => {
   const [answered, setAnswered] = useState<boolean>(false);
   const [answer, setAnswer] = useState<string[]>([]);
-  const token =
-    (sessionStorage.getItem("token") as UserToken) || ("" as UserToken);
+
 
   const handleSaveNext = async () => {
     const submitData = { question: Question._id, answer };
     const response = await Service.AddAnswerById({
       resultId,
-      submitData,
-      token,
+      submitData
     });
     console.log("Answer saved response:", response);
     if (answered) {

@@ -5,7 +5,6 @@ import type {
   ContestData,
   QuestionData,
   ResultDetails,
-  UserToken,
 } from "../../Interfaces/index";
 import { Question } from "./ContestQuestion";
 import { Counterdown } from "./Counterdown";
@@ -66,8 +65,7 @@ const AssessmentPage = ({
     try {
       const response = await Service.finalSubmitAnswers({
 
-        resultId: resultDetails?._id,
-        token: resultDetails?.token as UserToken,
+        resultId: resultDetails?._id
       });
       console.log("Auto-submit response:", response.data);
       alert("Assessment auto-submitted due to a policy violation.");
@@ -95,8 +93,7 @@ const AssessmentPage = ({
     setSubmitting(true);
     try {
       await Service.finalSubmitAnswers({
-        resultId: resultDetails._id,
-        token: resultDetails.token,
+        resultId: resultDetails._id
       });
       alert("Final answers submitted successfully!");
       setAssessmentComplete(true); // 💡 Set completion state
@@ -197,7 +194,6 @@ const AssessmentPage = ({
               shuffleQuestions={shuffleQuestions}
               handleNextQuestion={handleNextQuestion}
               onSaveAnswer={handleSaveAnswer}
-              token={resultDetails?.token as UserToken}
               answer={answers[questionDetails[currentQuestionIndex]._id]}
             />
           )}

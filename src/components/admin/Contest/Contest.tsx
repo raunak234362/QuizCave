@@ -7,9 +7,7 @@ import ContestResult from "./ContestResult";
 const Contest = () => {
   const [contest, setContest] = useState<ContestData[]>([]);
   const fetchContestData = async () => {
-    const response = await Service.fetchContestData({
-      token: sessionStorage.getItem("token") || "",
-    });
+    const response = await Service.fetchContestData();
     const normalized = response.map((item: ContestData) => ({
       ...item,
       id: item._id,
