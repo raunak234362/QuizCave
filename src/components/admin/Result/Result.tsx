@@ -19,6 +19,9 @@ const Result = () => {
   useEffect(() => {
     fetchResult();
   }, []);
+
+  console.log("Rendering Result component with data:", result);
+
   return (
     <div className="p-6 min-h-screen space-y-4 w-full">
       <div>

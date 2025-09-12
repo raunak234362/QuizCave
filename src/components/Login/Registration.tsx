@@ -6,7 +6,8 @@ import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm, type SubmitHandler } from "react-hook-form";
-
+import Service from "../../config/Service";
+import { UserToken } from "../Interfaces";
 // Define interfaces for type safety
 interface Address {
   streetLine1: string;
@@ -91,11 +92,14 @@ const RegisterStudent: React.FC = () => {
     },
   });
 
+  const token: UserToken = sessionStorage.getItem("token") ;
+
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
+  const navigate = useNavigate(); // Initialize useNavigate hook
 
   const [isSameAddress, setIsSameAddress] = useState<boolean>(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
@@ -114,8 +118,11 @@ const RegisterStudent: React.FC = () => {
   const handleCourseChange = (
     e: React.ChangeEvent<HTMLSelectElement>
   ): void => {
-    const selectedCourse = e.target.value as CourseType;
-    setFormData({ ...formData, course: selectedCourse, currentSemester: "" });
+    setFormData({
+      ...formData,
+      course: e.target.value as CourseType,
+      currentSemester: "",
+    });
   };
 
   const handleSemesterChange = (
@@ -167,8 +174,50 @@ const RegisterStudent: React.FC = () => {
   };
 
   const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log("Form data:", data);
-    // Add your submission logic here
+    const apiURL = await Service.AddStudentForm({
+      formDataToSend: data,
+      token,
+    });
+
+    // Create a FormData object to handle file uploads and other data
+    const apiData = new FormData();
+    for (const key in data) {
+      if (key === "permAddress" || key === "currAddress") {
+        // Append nested address objects as JSON strings
+        apiData.append(key, JSON.stringify(data[key]));
+      } else if (data[key] instanceof File) {
+        // Append files
+        apiData.append(key, data[key] as File);
+      } else {
+        // Append other form fields
+        apiData.append(key, data[key] as string);
+      }
+    }
+
+    // Handle case where currAddress is same as permAddress
+    if (isSameAddress) {
+      apiData.set("currAddress", JSON.stringify(data.permAddress));
+    }
+
+    try {
+      const response = await fetch(apiURL, {
+        method: "POST",
+        body: apiData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to submit form.");
+      }
+
+      const result = await response.json();
+      console.log("Submission successful:", result);
+      alert("Registration successful! Redirecting to dashboard.");
+      navigate("/dashboard"); // Redirect on successful submission
+    } catch (error) {
+      console.error("Submission failed:", error);
+      alert((error as Error).message);
+    }
   };
 
   const date = new Date();

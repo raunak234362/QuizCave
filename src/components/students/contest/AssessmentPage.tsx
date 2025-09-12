@@ -11,11 +11,13 @@ import { Question } from "./ContestQuestion";
 import { Counterdown } from "./Counterdown";
 import Service from "../../../config/Service";
 
+
 interface Props {
   contest: ContestData | null;
   resultDetails: ResultDetails | null;
   questionDetails: QuestionData[] | null;
   shuffleQuestions: any;
+  setAssessmentComplete: (completed: boolean) => void; 
 }
 
 const AssessmentPage = ({
@@ -23,6 +25,7 @@ const AssessmentPage = ({
   contest,
   questionDetails,
   shuffleQuestions,
+  setAssessmentComplete,
 }: Props) => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
@@ -30,6 +33,9 @@ const AssessmentPage = ({
     [key: string]: string;
   }>({});
   const [submitting, setSubmitting] = useState(false);
+  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const maxTabSwitches = 2; 
+  
 
   const handleSaveAnswer = (
     qid: string,
@@ -54,25 +60,28 @@ const AssessmentPage = ({
     }
   };
 
-  const handleTimeUp = async () => {
+  const autoSubmit = async () => {
+    if (submitting) return; // Prevent multiple submissions
+    setSubmitting(true);
     try {
-      alert("⏰ Time is up! Submitting your answers...");
-      await Service.studentContestSubmit({
-        id: resultDetails?._id ?? "",
-        token: resultDetails?.token ?? ("" as UserToken),
-        answers,
+      const response = await Service.finalSubmitAnswers({
+
+        resultId: resultDetails?._id,
+        token: resultDetails?.token as UserToken,
       });
-      alert("✅ Your answers have been submitted automatically.");
-      window.location.href = "/";
+      console.log("Auto-submit response:", response.data);
+      alert("Assessment auto-submitted due to a policy violation.");
+      if (response.data.success) {
+        setAssessmentComplete(true);
+      }
     } catch (error) {
       console.error("Auto-submit failed:", error);
-      alert("❌ Submission failed. Please contact support.");
+      alert("Auto-submission failed. Please contact support.");
+      setSubmitting(false);
     }
   };
 
   const handleFinalSubmit = async () => {
-    console.log(resultDetails);
-    
     if (!resultDetails?._id) {
       alert("Missing result ID. Cannot submit.");
       return;
@@ -83,25 +92,52 @@ const AssessmentPage = ({
     );
     if (!confirmSubmit) return;
 
+    setSubmitting(true);
     try {
-      setSubmitting(true);
       await Service.finalSubmitAnswers({
         resultId: resultDetails._id,
         token: resultDetails.token,
       });
-      alert(" Final answers submitted successfully!");
-      window.location.href = "/";
+      alert("Final answers submitted successfully!");
+      setAssessmentComplete(true); // 💡 Set completion state
     } catch (error) {
       console.error("Final submit failed:", error);
-      alert(" Failed to submit final answers. Please try again.");
+      alert("Failed to submit final answers. Please try again.");
     } finally {
       setSubmitting(false);
     }
   };
 
+  const handleTimeUp = async () => {
+    alert("⏰ Time is up! Submitting your answers...");
+    await autoSubmit();
+  };
+
   useEffect(() => {
     document.documentElement.requestFullscreen?.({ navigationUI: "hide" });
   }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (tabSwitchCount < maxTabSwitches) {
+          alert(
+            `⚠️ Warning! You have ${
+              maxTabSwitches - tabSwitchCount
+            } warnings remaining. Switching tabs is not allowed.`
+          );
+          setTabSwitchCount(tabSwitchCount + 1);
+        } else {
+          alert("⚠️ Maximum tab switches exceeded. Submitting your assessment automatically.");
+          autoSubmit();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [tabSwitchCount]);
 
   if (!contest || !resultDetails || !questionDetails) {
     return (
@@ -118,18 +154,7 @@ const AssessmentPage = ({
     );
   }
 
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        alert("⚠️ Switching tabs is not allowed!");
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []);
-
+  // The rest of the component's JSX remains the same
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* 🔹 Header with Timer */}

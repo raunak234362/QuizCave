@@ -53,6 +53,7 @@ export function Assessment({ contest, resultDetails, questionDetails }: Props) {
           contest={contest}
           shuffleQuestions={shuffleQuestions}
           questionDetails={questionDetails}
+          setAssessmentComplete={setAssessmentPage}
         />
       )}
     </>

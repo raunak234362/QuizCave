@@ -46,6 +46,7 @@ export interface ContestData {
   createdBy: string;
   createdAt: string;
   rules: string;
+  passingScore: number;
 }
 
 export interface ContestResultData {

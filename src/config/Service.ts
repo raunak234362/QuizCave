@@ -127,17 +127,22 @@ class Service {
     }
   }
   static async AddStudentForm({
-    formDataToSend,
+    data,
+    token,
   }: {
-    formDataToSend: registrationFormData;
+    data: registrationFormData;
+    token: UserToken;
   }) {
     try {
-      const response = await api.post("/user/register", formDataToSend, {
+      const response = await api.post("/user/register", data, {
         headers: {
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
+      console.log("Add Student Form Response:", response.data);
       return response.data;
+      
     } catch (error) {
       if (error instanceof Error) {
         throw new Error("Failed to add student form: " + error.message);
@@ -322,7 +327,7 @@ class Service {
     resultId,
     token,
   }: {
-    resultId: string;
+    resultId: string | null | undefined;
     token: UserToken;
   }) {
     try {
@@ -336,7 +341,9 @@ class Service {
           },
         }
       );
-      return response.data.data;
+      console.log("Final submit response:", response.data);
+      
+      return response.data;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error("Failed to submit final answers: " + error.message);
@@ -345,5 +352,24 @@ class Service {
       }
     }
   }
+  // stattic async getAllResults({ token }: UserToken) {
+  //   try {
+  //     const response = await api.get("/result/all", {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       throw new Error("Failed to fetch all results: " + error.message);
+  //     } else {
+  //       throw new Error("Failed to fetch all results");
+  //     }
+
+  //   }
+  // }
+  // sta
 }
 export default Service;
