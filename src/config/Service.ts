@@ -2,7 +2,7 @@
 import type {
   AnswerData,
   ContestData,
-  registrationFormData,
+  RegistrationFormData,
   UserToken,
 } from "../components/Interfaces/index";
 import api from "./api";
@@ -44,11 +44,7 @@ class Service {
       }
     }
   }
-  static async fetchContestDetails({
-    id,
-  }: {
-    id: string;
-  }) {
+  static async fetchContestDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/admin/contest/${id}`, {
         headers: {
@@ -83,7 +79,7 @@ class Service {
       }
     }
   }
-  static async declareResult({ id }: { id: string}) {
+  static async declareResult({ id }: { id: string }) {
     try {
       const response = await api.get(`/admin/result/${id}/declare`, {
         headers: {
@@ -101,11 +97,7 @@ class Service {
       }
     }
   }
-  static async fetchResultDetails({
-    id
-  }: {
-    id: string;
-  }) {
+  static async fetchResultDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/admin/result/results/${id}`, {
         headers: {
@@ -125,18 +117,26 @@ class Service {
   }
 
   static async AddStudentForm({
-    formDataToSend,
-  }: {
-    formDataToSend: FormData;
+    data,
+  }: { data: RegistrationFormData
   }) {
     try {
-      const response = await api.post("/user/register", formDataToSend, {
+      const formData = new FormData();
+      Object.keys(data).forEach((key) => {
+        const value = (data as any)[key];
+        if (value instanceof File) {
+          formData.append(key, value);
+        } else {
+          formData.append(key, JSON.stringify(value));
+        }
+      });
+      console.log("AddStudentForm called with data:", formData);
+      const response = await api.post("/user/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
-          // Do NOT set Content-Type explicitly when sending FormData
         },
       });
-      console.log("Add Student Form Response:", response.data);
+      console.log("Add Student Form Response:", response);
       return response.data;
     } catch (error) {
       if (error instanceof Error) {
@@ -166,11 +166,7 @@ class Service {
       }
     }
   }
-  static async getStudentContestDetails({
-    id
-  }: {
-    id: string;
-  }) {
+  static async getStudentContestDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/contest/${id}`, {
         headers: {
@@ -189,11 +185,7 @@ class Service {
       }
     }
   }
-  static async studentContestAttempt({
-    id,
-  }: {
-    id: ContestData["_id"];
-  }) {
+  static async studentContestAttempt({ id }: { id: ContestData["_id"] }) {
     try {
       const response = await api.post(`/contest/attempt/${id}/`, {
         headers: {
@@ -229,11 +221,7 @@ class Service {
       }
     }
   }
-  static async studentContestResultDetails({
-    id,
-  }: {
-    id: string;
-  }) {
+  static async studentContestResultDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/result/${id}`, {
         headers: {
@@ -309,7 +297,7 @@ class Service {
   }
 
   static async finalSubmitAnswers({
-    resultId
+    resultId,
   }: {
     resultId: string | null | undefined;
   }) {
