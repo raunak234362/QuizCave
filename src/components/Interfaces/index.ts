@@ -184,37 +184,37 @@ export interface RegistrationFormData {
   cgpa: string; // Changed to string to match form input
   passingYear: string; // Changed to string to match form input
   backlog: string; // Changed to string to match form input
-  permAddress: string; // JSON string
-  currAddress: string; // JSON string
+  permAddress: Address; // JSON string
+  currAddress: Address; // JSON string
 }
 
 // Utility function to convert FormData to RegistrationFormData
-export function formDataToRegistrationFormData(formData: FormData): RegistrationFormData {
-  return {
-    profile: formData.get("profilePic") as File | null,
-    resume: formData.get("resume") as File | null,
-    marksheet: formData.get("marksheet") as File | null,
-    name: formData.get("name") as string,
-    email: formData.get("email") as string,
-    phone: formData.get("phone") as string,
-    altPhone: formData.get("altPhone") as string | undefined,
-    password: formData.get("password") as string,
-    dob: formData.get("dob") as string,
-    studentId: formData.get("studentId") as string,
-    gender: formData.get("gender") as string,
-    fatherName: formData.get("fatherName") as string,
-    motherName: formData.get("motherName") as string,
-    currentSemester: formData.get("currentSemester") as string,
-    branch: formData.get("branch") as string,
-    course: formData.get("course") as string,
-    college: formData.get("college") as string,
-    cgpa: formData.get("cgpa") as string,
-    passingYear: formData.get("passingYear") as string,
-    backlog: formData.get("backlog") as string,
-    permAddress: formData.get("permAddress") as string,
-    currAddress: formData.get("currAddress") as string,
-  };
-}
+// export function formDataToRegistrationFormData(formData: FormData): RegistrationFormData {
+//   return {
+//     profile: formData.get("profilePic") as File | null,
+//     resume: formData.get("resume") as File | null,
+//     marksheet: formData.get("marksheet") as File | null,
+//     name: formData.get("name") as string,
+//     email: formData.get("email") as string,
+//     phone: formData.get("phone") as string,
+//     altPhone: formData.get("altPhone") as string | undefined,
+//     password: formData.get("password") as string,
+//     dob: formData.get("dob") as string,
+//     studentId: formData.get("studentId") as string,
+//     gender: formData.get("gender") as string,
+//     fatherName: formData.get("fatherName") as string,
+//     motherName: formData.get("motherName") as string,
+//     currentSemester: formData.get("currentSemester") as string,
+//     branch: formData.get("branch") as string,
+//     course: formData.get("course") as string,
+//     college: formData.get("college") as string,
+//     cgpa: formData.get("cgpa") as string,
+//     passingYear: formData.get("passingYear") as string,
+//     backlog: formData.get("backlog") as string,
+//     permAddress: JSON.parse(formData.get("permAddress") as string),
+//     currAddress: JSON.parse(formData.get("currAddress") as string),
+//   };
+// }
 
 export interface Address {
   streetLine1?: string;

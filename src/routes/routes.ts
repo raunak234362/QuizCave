@@ -64,10 +64,10 @@ const routes: RouteObject[] = [
             Component: ContestMain,
           },
 
-          {
-            path: "result",
-            Component: StudentResult,
-          },
+          // {
+          //   path: "result",
+          //   Component: StudentResult,
+          // },
         ],
       },
     ],

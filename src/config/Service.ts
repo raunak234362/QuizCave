@@ -116,21 +116,33 @@ class Service {
     }
   }
 
-  static async AddStudentForm({
-    data,
-  }: { data: RegistrationFormData
-  }) {
+  static async AddStudentForm(  data: RegistrationFormData ) {
     try {
+     
       const formData = new FormData();
+
+ 
       Object.keys(data).forEach((key) => {
         const value = (data as any)[key];
+
         if (value instanceof File) {
+         
           formData.append(key, value);
-        } else {
+        } else if (typeof value === "object" && value !== null) {
+          
           formData.append(key, JSON.stringify(value));
+        } else {
+          
+          formData.append(key, value);
         }
       });
-      console.log("AddStudentForm called with data:", formData);
+
+      // Optional: Log the contents of formData for debugging
+      // for(let [key, value] of formData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
+
+     
       const response = await api.post("/user/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -146,7 +158,6 @@ class Service {
       }
     }
   }
-
   static async getAllStudentContestData() {
     try {
       const response = await api.get("/contest/all", {
