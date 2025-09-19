@@ -1,7 +1,7 @@
 import api from "./api";
 
 import type { UserResponse, UserRequestApi } from "../components/Interfaces";
-
+const role = localStorage.getItem("role") || "student";
 class AuthService {
   static async login({
     userId,
@@ -19,8 +19,8 @@ class AuthService {
         },
       };
       console.log("Config:", api);
+      const endpoint = role === "admin" ? "/admin/user/login" : "/user/login";
       // const endpoint = "/admin/user/login";
-      const endpoint = "/user/login";
       const response = await api.post(endpoint, formData.toString(), config);
 
       if (response.status === 200) {

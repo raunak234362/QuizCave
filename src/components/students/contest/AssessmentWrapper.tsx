@@ -38,7 +38,8 @@ const mockQuestionDetails: QuestionData[] = [
 
 const AssessmentWrapper = () => {
   const [isAssessmentComplete, setAssessmentComplete] = useState(false);
-console.log("Assessment completion state:", isAssessmentComplete);
+  console.log("Assessment completion state:", isAssessmentComplete);
+
   if (isAssessmentComplete) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
@@ -62,13 +63,15 @@ console.log("Assessment completion state:", isAssessmentComplete);
     );
   }
 
+  // The code below was commented out and has been re-enabled.
+  // It is the essential part that renders the AssessmentPage component.
   return (
     <AssessmentPage
       contest={mockContest}
       resultDetails={mockResultDetails}
       questionDetails={mockQuestionDetails}
-      shuffleQuestions={() => {}} // A dummy function
-      setAssessmentComplete={setAssessmentComplete} // Pass the state setter
+      shuffleQuestions={() => []} // A placeholder function is fine here.
+      setAssessmentComplete={setAssessmentComplete} // This is the state setter that triggers the re-render to the completion page.
     />
   );
 };

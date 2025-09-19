@@ -1,6 +1,6 @@
 // AssessmentPage.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import type {
   ContestData,
   QuestionData,
@@ -10,13 +10,12 @@ import { Question } from "./ContestQuestion";
 import { Counterdown } from "./Counterdown";
 import Service from "../../../config/Service";
 
-
 interface Props {
   contest: ContestData | null;
   resultDetails: ResultDetails | null;
   questionDetails: QuestionData[] | null;
   shuffleQuestions: any;
-  setAssessmentComplete: (completed: boolean) => void; 
+  setAssessmentComplete: (completed: boolean) => void;
 }
 
 const AssessmentPage = ({
@@ -33,8 +32,57 @@ const AssessmentPage = ({
   }>({});
   const [submitting, setSubmitting] = useState(false);
   const [tabSwitchCount, setTabSwitchCount] = useState(0);
-  const maxTabSwitches = 2; 
+  const maxTabSwitches = 1;
+
+  // Use a ref to hold a stable reference to the submission logic
+  const performFinalSubmitRef = useRef<() => Promise<void>>(() =>
+    Promise.resolve()
+  );
+
   
+  const performFinalSubmit = async () => {
+    if (!resultDetails?._id) {
+      alert("Missing result ID. Cannot submit.");
+      return;
+    }
+
+    
+    if (submitting) return;
+    setSubmitting(true);
+
+    try {
+      const response = await Service.finalSubmitAnswers({
+        resultId: resultDetails._id,
+      });
+        console.log("Final submission response:", response);
+        console.log("Submission success:", response.data.success);
+      if (response.success) {
+        setAssessmentComplete(true);
+
+        alert("Submission successful.");
+      } else {
+        alert("Submission failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Submission failed:", error);
+      alert("Submission failed. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Update the ref whenever the performFinalSubmit function changes
+  useEffect(() => {
+    performFinalSubmitRef.current = performFinalSubmit;
+  }, [performFinalSubmit]);
+
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < (questionDetails?.length ?? 0) - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      alert("You have reached the end of the exam.");
+    }
+  };
 
   const handleSaveAnswer = (
     qid: string,
@@ -51,63 +99,17 @@ const AssessmentPage = ({
     }));
   };
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < (questionDetails?.length ?? 0) - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1);
-    } else {
-      alert("You have reached the end of the exam.");
-    }
-  };
-
-  const autoSubmit = async () => {
-    if (submitting) return; // Prevent multiple submissions
-    setSubmitting(true);
-    try {
-      const response = await Service.finalSubmitAnswers({
-
-        resultId: resultDetails?._id
-      });
-      console.log("Auto-submit response:", response.data);
-      alert("Assessment auto-submitted due to a policy violation.");
-      if (response.data.success) {
-        setAssessmentComplete(true);
-      }
-    } catch (error) {
-      console.error("Auto-submit failed:", error);
-      alert("Auto-submission failed. Please contact support.");
-      setSubmitting(false);
-    }
-  };
-
   const handleFinalSubmit = async () => {
-    if (!resultDetails?._id) {
-      alert("Missing result ID. Cannot submit.");
-      return;
-    }
-
     const confirmSubmit = window.confirm(
-      " Are you sure you want to submit your final answers? You won’t be able to change them afterward."
+      "Are you sure you want to submit your final answers? You won’t be able to change them afterward."
     );
     if (!confirmSubmit) return;
-
-    setSubmitting(true);
-    try {
-      await Service.finalSubmitAnswers({
-        resultId: resultDetails._id
-      });
-      alert("Final answers submitted successfully!");
-      setAssessmentComplete(true); // 💡 Set completion state
-    } catch (error) {
-      console.error("Final submit failed:", error);
-      alert("Failed to submit final answers. Please try again.");
-    } finally {
-      setSubmitting(false);
-    }
+    performFinalSubmit();
   };
 
   const handleTimeUp = async () => {
     alert("⏰ Time is up! Submitting your answers...");
-    await autoSubmit();
+    performFinalSubmit();
   };
 
   useEffect(() => {
@@ -117,24 +119,32 @@ const AssessmentPage = ({
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        if (tabSwitchCount < maxTabSwitches) {
-          alert(
-            `⚠️ Warning! You have ${
-              maxTabSwitches - tabSwitchCount
-            } warnings remaining. Switching tabs is not allowed.`
-          );
-          setTabSwitchCount(tabSwitchCount + 1);
-        } else {
-          alert("⚠️ Maximum tab switches exceeded. Submitting your assessment automatically.");
-          autoSubmit();
-        }
+        // Use the functional update to get the latest state
+        setTabSwitchCount((prevCount) => {
+          const newCount = prevCount + 1;
+          if (newCount > maxTabSwitches) {
+            alert(
+              "⚠️ Maximum tab switches exceeded. Submitting your assessment automatically."
+            );
+            performFinalSubmitRef.current(); // Use the ref to call the function
+          } else {
+            alert(
+              `⚠️ Warning! You have ${
+                maxTabSwitches - newCount
+              } warnings remaining. Switching tabs is not allowed.`
+            );
+          }
+          return newCount;
+        });
       }
     };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [tabSwitchCount]);
+  }, []); // Empty dependency array ensures the effect runs only once
 
   if (!contest || !resultDetails || !questionDetails) {
     return (
@@ -151,7 +161,6 @@ const AssessmentPage = ({
     );
   }
 
-  // The rest of the component's JSX remains the same
   return (
     <div className="flex flex-col h-screen bg-gray-50">
       {/* 🔹 Header with Timer */}
