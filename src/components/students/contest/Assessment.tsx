@@ -9,7 +9,10 @@ import type {
 import { ContestRules } from "./ContestRules";
 import AssessmentPage from "./AssessmentPage";
 import { Header } from "./Header";
+import { useNavigate } from "react-router-dom";
+
 // Import the component that displays the "Completed" message
+
 
 
 // Your shuffleQuestions function here
@@ -35,29 +38,38 @@ interface Props {
 }
 
 export function Assessment({ contest, resultDetails, questionDetails }: Props) {
-  // This state controls the transition from the rules to the assessment questions
+   const navigate = useNavigate();
   const [showAssessmentPage, setShowAssessmentPage] = useState(false);
-  // This state controls the transition to the final "completed" screen
+ 
   const [isAssessmentCompleted, setIsAssessmentCompleted] = useState(false);
 
   const contestDetail = contest;
 
-  // If the assessment is completed, immediately render the final page
+  
   if (isAssessmentCompleted) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-        <div className="p-10 bg-white rounded-lg shadow-xl text-center">
-          <h1 className="text-4xl font-extrabold text-green-600 mb-4">
-            Assessment Completed! 🎉
-          </h1>
-          <p className="text-lg text-gray-700 mb-6">
-            Thank you for attending the test.
-          </p>
-          <p className="text-sm text-gray-500">
-            You may now close this window or navigate away.
-          </p>
+      <>
+        <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+          <div className="p-10 bg-white rounded-lg shadow-xl text-center">
+            <h1 className="text-4xl font-extrabold text-green-600 mb-4">
+              Assessment Completed! 🎉
+            </h1>
+            <p className="text-lg text-gray-700 mb-6">
+              Thank you for attending the test.
+            </p>
+            <p className="text-sm text-gray-500">
+              You may now close this window or navigate away.
+            </p>
+
+            <button
+              onClick={() => navigate("/dashboard/student/profile")}
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+            >
+              Go to Dashboard
+            </button>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 

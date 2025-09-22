@@ -4,7 +4,7 @@
   import CollegeDetails from "./CollegeDetails";
   import EditProfileForm from "./ EditProfileForm";
   import Service from "../../../config/Service";
-  import type { registrationFormData } from "../../Interfaces/";
+  import type { RegistrationFormData } from "../../Interfaces/";
   import { Dialog, Transition } from "@headlessui/react";
 
   const emptyAddress = {
@@ -16,10 +16,10 @@
     zip: "",
   };
 
-  const emptyFormData: registrationFormData = {
-    profilePic: "",
-    resume: "",
-    marksheet: "",
+  const emptyFormData: RegistrationFormData = {
+    profile: null,
+    resume: null,
+    marksheet: null,
     name: "",
     email: "",
     phone: "",
@@ -43,7 +43,7 @@
 
   const StudentProfile: React.FC = () => {
     const [formData, setFormData] =
-      useState<registrationFormData>(emptyFormData);
+      useState<RegistrationFormData>(emptyFormData);
     const [loading, setLoading] = useState<boolean>(true);
     const [isEditing, setIsEditing] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -102,8 +102,8 @@
           <ProfileHeader
             name={formData.name || "Student Name"}
             profilePic={  
-              formData.profilePic
-                ? `${import.meta.env.VITE_IMG_URL}/${formData.profilePic}`
+              formData.profile
+                ? `${import.meta.env.VITE_IMG_URL}/${formData.profile}`
                 : undefined
             }
             bio={

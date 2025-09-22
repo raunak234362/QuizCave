@@ -3,6 +3,7 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Service from "../../config/Service";
 import type { RegistrationFormData, Address } from "../Interfaces/index";
+import Logo from "../../assets/logo.png";
 
 const Registration: React.FC = () => {
   const {
@@ -114,11 +115,7 @@ const Registration: React.FC = () => {
             } flex-wrap items-center mx-10 my-5`}
           >
            
-            <img
-              src="https://placehold.co/150x50/34D399/fff?text=Logo"
-              className="w-[20%] items-center ml-2 mb-5 lg:w-[30%] xl:w-[30%] md:w-[30%] sm:w-[30%]"
-              alt="Logo"
-            />
+            <img src={Logo} alt="" />
 
             {profilePreview && (
               <div className="right-0 flex justify-end">
