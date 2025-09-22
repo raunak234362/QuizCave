@@ -18,22 +18,20 @@ const CardContest = ({ id }: CardContestProps) => {
         id,
       });
       setContestDetails(response);
+      setShowSetQuestion(response);
       console.log("Contest Details:", response);
     };
-    const fetchContestQuestions = async () => {
-      const response = await Service.fetchContestDetails({
-        id,
-      });
-      setShowSetQuestion(response);
-      console.log("Contest Questions:", response);
-    };
-
-    fetchContestQuestions();
+  
     fetchContestDetails();
   }, [id]);
   console.log("Contest Details State:", showSetQuestion);
   const toggleShowQues = () => {
     setShowFilledQuestion(showFilledQuestion);
+  };
+
+  const showContest = (contestDetails: any) => {
+    console.log("Show Contest Clicked:", contestDetails);
+    setShowFilledQuestion(contestDetails);
   };
 
   return (
@@ -66,7 +64,10 @@ const CardContest = ({ id }: CardContestProps) => {
         )}
       </p>
       <div className="flex flex-row items-center justify-between gap-2">
-        <button className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">
+        <button
+          className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+          onClick={() => showContest(contestDetails)}
+        >
           Show
         </button>
         <button className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors">

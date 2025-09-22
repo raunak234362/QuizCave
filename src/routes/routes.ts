@@ -11,6 +11,7 @@ import StudentResult from "../components/students/Result/result";
 import Registration from "../components/Login/Registration";
 import StudentProfile from "../components/students/Profile/StudentProfile";
 import ContestMain from "../components/students/contest/ContestMain";
+import AllQuestion from "../components/admin/Questions/AllQuestion";
 
 const routes: RouteObject[] = [
   {
@@ -45,6 +46,10 @@ const routes: RouteObject[] = [
             path: "profile",
             Component: Profile,
           },
+          {
+            path: "questions",
+            Component: AllQuestion,
+          }
         ],
       },
       {

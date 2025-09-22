@@ -72,19 +72,7 @@ const Registration: React.FC = () => {
     }
   };
 
-  // const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
-  //   console.log("Form Data Submitted:", data);
-  //   try {
-  //     const response = await Service.AddStudentForm({ data });
-  //     console.log("Registration Response:", response);
-      
-  //     alert("Registration successful!");
-  //     navigate("/login");
-  //   } catch (error) {
-  //     console.error("Error during registration:", error);
-  //     alert("Registration failed. Please try again.");
-  //   }
-  // };
+ 
 
    const onSubmit = async (data : RegistrationFormData) => {
      console.log("Form Data Submitted:", data);
@@ -204,7 +192,7 @@ const Registration: React.FC = () => {
                   type="text"
                   placeholder="Alternative Contact Number"
                   id="altPhone"
-                  {...register("altPhone", { required: false })}
+                  {...register("altPhone",)}
                 />
               </div>
             </div>
