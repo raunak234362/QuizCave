@@ -308,7 +308,7 @@ const AllQuestion: React.FC = () => {
                   <td className="border">
                     <button
                       onClick={() => toggleEditQuestion(index)}
-                      className="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-700"
+                      className="px-2 py-3 text-white bg-blue-600 rounded hover:bg-green-500"
                     >
                       Modify
                     </button>

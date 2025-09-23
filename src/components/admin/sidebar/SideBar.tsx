@@ -19,7 +19,7 @@ const SideBar = () => {
           <nav>
             <ul className="flex flex-col gap-5">
               <li>
-                <NavLink
+                {/* <NavLink
                   to="dashboard"
                   className={({ isActive }) =>
                     `flex items-center text-center px-8 py-2 rounded-md ${
@@ -30,7 +30,7 @@ const SideBar = () => {
                   }
                 >
                   Dashboard
-                </NavLink>
+                </NavLink> */}
               </li>
               <li>
                 <NavLink

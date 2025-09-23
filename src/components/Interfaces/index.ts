@@ -152,7 +152,7 @@ export interface QuestionData {
 
 export interface Question {
   question: any;
-  type: "mcq" | "short" | "multiple" | string;
+  type: "mcq" | "descriptive" | "multiple" | string;
   set: string;
   difficult: string;
   _id?: string;
