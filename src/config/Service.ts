@@ -9,6 +9,8 @@ import api from "./api";
 const token = sessionStorage.getItem("token") || "";
 console.log("Service Token:", token);
 class Service {
+
+
   static createQuestion(payload: {
     set: string;
     difficult: string;
@@ -21,6 +23,8 @@ class Service {
   }) {
     throw new Error("Method not implemented.");
   }
+
+  
   static async fetchUserData() {
     try {
       const response = await api.get("/user", {

@@ -228,9 +228,12 @@ const AllQuestion: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-5 m-5 bg-white shadow-xl rounded-xl">
+      <div className="p-5 h-[50vh] m-5 bg-white shadow-xl rounded-xl">
+        
         <div className="flex gap-5 p-5">
+          
           <select
+            
             value={difficultyFilter}
             onChange={(e) => setDifficultyFilter(e.target.value)}
             className="p-2 border rounded"
@@ -263,7 +266,7 @@ const AllQuestion: React.FC = () => {
           </select>
         </div>
 
-        <div className="h-[50vh] overflow-y-auto w-full p-5 rounded-lg">
+        <div className="h-[35vh] overflow-y-auto w-full p-5 rounded-lg">
           <table className="w-full text-center border-collapse table-auto rounded-xl">
             <thead>
               <tr className="bg-gray-200">

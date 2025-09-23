@@ -37,12 +37,15 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
   const handleQuestionChange = (
     index: number,
     field: keyof Question["questionId"] | "set" | "difficult" | "type",
-    value: string | string[]
+    value: string | string[] | File
   ) => {
     setQuestions((prev) => {
       const updated = [...prev];
       if (field === "set" || field === "difficult" || field === "type") {
-        updated[index][field] = value as string;
+        updated[index] = {
+          ...updated[index],
+          [field]: value as string,
+        };
       } else {
         updated[index] = {
           ...updated[index],
@@ -52,17 +55,6 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
           },
         };
       }
-
-      // Initialize arrays for new question types
-      if (field === "type") {
-        const questionId = updated[index].questionId;
-        if (value === "multiple") {
-          if (!questionId.multipleQuestion) questionId.multipleQuestion = [""];
-          if (!questionId.multipleAnswer) questionId.multipleAnswer = [""];
-        } else if (value === "mcq") {
-          if (!questionId.mcqOptions) questionId.mcqOptions = ["", "", "", ""];
-        }
-      }
       return updated;
     });
   };
@@ -70,7 +62,14 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
   const handleAddOption = (questionIndex: number) => {
     setQuestions((prev) => {
       const updated = [...prev];
-      updated[questionIndex]?.question?.mcqOptions.push("");
+      const mcqOptions = updated[questionIndex].questionId.mcqOptions || [];
+      updated[questionIndex] = {
+        ...updated[questionIndex],
+        questionId: {
+          ...updated[questionIndex].questionId,
+          mcqOptions: [...mcqOptions, ""],
+        },
+      };
       return updated;
     });
   };
@@ -82,7 +81,15 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
   ) => {
     setQuestions((prev) => {
       const updated = [...prev];
-      updated[questionIndex].question.mcqOptions[optionIndex] = value;
+      const mcqOptions = updated[questionIndex].questionId.mcqOptions || [];
+      mcqOptions[optionIndex] = value;
+      updated[questionIndex] = {
+        ...updated[questionIndex],
+        questionId: {
+          ...updated[questionIndex].questionId,
+          mcqOptions: mcqOptions,
+        },
+      };
       return updated;
     });
   };
@@ -90,8 +97,18 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
   const handleAddSubQuestion = (questionIndex: number) => {
     setQuestions((prev) => {
       const updated = [...prev];
-      updated[questionIndex]?.question?.multipleQuestion.push("");
-      updated[questionIndex]?.question?.multipleAnswer.push("");
+      const multipleQuestion =
+        updated[questionIndex].questionId?.multipleQuestion || [];
+      const multipleAnswer =
+        updated[questionIndex].questionId?.multipleAnswer || [];
+      updated[questionIndex] = {
+        ...updated[questionIndex],
+        questionId: {
+          ...updated[questionIndex].questionId,
+          multipleQuestion: [...multipleQuestion, ""],
+          multipleAnswer: [...multipleAnswer, ""],
+        },
+      };
       return updated;
     });
   };
@@ -105,9 +122,27 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
     setQuestions((prev) => {
       const updated = [...prev];
       if (field === "question") {
-        updated[questionIndex].question.multipleQuestion[subIndex] = value;
+        const multipleQuestion =
+          updated[questionIndex].questionId.multipleQuestion || [];
+        multipleQuestion[subIndex] = value;
+        updated[questionIndex] = {
+          ...updated[questionIndex],
+          questionId: {
+            ...updated[questionIndex].questionId,
+            multipleQuestion: multipleQuestion,
+          },
+        };
       } else if (field === "answer") {
-        updated[questionIndex].question.multipleAnswer[subIndex] = value;
+        const multipleAnswer =
+          updated[questionIndex].questionId?.multipleAnswer || [];
+        multipleAnswer[subIndex] = value;
+        updated[questionIndex] = {
+          ...updated[questionIndex],
+          questionId: {
+            ...updated[questionIndex].questionId,
+            multipleAnswer: multipleAnswer,
+          },
+        };
       }
       return updated;
     });
@@ -119,34 +154,28 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      handleQuestionChange(index, "questionImage", reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    // Store the File object directly in state
+    handleQuestionChange(index, "questionImage", file);
   };
 
   const handleSubmitForm = async (e: FormEvent) => {
     e.preventDefault();
     try {
       for (const question of questions) {
-        const payload = {
+        Service.createQuestions({
           set: question.set,
           difficult: question.difficult,
-          type: question.type,
           question: question.questionId.question,
           mcqOptions: question.questionId.mcqOptions,
+          type: question.type,
           multipleQuestion: question.questionId.multipleQuestion,
           multipleAnswer: question.questionId.multipleAnswer,
           answer: question.questionId.answer,
-          questionImage: question.questionId.questionImage,
-        };
-
-        console.log("Submitting:", payload);
-
-        await Service.createQuestion(payload);
-        console.log("✅ Question submitted");
+          questionImage:
+            question.questionId.questionImage instanceof File
+              ? ""
+              : question.questionId.questionImage,
+        });
       }
       alert(`Successfully added ${questions.length} questions`);
       toggleQues(false);
@@ -234,9 +263,9 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
                 onChange={(e) => handleImageUpload(e, index)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
-              {q.questionId.questionImage && (
+              {q.question?.questionImage instanceof File && (
                 <img
-                  src={q.questionId.questionImage}
+                  src={URL.createObjectURL(q.question.questionImage)}
                   alt="Uploaded"
                   className="mt-2 max-w-full h-auto rounded"
                 />
@@ -250,7 +279,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
                   <label className="block mb-2 font-semibold">Answer:</label>
                   <input
                     type="text"
-                    value={q.questionId.answer || ""}
+                    value={q.questionId?.answer || ""}
                     onChange={(e) =>
                       handleQuestionChange(index, "answer", e.target.value)
                     }
@@ -334,7 +363,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
                       />
                       <input
                         type="text"
-                        value={q.question.multipleAnswer[subIndex] || ""}
+                        value={q.questionId?.multipleAnswer?.[subIndex] || ""}
                         onChange={(e) =>
                           handleSubQuestionChange(
                             index,
@@ -344,7 +373,8 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
                           )
                         }
                         className="w-full px-3 mt-4 py-2 border border-gray-300 rounded-md"
-                        placeholder="Answer"
+                        placeholder={`Answer for Sub-Question ${subIndex + 1}`}
+                        
                         required
                       />
                     </div>

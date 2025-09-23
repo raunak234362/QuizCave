@@ -152,7 +152,7 @@ export interface QuestionData {
 
 export interface Question {
   question: any;
-  type: string;
+  type: "mcq" | "short" | "multiple" | string;
   set: string;
   difficult: string;
   _id?: string;
@@ -162,7 +162,7 @@ export interface Question {
     question?: string |any;
     mcqOptions?: string[];
     multipleQuestion?: string[];
-    questionImage?: string;
+    questionImage?: string | File;
     answer?: string;
     multipleAnswer?: string[];
     difficult?: "easy" | "medium" | "hard" | string;
