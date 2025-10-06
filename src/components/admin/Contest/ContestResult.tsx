@@ -12,3 +12,5 @@ const ContestResult = () => {
 }
 
 export default ContestResult
+
+

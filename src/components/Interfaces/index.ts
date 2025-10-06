@@ -180,3 +180,8 @@ export interface AnswerData {
 //   username?: string;
 //   marks?: number;
 // }
+export interface contestEdit{
+ 
+
+
+}
