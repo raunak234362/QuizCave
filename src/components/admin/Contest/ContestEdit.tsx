@@ -9,7 +9,7 @@ interface EditContestFormProps {
   onSave: (data: any) => void;
   onCancel: () => void;
 }
-
+  
 const EditContestForm: React.FC<EditContestFormProps> = ({
   defaultValues,
   onSave,

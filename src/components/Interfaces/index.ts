@@ -34,6 +34,8 @@ export interface UserData {
 }
 
 export interface ContestData {
+  active: any;
+  questions: any;
   _id: string;
   name: string;
   description: string;
@@ -47,6 +49,8 @@ export interface ContestData {
   createdAt: string;
   rules: string;
   passingScore: number;
+  participants?: any[];
+  resgistration?: boolean;
 }
 
 export interface ContestResultData {
@@ -175,13 +179,3 @@ export interface AnswerData {
   answer: string[];
 }
 
-// interface PdfCreatorProps {
-//   question?: Question[];
-//   username?: string;
-//   marks?: number;
-// }
-export interface contestEdit{
- 
-
-
-}

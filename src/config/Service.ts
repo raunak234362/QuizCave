@@ -150,6 +150,24 @@ class Service {
     }
   }
 
+  static async updateContestDetails(id: string, data: any) {
+    try {
+      const response = await api.put(`/admin/contest/update/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to update contest details: " + error.message);
+      } else {
+        throw new Error("Failed to update contest details");
+      }
+    }
+  }
+
   static async UpdateQuestionById({
     questionId,
     updatedData,
