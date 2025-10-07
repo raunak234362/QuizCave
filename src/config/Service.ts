@@ -9,6 +9,9 @@ import api from "./api";
 const token = sessionStorage.getItem("token") || "";
 console.log("Service Token:", token);
 class Service {
+  static get<T>(arg0: string) {
+    throw new Error("Method not implemented.");
+  }
 
 
   static createQuestion(payload: {
