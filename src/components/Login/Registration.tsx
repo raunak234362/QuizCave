@@ -1,107 +1,31 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-"use client";
-
-import type React from "react";
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import Service from "../../config/Service";
+import type { RegistrationFormData, Address } from "../Interfaces/index";
+import Logo from "../../assets/logo.png";
 
-// Define interfaces for type safety
-interface Address {
-  streetLine1: string;
-  streetLine2: string;
-  city: string;
-  state: string;
-  country: string;
-  zip: string;
-}
-
-interface FormData {
-  profilePic: File | string;
-  resume: File | string;
-  name: string;
-  email: string;
-  phone: string;
-  altPhone: string;
-  password: string;
-  dob: string;
-  studentId: string;
-  gender: string;
-  fatherName: string;
-  motherName: string;
-  currentSemester: string;
-  marksheet: File | string;
-  branch: string;
-  course: string;
-  college: string;
-  cgpa: string;
-  passingYear: string;
-  backlog: string;
-  permAddress: Address;
-  currAddress: Address;
-}
-
-type CourseType =
-  | "BE/BTECH"
-  | "BCA"
-  | "BBA"
-  | "BCOM"
-  | "MBA"
-  | "MTECH"
-  | "DIPLOMA";
-
-const RegisterStudent: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>({
-    profilePic: "",
-    resume: "",
-    name: "",
-    email: "",
-    phone: "",
-    altPhone: "",
-    password: "",
-    dob: "",
-    studentId: "",
-    gender: "",
-    fatherName: "",
-    motherName: "",
-    currentSemester: "",
-    marksheet: "",
-    branch: "",
-    course: "",
-    college: "",
-    cgpa: "",
-    passingYear: "",
-    backlog: "",
-    permAddress: {
-      streetLine1: "",
-      streetLine2: "",
-      city: "",
-      state: "",
-      country: "",
-      zip: "",
-    },
-    currAddress: {
-      streetLine1: "",
-      streetLine2: "",
-      city: "",
-      state: "",
-      country: "",
-      zip: "",
-    },
-  });
-
+const Registration: React.FC = () => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
-  } = useForm<FormData>();
+  } = useForm<RegistrationFormData>();
+  const navigate = useNavigate();
+  // const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const [isSameAddress, setIsSameAddress] = useState<boolean>(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [resumeName, setResumeName] = useState<string>("");
-
-  const courseSemesterMap: Record<CourseType, string[]> = {
+  const [resumeName, setResumeName] = useState<string | null>(null);
+  const [marksheetName, setMarksheetName] = useState<string>("");
+  const watchProfile = watch("profile");
+  const watchResume = watch("resume");
+  const watchMarksheet = watch("marksheet");
+  const watchPermAddress = watch("permAddress");
+ 
+  const courseSemesterMap: Record<string, string[]> = {
     "BE/BTECH": ["Semester-7", "Semester-8", "Passout"],
     BCA: ["Semester-5", "Semester-6", "Passout"],
     BBA: ["Semester-5", "Semester-6", "Passout"],
@@ -110,70 +34,78 @@ const RegisterStudent: React.FC = () => {
     MTECH: ["Semester-3", "Semester-4", "Passout"],
     DIPLOMA: ["Semester-3", "Semester-4", "Passout"],
   };
-
-  const handleCourseChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
-    const selectedCourse = e.target.value as CourseType;
-    setFormData({ ...formData, course: selectedCourse, currentSemester: "" });
+  
+  const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedCourse = e.target.value;
+    setValue("course", selectedCourse);
+    setValue("currentSemester", "");
   };
 
-  const handleSemesterChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ): void => {
-    setFormData({ ...formData, currentSemester: e.target.value });
-  };
-
+   const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+     const selectedSemester = e.target.value;
+     setValue("currentSemester", selectedSemester);
+   };
+  
   const getSemesters = (): string[] => {
-    const selectedCourse = formData.course as CourseType;
+    const selectedCourse = watch("course");
     return courseSemesterMap[selectedCourse] || [];
   };
 
-  const handleCheckboxChange = (): void => {
-    setIsSameAddress(!isSameAddress);
+  const handleCheckboxChange = () => {
+    setIsSameAddress((prev) => !prev);
+   
     if (!isSameAddress) {
-      setFormData((prevState) => ({
-        ...prevState,
-        currAddress: { ...prevState.permAddress },
-      }));
+      const permAddress = watch("permAddress");
+      setValue("currAddress", permAddress);
     }
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    fileType: "profile" | "marksheet" | "resume"
-  ): void => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (fileType === "profile") {
-      setProfilePreview(URL.createObjectURL(file));
-      setFormData((prevState) => ({
-        ...prevState,
-        profilePic: file,
-      }));
-    } else if (fileType === "marksheet") {
-      setFormData((prevState) => ({
-        ...prevState,
-        marksheet: file,
-      }));
-    } else if (fileType === "resume") {
-      setResumeName(file.name);
-      setFormData((prevState) => ({
-        ...prevState,
-        resume: file,
-      }));
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: keyof Pick<RegistrationFormData, "profile" | "marksheet" | "resume">) => {
+    const file = e.target.files?.[0] || null;
+    if (file) {
+      if (fileType === "profile") {
+        setProfilePreview(URL.createObjectURL(file));
+      } else if (fileType === "resume") {
+        setResumeName(file.name);
+      }
+      setValue(fileType, file);
     }
   };
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
-    console.log("Form data:", data);
-    // Add your submission logic here
-  };
+  // const onSubmit: SubmitHandler<RegistrationFormData> = async (data) => {
+  //   console.log("Form Data Submitted:", data);
+  //   try {
+  //     const response = await Service.AddStudentForm({ data });
+  //     console.log("Registration Response:", response);
+      
+  //     alert("Registration successful!");
+  //     navigate("/login");
+  //   } catch (error) {
+  //     console.error("Error during registration:", error);
+  //     alert("Registration failed. Please try again.");
+  //   }
+  // };
 
+   const onSubmit = async (data : RegistrationFormData) => {
+     console.log("Form Data Submitted:", data);
+     const permanentAddress= {}
+     const responseData = {...data};
+     try {
+       const response = await Service.AddStudentForm(data);
+       console.log("Registration Response:", response);
+
+       alert("Registration successful!");
+       navigate("/");
+     } catch (error) {
+       console.error("Error during registration:", error);
+       alert("Registration failed. Please try again.");
+     }
+   };
+ 
   const date = new Date();
 
-  return (
+
+ return (
     <div>
       <div className="flex flex-col border 2xl:mx-[20%] lg:mx-[10%] my-3 rounded-lg p-4 bg-white shadow-lg shadow-green-500/50 md:mx-[10%]">
         <div className="flex flex-col">
@@ -182,16 +114,13 @@ const RegisterStudent: React.FC = () => {
               profilePreview !== null ? "justify-between" : "justify-center"
             } flex-wrap items-center mx-10 my-5`}
           >
-            <img
-              src="/placeholder.svg?height=120&width=200"
-              className="w-[20%] items-center ml-2 mb-5 lg:w-[30%] xl:w-[30%] md:w-[30%] sm:w-[30%]"
-              alt="Logo"
-            />
+           
+            <img src={Logo} alt="" />
 
             {profilePreview && (
               <div className="right-0 flex justify-end">
                 <img
-                  src={profilePreview || "/placeholder.svg"}
+                  src={profilePreview}
                   alt="Profile Preview"
                   className="my-auto rounded-full w-28 h-28"
                 />
@@ -217,7 +146,7 @@ const RegisterStudent: React.FC = () => {
               Student Details
             </p>
             <div>
-              <label htmlFor="name" className="text-sm">
+              <label htmlFor="Name" className="text-sm">
                 Student Name
               </label>
               <div className="flex flex-row w-full gap-3 mt-2 2xl:text-md md:text-sm">
@@ -226,14 +155,9 @@ const RegisterStudent: React.FC = () => {
                   type="text"
                   placeholder="Name"
                   id="name"
-                  {...register("name", { required: "Name is required" })}
+                  {...register("name", { required: true })}
                 />
               </div>
-              {errors.name && (
-                <span className="text-red-500 text-sm">
-                  {errors.name.message}
-                </span>
-              )}
             </div>
             <div className="mt-3">
               <label htmlFor="email" className="text-sm">
@@ -244,110 +168,74 @@ const RegisterStudent: React.FC = () => {
                 type="email"
                 placeholder="Email"
                 id="email"
-                {...register("email", {
-                  required: "Email is required",
-                  pattern: {
-                    value: /^\S+@\S+$/i,
-                    message: "Invalid email address",
-                  },
-                })}
+                {...register("email", { required: true })}
               />
-              {errors.email && (
-                <span className="text-red-500 text-sm">
-                  {errors.email.message}
-                </span>
-              )}
             </div>
             <div className="mt-3 text-sm">
-              <label htmlFor="studentId">Student College ID</label>
+              <label htmlFor="CollegeID">Student College ID</label>
               <input
                 className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                 type="text"
                 placeholder="Student ID"
                 id="studentId"
-                {...register("studentId", {
-                  required: "Student ID is required",
-                })}
+                {...register("studentId", { required: true })}
               />
-              {errors.studentId && (
-                <span className="text-red-500 text-sm">
-                  {errors.studentId.message}
-                </span>
-              )}
             </div>
             {/* Contacts */}
             <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
               <div className="mt-3 w-full sm:w-[560px]">
-                <label htmlFor="phone" className="text-sm">
+                <label htmlFor="contact" className="text-sm">
                   Student Contact Number
                 </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
-                  type="tel"
+                  type="text"
                   placeholder="Contact Number"
                   id="phone"
-                  {...register("phone", {
-                    required: "Phone number is required",
-                  })}
+                  {...register("phone", { required: true })}
                 />
-                {errors.phone && (
-                  <span className="text-red-500 text-sm">
-                    {errors.phone.message}
-                  </span>
-                )}
               </div>
               <div className="mt-3 w-full sm:w-[560px]">
-                <label htmlFor="altPhone" className="text-sm">
+                <label htmlFor="contact" className="text-sm">
                   Alternate Contact Number
                 </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
-                  type="tel"
+                  type="text"
                   placeholder="Alternative Contact Number"
                   id="altPhone"
-                  {...register("altPhone")}
+                  {...register("altPhone", { required: false })}
                 />
               </div>
             </div>
             {/*gender, dob*/}
             <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
               <div className="mt-3 w-full sm:w-[560px]">
-                <label htmlFor="gender" className="text-sm">
+                <label htmlFor="contact" className="text-sm">
                   Gender
                 </label>
                 <select
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   id="gender"
-                  {...register("gender", { required: "Gender is required" })}
+                  {...register("gender", { required: true })}
                 >
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
                   <option value="female">Female</option>
                   <option value="other">Other</option>
                 </select>
-                {errors.gender && (
-                  <span className="text-red-500 text-sm">
-                    {errors.gender.message}
-                  </span>
-                )}
               </div>
               <div className="mt-3 w-full sm:w-[560px]">
-                <label htmlFor="dob" className="text-sm">
+                <label htmlFor="contact" className="text-sm">
                   Date of Birth
                 </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="date"
+                  placeholder="dd-mm-yyyy"
                   id="dob"
-                  {...register("dob", {
-                    required: "Date of birth is required",
-                  })}
+                  {...register("dob", { required: true })}
                 />
-                {errors.dob && (
-                  <span className="text-red-500 text-sm">
-                    {errors.dob.message}
-                  </span>
-                )}
               </div>
             </div>
 
@@ -360,19 +248,8 @@ const RegisterStudent: React.FC = () => {
                 type="password"
                 placeholder="Password"
                 id="password"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                })}
+                {...register("password", { required: true, minLength: 6 })}
               />
-              {errors.password && (
-                <span className="text-red-500 text-sm">
-                  {errors.password.message}
-                </span>
-              )}
             </div>
           </div>
           {/*personal information*/}
@@ -382,7 +259,7 @@ const RegisterStudent: React.FC = () => {
             </p>
             <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
               <div className="mt-3 w-full sm:w-[560px]">
-                <label htmlFor="fatherName" className="text-sm">
+                <label htmlFor="contact" className="text-sm">
                   Father Name
                 </label>
                 <input
@@ -390,18 +267,11 @@ const RegisterStudent: React.FC = () => {
                   type="text"
                   placeholder="Father Name"
                   id="fatherName"
-                  {...register("fatherName", {
-                    required: "Father's name is required",
-                  })}
+                  {...register("fatherName", { required: true })}
                 />
-                {errors.fatherName && (
-                  <span className="text-red-500 text-sm">
-                    {errors.fatherName.message}
-                  </span>
-                )}
               </div>
               <div className="mt-3 w-full sm:w-[560px]">
-                <label htmlFor="motherName" className="text-sm">
+                <label htmlFor="contact" className="text-sm">
                   Mother Name
                 </label>
                 <input
@@ -409,25 +279,18 @@ const RegisterStudent: React.FC = () => {
                   type="text"
                   placeholder="Mother Name"
                   id="motherName"
-                  {...register("motherName", {
-                    required: "Mother's name is required",
-                  })}
+                  {...register("motherName", { required: true })}
                 />
-                {errors.motherName && (
-                  <span className="text-red-500 text-sm">
-                    {errors.motherName.message}
-                  </span>
-                )}
               </div>
             </div>
           </div>
           {/*college details*/}
-          <div className="flex-row p-5 m-4 rounded-lg bg-green-50">
+          <div className="flex-row p-5 m-4 rounded-lg p- bg-green-50">
             <p className="font-bold text-green-800 2xl:text-xl xl:text-xl lg:text-xl md:text-lg sm:text-lg">
               College Details
             </p>
             <div className="mt-3">
-              <label htmlFor="college" className="text-sm">
+              <label htmlFor="email" className="text-sm">
                 College Name
               </label>
               <input
@@ -435,15 +298,8 @@ const RegisterStudent: React.FC = () => {
                 type="text"
                 placeholder="College Name"
                 id="college"
-                {...register("college", {
-                  required: "College name is required",
-                })}
+                {...register("college", { required: true })}
               />
-              {errors.college && (
-                <span className="text-red-500 text-sm">
-                  {errors.college.message}
-                </span>
-              )}
             </div>
 
             {/*cgpa,backlogs, year of passing*/}
@@ -455,7 +311,7 @@ const RegisterStudent: React.FC = () => {
                 <select
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   id="course"
-                  {...register("course", { required: "Course is required" })}
+                  {...register("course", { required: true })}
                   onChange={handleCourseChange}
                 >
                   <option value="">Select Your Course</option>
@@ -464,24 +320,19 @@ const RegisterStudent: React.FC = () => {
                     <option value="BE/BTECH">B.E/B.Tech</option>
                     <option value="MTECH">M.Tech</option>
                     <option value="BCA">
-                      {"Bachelor's of Computer Applications"}
+                      Bachelor's of Computer Applications
                     </option>
                   </optgroup>
                   <optgroup label="Non-Technical">
                     <option value="MBA">
-                      {"Master's of Business Administrations"}
+                      Master's of Business Administrations
                     </option>
                     <option value="BBA">
-                      {"Bachelor's of Business Administrations"}
+                      Bachelor's of Business Administrations
                     </option>
-                    <option value="BCOM">{"Bachelor's of Commerce"}</option>
+                    <option value="BCOM">Bachelor's of Commerce</option>
                   </optgroup>
                 </select>
-                {errors.course && (
-                  <span className="text-red-500 text-sm">
-                    {errors.course.message}
-                  </span>
-                )}
               </div>
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="branch" className="text-sm">
@@ -492,13 +343,8 @@ const RegisterStudent: React.FC = () => {
                   type="text"
                   placeholder="Branch"
                   id="branch"
-                  {...register("branch", { required: "Branch is required" })}
+                  {...register("branch", { required: true })}
                 />
-                {errors.branch && (
-                  <span className="text-red-500 text-sm">
-                    {errors.branch.message}
-                  </span>
-                )}
               </div>
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="currentSemester" className="text-sm">
@@ -507,23 +353,16 @@ const RegisterStudent: React.FC = () => {
                 <select
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   id="currentSemester"
-                  {...register("currentSemester", {
-                    required: "Current semester is required",
-                  })}
+                  {...register("currentSemester", { required: true })}
                   onChange={handleSemesterChange}
                 >
                   <option value="">Current Semester</option>
-                  {getSemesters()?.map((semester) => (
+                  {getSemesters().map((semester) => (
                     <option key={semester} value={semester}>
                       {semester}
                     </option>
                   ))}
                 </select>
-                {errors.currentSemester && (
-                  <span className="text-red-500 text-sm">
-                    {errors.currentSemester.message}
-                  </span>
-                )}
               </div>
             </div>
 
@@ -540,13 +379,8 @@ const RegisterStudent: React.FC = () => {
                   max="10"
                   placeholder="CGPA"
                   id="cgpa"
-                  {...register("cgpa", { required: "CGPA is required" })}
+                  {...register("cgpa", { required: true })}
                 />
-                {errors.cgpa && (
-                  <span className="text-red-500 text-sm">
-                    {errors.cgpa.message}
-                  </span>
-                )}
               </div>
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="backlog" className="text-sm">
@@ -558,15 +392,8 @@ const RegisterStudent: React.FC = () => {
                   min="0"
                   placeholder="No. of Backlog"
                   id="backlog"
-                  {...register("backlog", {
-                    required: "Number of backlogs is required",
-                  })}
+                  {...register("backlog", { required: true })}
                 />
-                {errors.backlog && (
-                  <span className="text-red-500 text-sm">
-                    {errors.backlog.message}
-                  </span>
-                )}
               </div>
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="passingYear" className="text-sm">
@@ -576,18 +403,11 @@ const RegisterStudent: React.FC = () => {
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="number"
                   min="2000"
-                  max="2030"
+                  max="2025"
                   placeholder="Passing Year"
                   id="passingYear"
-                  {...register("passingYear", {
-                    required: "Passing year is required",
-                  })}
+                  {...register("passingYear", { required: true })}
                 />
-                {errors.passingYear && (
-                  <span className="text-red-500 text-sm">
-                    {errors.passingYear.message}
-                  </span>
-                )}
               </div>
             </div>
 
@@ -601,6 +421,7 @@ const RegisterStudent: React.FC = () => {
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="file"
                   id="marksheet"
+                  required
                   accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileChange(e, "marksheet")}
                 />
@@ -613,6 +434,7 @@ const RegisterStudent: React.FC = () => {
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="file"
                   id="profile"
+                  required
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "profile")}
                 />
@@ -625,6 +447,7 @@ const RegisterStudent: React.FC = () => {
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="file"
                   id="resume"
+                  required
                   accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileChange(e, "resume")}
                 />
@@ -641,29 +464,20 @@ const RegisterStudent: React.FC = () => {
           <div className="flex-row p-5 m-4 rounded-lg bg-green-50">
             <div className="mt-3">
               <p className="text-2xl font-bold text-green-800"></p>
-              <label htmlFor="permanentAddress" className="font-bold">
-                Permanent Address
-              </label>
+              <label htmlFor="permanentAddress" className="font-bold">Permanent Address</label>
               <input
                 className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                 type="text"
                 placeholder="Street Line 1"
                 id="permanentStreetLine1"
-                {...register("permAddress.streetLine1", {
-                  required: "Street address is required",
-                })}
+                {...register("permAddress.streetLine1", { required: true })}
               />
-              {errors.permAddress?.streetLine1 && (
-                <span className="text-red-500 text-sm">
-                  {errors.permAddress.streetLine1.message}
-                </span>
-              )}
               <input
                 className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                 type="text"
                 placeholder="Street Line 2"
                 id="permanentStreetLine2"
-                {...register("permAddress.streetLine2")}
+                {...register("permAddress.streetLine2", { required: false })}
               />
               {/*address[4 fields]*/}
               <div className="flex gap-2">
@@ -672,36 +486,28 @@ const RegisterStudent: React.FC = () => {
                   type="text"
                   placeholder="City"
                   id="permanentCity"
-                  {...register("permAddress.city", {
-                    required: "City is required",
-                  })}
+                  {...register("permAddress.city", { required: true })}
                 />
                 <input
                   className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="text"
                   placeholder="State"
                   id="permanentState"
-                  {...register("permAddress.state", {
-                    required: "State is required",
-                  })}
+                  {...register("permAddress.state", { required: true })}
                 />
                 <input
                   className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="text"
                   placeholder="Country"
                   id="permanentCountry"
-                  {...register("permAddress.country", {
-                    required: "Country is required",
-                  })}
+                  {...register("permAddress.country", { required: true })}
                 />
                 <input
                   className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="text"
                   placeholder="Zip Code"
                   id="permanentZip"
-                  {...register("permAddress.zip", {
-                    required: "Zip code is required",
-                  })}
+                  {...register("permAddress.zip", { required: true })}
                 />
               </div>
             </div>
@@ -718,24 +524,20 @@ const RegisterStudent: React.FC = () => {
             </div>
             {!isSameAddress && (
               <div className="mt-3">
-                <label htmlFor="currentAddress" className="font-bold">
-                  Current Address
-                </label>
+                <label htmlFor="currentAddress" className="font-bold">Current Address</label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="text"
                   placeholder="Street Line 1"
                   id="currentStreetLine1"
-                  {...register("currAddress.streetLine1", {
-                    required: !isSameAddress,
-                  })}
+                  {...register("currAddress.streetLine1", { required: true })}
                 />
                 <input
                   className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="text"
                   placeholder="Street Line 2"
                   id="currentStreetLine2"
-                  {...register("currAddress.streetLine2")}
+                  {...register("currAddress.streetLine2", { required: false })}
                 />
                 <div className="flex gap-2">
                   <input
@@ -743,36 +545,28 @@ const RegisterStudent: React.FC = () => {
                     type="text"
                     placeholder="City"
                     id="currentCity"
-                    {...register("currAddress.city", {
-                      required: !isSameAddress,
-                    })}
+                    {...register("currAddress.city", { required: true })}
                   />
                   <input
                     className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                     type="text"
                     placeholder="State"
                     id="currentState"
-                    {...register("currAddress.state", {
-                      required: !isSameAddress,
-                    })}
+                    {...register("currAddress.state", { required: true })}
                   />
                   <input
                     className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                     type="text"
                     placeholder="Country"
                     id="currentCountry"
-                    {...register("currAddress.country", {
-                      required: !isSameAddress,
-                    })}
+                    {...register("currAddress.country", { required: true })}
                   />
                   <input
                     className="w-full px-4 py-3 mt-2 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                     type="text"
                     placeholder="Zip Code"
                     id="currentZip"
-                    {...register("currAddress.zip", {
-                      required: !isSameAddress,
-                    })}
+                    {...register("currAddress.zip", { required: true })}
                   />
                 </div>
               </div>
@@ -792,4 +586,8 @@ const RegisterStudent: React.FC = () => {
   );
 };
 
-export default RegisterStudent;
+
+
+ 
+
+export default Registration;

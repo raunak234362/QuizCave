@@ -2,15 +2,16 @@
 import type {
   AnswerData,
   ContestData,
-  registrationFormData,
+  RegistrationFormData,
   UserToken,
 } from "../components/Interfaces/index";
 import api from "./api";
-
+const token = sessionStorage.getItem("token") || "";
+console.log("Service Token:", token);
 class Service {
-  static async fetchUserData({ token }: UserToken) {
+  static async fetchUserData() {
     try {
-      const response = await api.get("/admin/user", {
+      const response = await api.get("/user", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -25,7 +26,7 @@ class Service {
       }
     }
   }
-  static async fetchContestData({ token }: UserToken) {
+  static async fetchContestData() {
     try {
       const response = await api.get("/admin/contest/all", {
         headers: {
@@ -43,13 +44,7 @@ class Service {
       }
     }
   }
-  static async fetchContestDetails({
-    id,
-    token,
-  }: {
-    id: string;
-    token: UserToken;
-  }) {
+  static async fetchContestDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/admin/contest/${id}`, {
         headers: {
@@ -66,7 +61,7 @@ class Service {
       }
     }
   }
-  static async fetchResult({ token }: { token: UserToken }) {
+  static async fetchResult() {
     try {
       const response = await api.get(`admin/result/all`, {
         headers: {
@@ -84,7 +79,7 @@ class Service {
       }
     }
   }
-  static async declareResult({ id, token }: { id: string; token: UserToken }) {
+  static async declareResult({ id }: { id: string }) {
     try {
       const response = await api.get(`/admin/result/${id}/declare`, {
         headers: {
@@ -102,13 +97,7 @@ class Service {
       }
     }
   }
-  static async fetchResultDetails({
-    id,
-    token,
-  }: {
-    id: string;
-    token: UserToken;
-  }) {
+  static async fetchResultDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/admin/result/results/${id}`, {
         headers: {
@@ -126,17 +115,40 @@ class Service {
       }
     }
   }
-  static async AddStudentForm({
-    formDataToSend,
-  }: {
-    formDataToSend: registrationFormData;
-  }) {
+
+  static async AddStudentForm(  data: RegistrationFormData ) {
     try {
-      const response = await api.post("/user/register", formDataToSend, {
+     
+      const formData = new FormData();
+
+ 
+      Object.keys(data).forEach((key) => {
+        const value = (data as any)[key];
+
+        if (value instanceof File) {
+         
+          formData.append(key, value);
+        } else if (typeof value === "object" && value !== null) {
+          
+          formData.append(key, JSON.stringify(value));
+        } else {
+          
+          formData.append(key, value);
+        }
+      });
+
+      // Optional: Log the contents of formData for debugging
+      // for(let [key, value] of formData.entries()) {
+      //   console.log(`${key}: ${value}`);
+      // }
+
+     
+      const response = await api.post("/user/register", formData, {
         headers: {
-          "Content-Type": "application/json",
+          "Content-Type": "multipart/form-data",
         },
       });
+      console.log("Add Student Form Response:", response);
       return response.data;
     } catch (error) {
       if (error instanceof Error) {
@@ -146,7 +158,7 @@ class Service {
       }
     }
   }
-  static async getAllStudentContestData({ token }: UserToken) {
+  static async getAllStudentContestData() {
     try {
       const response = await api.get("/contest/all", {
         headers: {
@@ -165,13 +177,7 @@ class Service {
       }
     }
   }
-  static async getStudentContestDetails({
-    id,
-    token,
-  }: {
-    id: string;
-    token: UserToken;
-  }) {
+  static async getStudentContestDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/contest/${id}`, {
         headers: {
@@ -190,13 +196,7 @@ class Service {
       }
     }
   }
-  static async studentContestAttempt({
-    id,
-    token,
-  }: {
-    id: ContestData["_id"];
-    token: UserToken;
-  }) {
+  static async studentContestAttempt({ id }: { id: ContestData["_id"] }) {
     try {
       const response = await api.post(`/contest/attempt/${id}/`, {
         headers: {
@@ -213,7 +213,7 @@ class Service {
       }
     }
   }
-  static async studentContestResultAll({ token }: UserToken) {
+  static async studentContestResultAll() {
     try {
       const response = await api.get("/result/all", {
         headers: {
@@ -232,13 +232,7 @@ class Service {
       }
     }
   }
-  static async studentContestResultDetails({
-    id,
-    token,
-  }: {
-    id: string;
-    token: UserToken;
-  }) {
+  static async studentContestResultDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/result/${id}`, {
         headers: {
@@ -259,11 +253,9 @@ class Service {
   }
   static async studentContestSubmit({
     id,
-    token,
     answers,
   }: {
     id: string;
-    token: UserToken;
     answers: any;
   }) {
     try {
@@ -286,15 +278,12 @@ class Service {
   static async AddAnswerById({
     resultId,
     submitData,
-    token,
   }: {
     resultId: string;
     submitData: AnswerData;
-    token: UserToken;
   }) {
     console.log("Service - AddAnswerById called with:", {
       resultId,
-      token,
       submitData,
     });
     try {
@@ -317,5 +306,52 @@ class Service {
       }
     }
   }
+
+  static async finalSubmitAnswers({
+    resultId,
+  }: {
+    resultId: string | null | undefined;
+  }) {
+    try {
+      const response = await api.post(
+        `/result/submit/${resultId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log("Final submit response:", response.data);
+
+      return response.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to submit final answers: " + error.message);
+      } else {
+        throw new Error("Failed to submit final answers");
+      }
+    }
+  }
+  // stattic async getAllResults({ token }: UserToken) {
+  //   try {
+  //     const response = await api.get("/result/all", {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     return response.data;
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       throw new Error("Failed to fetch all results: " + error.message);
+  //     } else {
+  //       throw new Error("Failed to fetch all results");
+  //     }
+
+  //   }
+  // }
+  // sta
 }
 export default Service;

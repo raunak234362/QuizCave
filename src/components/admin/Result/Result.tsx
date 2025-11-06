@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import Service from "../../../config/Service";
-import type { ContestResultData, UserToken } from "../../Interfaces/index";
+import type { ContestResultData } from "../../Interfaces/index";
 import ResultCard from "./ResultCard";
 
 const Result = () => {
   const [result, setResult] = useState<ContestResultData[]>([]);
   const fetchResult = async () => {
     try {
-      const token = sessionStorage.getItem("token") || "";
-      const response = await Service.fetchResult({ token: { token } as UserToken });
+      const response = await Service.fetchResult();
       setResult(response);
       console.log("Contest Result Response:", response);
       // Process the response as needed
@@ -19,6 +18,9 @@ const Result = () => {
   useEffect(() => {
     fetchResult();
   }, []);
+
+  console.log("Rendering Result component with data:", result);
+
   return (
     <div className="p-6 min-h-screen space-y-4 w-full">
       <div>

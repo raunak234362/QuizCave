@@ -52,6 +52,10 @@ const routes: RouteObject[] = [
         Component: StudentLayout,
         children: [
           {
+            index: true,
+            Component: StudentProfile,
+          },
+          {
             path: "profile",
             Component: StudentProfile,
           },
@@ -59,16 +63,15 @@ const routes: RouteObject[] = [
             path: "contest",
             Component: ContestMain,
           },
-          {},
-          {
-            path: "result",
-            Component: StudentResult,
-          },
+
+          // {
+          //   path: "result",
+          //   Component: StudentResult,
+          // },
         ],
       },
     ],
   },
-
 ];
 
 export default routes;

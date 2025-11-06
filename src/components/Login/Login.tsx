@@ -12,6 +12,7 @@ const LoginPage = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors },
   } = useForm<UserRequestApi>({
     defaultValues: {
@@ -22,6 +23,9 @@ const LoginPage = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+  const role=watch("role");
+  console.log("Role selected:", role);
+  localStorage.setItem("role", role || "");
 
   const onSubmit = async (data: UserRequestApi) => {
     console.log(data);
