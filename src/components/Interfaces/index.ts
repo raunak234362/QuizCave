@@ -41,6 +41,10 @@ export interface ContestData {
   startDate: string;
   declared: boolean;
   endDate: string;
+  registration?: boolean;
+  active?: boolean;
+  participants: string[];
+
   set: string;
   status: "active" | "inactive" | "completed";
   createdBy: string;
