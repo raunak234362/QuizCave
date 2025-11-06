@@ -3,7 +3,6 @@ import type {
   AnswerData,
   ContestData,
   RegistrationFormData,
-  UserToken,
 } from "../components/Interfaces/index";
 import api from "./api";
 const token = sessionStorage.getItem("token") || "";

@@ -1,9 +1,7 @@
 // CardContest.tsx
 import { useEffect, useState } from "react";
 import Service from "../../../config/Service";
-import type { ContestData, UserToken } from "../../Interfaces/index";
-import ShowContest from "./ShowContest"; // Import ShowContest
-import UpdateContest from "./UpdateContest"; // Import UpdateContest
+import type { ContestData } from "../../Interfaces/index";
 
 interface CardContestProps {
   id: string;
@@ -14,7 +12,7 @@ const CardContest = ({ id }: CardContestProps) => {
   const [contestDetails, setContestDetails] = useState<ContestData>();
   const [showSetQuestion, setShowSetQuestion] = useState("");
   const [showFilledQuestion, setShowFilledQuestion] = useState();
-  const [view, setView] = useState<"card" | "show" | "edit">("card"); // State to manage view
+  // const [view, setView] = useState<"card" | "show" | "edit">("card"); // State to manage view
 
   useEffect(() => {
     const fetchContestDetails = async () => {
@@ -40,13 +38,13 @@ const CardContest = ({ id }: CardContestProps) => {
     setShowFilledQuestion(showFilledQuestion);
   };
 
-  if (view === "show" && contestDetails) {
-    return <ShowContest contestDetails={contestDetails} setView={setView} />;
-  }
+  // if (view === "show" && contestDetails) {
+  //   return <ShowContest contestDetails={contestDetails} setView={setView} />;
+  // }
 
-  if (view === "edit" && contestDetails) {
-    return <UpdateContest contestDetails={contestDetails} setView={setView} />;
-  }
+  // if (view === "edit" && contestDetails) {
+  //   return <UpdateContest contestDetails={contestDetails} setView={setView} />;
+  // }
 
   return (
     <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-200">
@@ -79,13 +77,13 @@ const CardContest = ({ id }: CardContestProps) => {
       </p>
       <div className="flex flex-row items-center justify-between gap-2">
         <button
-          onClick={() => setView("show")}
+          // onClick={() => setView("show")}
           className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
         >
           Show
         </button>
         <button
-          onClick={() => setView("edit")}
+          // onClick={() => setView("edit")}
           className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
         >
           Edit
