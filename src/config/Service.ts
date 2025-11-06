@@ -9,6 +9,25 @@ import api from "./api";
 const token = sessionStorage.getItem("token") || "";
 console.log("Service Token:", token);
 class Service {
+  static get<T>(arg0: string) {
+    throw new Error("Method not implemented.");
+  }
+
+
+  static createQuestion(payload: {
+    set: string;
+    difficult: string;
+    question: string | undefined;
+    mcqOptions: string[] | undefined;
+    multipleQuestion: string[] | undefined;
+    multipleAnswer: string[] | undefined;
+    answer: string | undefined;
+    questionImage: string | undefined;
+  }) {
+    throw new Error("Method not implemented.");
+  }
+
+  
   static async fetchUserData() {
     try {
       const response = await api.get("/user", {
@@ -47,6 +66,24 @@ class Service {
   static async fetchContestDetails({ id }: { id: string }) {
     try {
       const response = await api.get(`/admin/contest/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to fetch contest details: " + error.message);
+      } else {
+        throw new Error("Failed to fetch contest details");
+      }
+    }
+  }
+
+  static async fetchAllQuestions() {
+    try {
+      const response = await api.get(`/admin/question/all`, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -116,33 +153,115 @@ class Service {
     }
   }
 
-  static async AddStudentForm(  data: RegistrationFormData ) {
+  static async updateContestDetails(id: string, data: any) {
     try {
-     
+      const response = await api.put(`/admin/contest/update/${id}`, data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to update contest details: " + error.message);
+      } else {
+        throw new Error("Failed to update contest details");
+      }
+    }
+  }
+
+  static async UpdateQuestionById({
+    questionId,
+    updatedData,
+  }: {
+    questionId: string;
+    updatedData: { question: string; set: string; difficult: string };
+  }) {
+    console.log("Service - UpdateQuestionById called with:", {
+      questionId,
+      updatedData,
+    });
+    try {
+      const response = await api.put(
+        `/admin/question/update/${questionId}`,
+        updatedData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to update question by id: " + error.message);
+      } else {
+        throw new Error("Failed to update question by id");
+      }
+    }
+  }
+  static async createQuestions(data: any) {  
+    try {
+      const response = await api.post("/admin/question/create", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to create question: " + error.message);
+      } else {
+        throw new Error("Failed to create question");
+      }
+    }
+  }
+
+  static async deleteQuestionById({ questionId }: { questionId: string }) {
+    console.log("Service - deleteQuestionById called with:", {
+      questionId,
+    });
+    try {
+      const response = await api.delete(
+        `/admin/question/remove/${questionId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      return response.data.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to delete question by id: " + error.message);
+      } else {
+        throw new Error("Failed to delete question by id");
+      }
+    }
+  }
+
+  
+
+  static async AddStudentForm(data: RegistrationFormData) {
+    try {
       const formData = new FormData();
 
- 
       Object.keys(data).forEach((key) => {
         const value = (data as any)[key];
 
         if (value instanceof File) {
-         
           formData.append(key, value);
         } else if (typeof value === "object" && value !== null) {
-          
           formData.append(key, JSON.stringify(value));
         } else {
-          
           formData.append(key, value);
         }
       });
 
-      // Optional: Log the contents of formData for debugging
-      // for(let [key, value] of formData.entries()) {
-      //   console.log(`${key}: ${value}`);
-      // }
-
-     
       const response = await api.post("/user/register", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
@@ -334,24 +453,5 @@ class Service {
       }
     }
   }
-  // stattic async getAllResults({ token }: UserToken) {
-  //   try {
-  //     const response = await api.get("/result/all", {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //         "Content-Type": "application/json",
-  //       },
-  //     });
-  //     return response.data;
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw new Error("Failed to fetch all results: " + error.message);
-  //     } else {
-  //       throw new Error("Failed to fetch all results");
-  //     }
-
-  //   }
-  // }
-  // sta
-}
+} 
 export default Service;

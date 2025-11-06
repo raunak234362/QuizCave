@@ -1,170 +1,225 @@
-// CardContest.tsx
-import { useEffect, useState } from "react";
-import Service from "../../../config/Service";
-import type { ContestData, UserToken } from "../../Interfaces/index";
-import ShowContest from "./ShowContest"; // Import ShowContest
-import UpdateContest from "./UpdateContest"; // Import UpdateContest
+// CardContest.tsx (The main parent component)
+import React, { useEffect, useState } from "react";
+import ContestShowModal from "./ContestShowModal"; // New Show Modal
+import ContestEditModal from "./ContestEditModal"; // New Edit Modal
+import Service from "../../../config/Service"; // Assuming this is your actual service
+// NOTE: JoditEditor is no longer needed here, as it's in ContestEditModal
+
+// --- Interfaces (Kept here for main component context) ---
+interface ContestData {
+  id: string;
+  name: string;
+  duration: string;
+  set: string;
+  rules: string;
+  resgistration?: boolean;
+  registration: boolean;
+  active?: boolean;
+  startDate: string;
+  endDate: string;
+  declared: boolean;
+  participants: string[];
+  questions?: any[];
+}
+
+interface ContestDetailsResponse {
+  active: boolean;
+  contest: ContestData;
+}
 
 interface CardContestProps {
   id: string;
 }
 
-const CardContest = ({ id }: CardContestProps) => {
-  console.log("Received Contest ID in CardContest:", id);
-  const [contestDetails, setContestDetails] = useState<ContestData>();
-  const [showSetQuestion, setShowSetQuestion] = useState("");
-  const [showFilledQuestion, setShowFilledQuestion] = useState();
-  const [view, setView] = useState<"card" | "show" | "edit">("card"); // State to manage view
+interface EditFormData {
+  name: string;
+  duration: number;
+  set: string;
+  rules: string;
+  registration: boolean;
+  active: boolean;
+  startDate: string;
+  endDate: string;
+}
 
-  useEffect(() => {
-    const fetchContestDetails = async () => {
-      const response = await Service.fetchContestDetails({
-        id,
-      });
-      setContestDetails(response);
-      console.log("Contest Details:", response);
-    };
-    const fetchContestQuestions = async () => {
-      const response = await Service.fetchContestDetails({
-        id,
-      });
-      setShowSetQuestion(response);
-      console.log("Contest Questions:", response);
-    };
+// --- Utility Function (Kept here as it's used locally for date formatting) ---
+const formatForDateTimeInput = (isoString: string | undefined): string => {
+  if (!isoString) return "";
+  const date = new Date(isoString);
+  const datePart = date.toISOString().split("T")[0];
+  const timePart = date.toLocaleTimeString("en-US", {
+    hour12: false,
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${datePart}T${timePart}`;
+};
+// ----------------------------------------------------------------------------
 
-    fetchContestQuestions();
-    fetchContestDetails();
-  }, [id]);
-  console.log("Contest Details State:", showSetQuestion);
-  const toggleShowQues = () => {
-    setShowFilledQuestion(showFilledQuestion);
+const CardContest: React.FC<CardContestProps> = ({ id }) => {
+  const [contestDetails, setContestDetails] =
+    useState<ContestDetailsResponse | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Show Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit Modal state
+  const [isSaving, setIsSaving] = useState(false);
+
+  // No need for joditContent state here anymore
+
+  const [editFormData, setEditFormData] = useState<EditFormData>({
+    name: "",
+    duration: 0,
+    set: "",
+    rules: "",
+    registration: false,
+    active: false,
+    startDate: "",
+    endDate: "",
+  });
+
+  const initializeEditFormData = (details: ContestDetailsResponse) => {
+    const contest = details.contest;
+    setEditFormData({
+      name: contest.name || "",
+      duration: Number(contest.duration) || 0,
+      set: contest.set || "",
+      rules: contest.rules || "",
+      registration: contest.registration || contest.resgistration || false,
+      active: details.active || false,
+      startDate: formatForDateTimeInput(contest.startDate),
+      endDate: formatForDateTimeInput(contest.endDate),
+    });
   };
 
-  if (view === "show" && contestDetails) {
-    return <ShowContest contestDetails={contestDetails} setView={setView} />;
-  }
+  const fetchContestDetails = async () => {
+    try {
+      // 🎯 Uses your real service (or its placeholder)
+      const response: ContestDetailsResponse =
+        await Service.fetchContestDetails({ id });
+      setContestDetails(response);
+      initializeEditFormData(response);
+    } catch (error) {
+      console.error("Error fetching contest details:", error);
+      setContestDetails(null);
+    }
+  };
 
-  if (view === "edit" && contestDetails) {
-    return <UpdateContest contestDetails={contestDetails} setView={setView} />;
-  }
+  useEffect(() => {
+    fetchContestDetails();
+  }, [id]);
 
-  return (
-    <div className="bg-white shadow-md rounded-xl p-6 hover:shadow-lg transition-shadow duration-300 border border-gray-200">
-      <h2 className="text-xl font-semibold text-gray-800 mb-2">
-        {contestDetails?.name || "Loading..."}
+  const toggleShowQues = () => setIsModalOpen(false); // Close Show Modal
+  const showContest = () => setIsModalOpen(true); // Open Show Modal
+
+  const handleOpenEditModal = () => {
+    if (contestDetails) {
+      initializeEditFormData(contestDetails); // Re-initialize state before opening
+    }
+    setIsEditModalOpen(true);
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  // 🎯 This function is now the only save handler, taking data from the child component
+  const handleSaveEdit = async (formData: EditFormData) => {
+    if (isSaving) return;
+    setIsSaving(true);
+
+    const dataToUpdate = {
+      ...formData,
+      duration: String(formData.duration),
+      startDate: new Date(formData.startDate).toISOString(),
+      endDate: new Date(formData.endDate).toISOString(),
+    };
+
+    try {
+      // 🎯 Calling your real update service
+      const updatedContestData: ContestData =
+        await Service.updateContestDetails(id, dataToUpdate);
+
+      setContestDetails((prev) => {
+        if (!prev) return null;
+
+        const newDetails: ContestDetailsResponse = {
+          active: updatedContestData.active ?? prev.active,
+          contest: {
+            ...prev.contest,
+            ...updatedContestData,
+          },
+        };
+
+        // Re-initialize local form state with saved data (optional, but good practice)
+        initializeEditFormData(newDetails);
+
+        return newDetails;
+      });
+
+      handleCloseEditModal();
+      console.log("Contest updated successfully!");
+    } catch (error) {
+      console.error("Failed to save contest details:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const renderCardBody = () => (
+    <>
+      <h2 className="text-2xl font-bold text-gray-800 mb-2">
+        {contestDetails?.contest.name || "Loading..."}
       </h2>
-      <p className="text-sm text-gray-600 mb-1">
-        <span className="font-medium text-gray-700">Set:</span>{" "}
-        {contestDetails?.set}
+      <p className="text-md text-gray-600 mb-1">
+        <span className="font-semibold text-gray-700">Set:</span>{" "}
+        {contestDetails?.contest.set || "N/A"}
       </p>
-      <p className="text-sm text-gray-600 mb-1">
-        <span className="font-medium text-gray-700">Duration:</span> (
-        {contestDetails?.duration || "Not specified"} minutes)
+      <p className="text-md text-gray-600 mb-1">
+        <span className="font-semibold text-gray-700">Duration:</span> (
+        {contestDetails?.contest.duration || 0} minutes)
       </p>
-      <p className="text-sm text-gay-600 mb-1">
-        <span className="font-medium text-gray-700">Start Date:</span>{" "}
-        {new Date(contestDetails?.startDate || "").toLocaleDateString()}
-      </p>
-      <p className="text-sm text-gray-600 mb-1">
-        <span className="font-medium text-gray-700">End Date:</span>{" "}
-        {new Date(contestDetails?.endDate || "").toLocaleDateString()}
-      </p>
-      <p className="text-sm text-gray-600 mb-4">
+      <p className="text-sm text-gray-600 mb-4 pt-2">
         <span className="font-medium text-gray-700">Status:</span>{" "}
-        {contestDetails?.declared ? (
-          <span className="text-green-600 font-semibold">Declared</span>
+        {contestDetails?.contest.declared ? (
+          <span className="text-green-600 font-bold ml-1">Declared</span>
         ) : (
-          <span className="text-yellow-600 font-semibold">Not Declared</span>
+          <span className="text-yellow-600 font-bold ml-1">Not Declared</span>
         )}
       </p>
-      <div className="flex flex-row items-center justify-between gap-2">
+    </>
+  );
+
+  return (
+    <div className="bg-white shadow-xl rounded-xl p-6 transition-shadow duration-300 border border-gray-100">
+      {renderCardBody()}
+
+      <div className="flex flex-row items-center gap-3 mt-4 border-t pt-4">
         <button
-          onClick={() => setView("show")}
-          className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+          className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition-colors"
+          onClick={showContest}
         >
-          Show
+          Show Details
         </button>
         <button
-          onClick={() => setView("edit")}
-          className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+          className="w-full bg-orange-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-orange-700 transition-colors"
+          onClick={handleOpenEditModal}
         >
-          Edit
+          Edit All Fields
         </button>
       </div>
-      {showFilledQuestion && (
-        <div className="h-full mt-10 top-0  overflow-y-auto">
-          <div className="absolute z-20 top-0 left-0 w-full h-full overflow-y-auto bg-gray-900 bg-opacity-20 flex items-center justify-center">
-            <div className="bg-white w-[70%] h-full overflow-y-auto mt-4 p-6 rounded-lg shadow-md">
-              <div className="flex flex-row justify-between">
-                <h3 className="text-lg font-semibold mb-2">Questions:</h3>
-                <button
-                  onClick={toggleShowQues}
-                  className="bg-red-300 rounded-lg p-5"
-                >
-                  Close
-                </button>
-              </div>
-              {/* {console.log(contestDetails)} */}
-              {/* {contestDetails?.questions?.map((question, index) => (
-                <div key={index} className="border-b border-gray-300 pb-3">
-                  <h4 className="font-semibold mb-1">{question.question}</h4>
-                  <p>
-                    <strong>Type:</strong> {question.type}
-                  </p>
-                  <p>
-                    <strong>Marks:</strong> {question.marks}
-                  </p>
 
-                  {question.type === "mcq" && (
-                    <div>
-                      <p>
-                        <strong>Options:</strong>{" "}
-                        {question?.mcqOptions?.join(", ")}
-                      </p>
-                      <p>
-                        <strong>Single Answer:</strong> {question?.answer}
-                      </p>
-                    </div>
-                  )}
-                  {question.type === "image" && (
-                    <img
-                      src={question?.imageUrl}
-                      alt="Question"
-                      className="mt-2 w-32 h-auto"
-                    />
-                  )}
-                  {question.type === "multiple" && (
-                    <div>
-                      <p>
-                        <strong>Sub Questions:</strong>
-                      </p>
-                      <ul>
-                        {question?.multipleQuestion.map(
-                          (question, subIndex) => (
-                            <li key={subIndex}>
-                              {question?.multipleQuestion}
-                              {question?.multipleAnswer}
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                  {question.type === "short" && (
-                    <p>
-                      <strong>Answer:</strong> {question?.answer}
-                    </p>
-                  )}
-                  {question.type === "long" && (
-                    <p>
-                      <strong>Answer:</strong> {question?.answer}
-                    </p>
-                  )}
-                </div>
-              ))} */}
-            </div>
-          </div>
-        </div>
+      {/* RENDER EDIT MODAL */}
+      {isEditModalOpen && (
+        <ContestEditModal
+          initialFormData={editFormData}
+          isSaving={isSaving}
+          onSave={handleSaveEdit} // Pass the save handler
+          onClose={handleCloseEditModal}
+        />
+      )}
+
+      {/* RENDER SHOW MODAL */}
+      {isModalOpen && contestDetails?.contest && (
+        <ContestShowModal details={contestDetails} onClose={toggleShowQues} />
       )}
     </div>
   );

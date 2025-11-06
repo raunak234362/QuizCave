@@ -1,5 +1,5 @@
 import React from "react";
-import type { registrationFormData } from "../../Interfaces/index";
+import type { RegistrationFormData } from "../../Interfaces/index";
 import {
   MdEmail,
   MdPhone,
@@ -8,7 +8,7 @@ import {
 } from "react-icons/md";
 
 interface ProfileDetailsProps {
-  formData: registrationFormData;
+  formData: RegistrationFormData;
 }
 
 const InfoCard: React.FC<{

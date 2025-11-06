@@ -6,6 +6,8 @@ import ContestResult from "./ContestResult";
 
 const Contest = () => {
   const [contest, setContest] = useState<ContestData[]>([]);
+
+
   const fetchContestData = async () => {
     const response = await Service.fetchContestData();
     const normalized = response.map((item: ContestData) => ({
@@ -30,8 +32,8 @@ const Contest = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {contest.map((item, index) => {
             return (
-              <div key={String(item._id) || index}>
-                <CardContest id={String(item._id)} />
+              <div key={item._id || index}>
+                <CardContest id={item._id} />
               </div>
             );
           })}
