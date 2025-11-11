@@ -1,26 +1,30 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// CardContest.tsx (The main parent component)
-import React, { useEffect, useState } from "react";
-import ContestEditModal from "./ContestEditModal"; // New Edit Modal
-import Service from "../../../config/Service"; // Assuming this is your actual service
-import ShowContest from "./ShowContest";
-// NOTE: JoditEditor is no longer needed here, as it's in ContestEditModal
 
-// --- Interfaces (Kept here for main component context) ---
+import React, { useEffect, useState } from "react";
+import ContestEditModal from "./ContestEditModal"; 
+import Service from "../../../config/Service"; 
+import ShowContest from "./ShowContest";
+
 interface ContestData {
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  createdBy: string;
+  description: string;
+  status: "active" | "inactive" | "completed";
+  passingScore: number;
   id?: string;
-  name?: string;
-  duration?: string;
-  set?: string;
-  rules?: string;
-  resgistration?: boolean;
-  registration?: boolean;
-  active?: boolean;
-  startDate?: string;
-  endDate?: string;
-  declared?: boolean;
-  participants?: string[];
-  questions?: any[];
+  name: string;
+  duration: string;
+  set: string;
+  rules: string;
+  resgistration: boolean;
+  registration: boolean;
+  active: boolean;
+  startDate: string;
+  endDate: string;
+  declared: boolean;
+  participants: string[];
+  questions: any[];
 }
 
 interface ContestDetailsResponse {
@@ -43,7 +47,6 @@ interface EditFormData {
   endDate: string;
 }
 
-// --- Utility Function (Kept here as it's used locally for date formatting) ---
 const formatForDateTimeInput = (isoString: string | undefined): string => {
   if (!isoString) return "";
   const date = new Date(isoString);
@@ -55,17 +58,16 @@ const formatForDateTimeInput = (isoString: string | undefined): string => {
   });
   return `${datePart}T${timePart}`;
 };
-// ----------------------------------------------------------------------------
+
 
 const CardContest: React.FC<CardContestProps> = ({ id }) => {
   const [contestDetails, setContestDetails] =
     useState<ContestDetailsResponse | null>(null);
 
-  const [isModalOpen, setIsModalOpen] = useState(false); // Show Modal state
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit Modal state
+  const [isModalOpen, setIsModalOpen] = useState(false); 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
   const [isSaving, setIsSaving] = useState(false);
 
-  // No need for joditContent state here anymore
 
   const [editFormData, setEditFormData] = useState<EditFormData>({
     name: "",
@@ -94,7 +96,7 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
 
   const fetchContestDetails = async () => {
     try {
-      // 🎯 Uses your real service (or its placeholder)
+
       const response: ContestDetailsResponse =
         await Service.fetchContestDetails({ id });
       setContestDetails(response);
@@ -109,12 +111,12 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
     fetchContestDetails();
   }, [id]);
 
-  const toggleShowQues = () => setIsModalOpen(false); // Close Show Modal
-  const showContest = () => setIsModalOpen(true); // Open Show Modal
+  const toggleShowQues = () => setIsModalOpen(false);
+  const showContest = () => setIsModalOpen(true);
 
   const handleOpenEditModal = () => {
     if (contestDetails) {
-      initializeEditFormData(contestDetails); // Re-initialize state before opening
+      initializeEditFormData(contestDetails);
     }
     setIsEditModalOpen(true);
   };
@@ -123,7 +125,7 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
     setIsEditModalOpen(false);
   };
 
-  // 🎯 This function is now the only save handler, taking data from the child component
+  
   const handleSaveEdit = async (formData: EditFormData) => {
     if (isSaving) return;
     setIsSaving(true);
@@ -136,7 +138,7 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
     };
 
     try {
-      // 🎯 Calling your real update service
+     
       const updatedContestData: ContestData =
         await Service.updateContestDetails(id, dataToUpdate);
 
@@ -151,7 +153,7 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
           },
         };
 
-        // Re-initialize local form state with saved data (optional, but good practice)
+        
         initializeEditFormData(newDetails);
 
         return newDetails;
@@ -221,7 +223,10 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
 
       {/* RENDER SHOW MODAL */}
       {isModalOpen && contestDetails && (
-        <ShowContest contestDetails={contestDetails} onClose={toggleShowQues} />
+        <ShowContest
+          contestDetails={contestDetails.contest}
+          setView={() => setIsModalOpen(false)}
+        />
       )}
     </div>
   );

@@ -188,10 +188,7 @@ const ShowContest = ({ contestDetails, setView }: ShowContestProps) => {
               <ClipboardList className="w-5 h-5 mr-2" />
               Rules & Regulations
             </h3>
-            {/* This renders the raw HTML from the 'rules' field.
-            We use 'prose' from @tailwindcss/typography to automatically style it.
-            If you don't have that plugin, it will just render unstyled HTML.
-          */}
+    
             <div
               className="prose prose-sm max-w-none p-4 border rounded-md bg-gray-50 h-auto overflow-y-auto"
               dangerouslySetInnerHTML={{ __html: contestDetails.rules }}
