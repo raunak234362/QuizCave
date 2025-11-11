@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface UserResponse {
   name: string;
   email: string;
   phone: string;
   userId: string;
-  role: "admin" | "user" | string; 
+  role: "admin" | "user" | string;
   designation: string;
   profile: string | File;
   accessToken: string;
@@ -34,7 +35,6 @@ export interface UserData {
 }
 
 export interface ContestData {
-  active: any;
   questions: any;
   _id: string;
   name: string;
@@ -53,7 +53,6 @@ export interface ContestData {
   createdAt: string;
   rules: string;
   passingScore: number;
-  participants?: any[];
   resgistration?: boolean;
 }
 
@@ -109,7 +108,6 @@ export interface Address {
   zip?: string;
 }
 
-
 export interface RegistrationFormData {
   profile: File | null;
   resume: File | null;
@@ -135,8 +133,6 @@ export interface RegistrationFormData {
   currAddress: Address; // JSON string
 }
 
-
-
 export interface Address {
   streetLine1?: string;
   streetLine2?: string;
@@ -145,8 +141,6 @@ export interface Address {
   country?: string;
   zip?: string;
 }
-
-
 
 export interface QuestionData {
   _id: string;
@@ -167,7 +161,7 @@ export interface Question {
   answer?: string[];
   questionId: {
     split(arg0: string): unknown;
-    question?: string |any;
+    question?: string | any;
     mcqOptions?: string[];
     multipleQuestion?: string[];
     questionImage?: string | File;
@@ -182,4 +176,3 @@ export interface AnswerData {
   question: string;
   answer: string[];
 }
-

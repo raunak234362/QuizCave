@@ -3,31 +3,11 @@ import type {
   AnswerData,
   ContestData,
   RegistrationFormData,
-  UserToken,
 } from "../components/Interfaces/index";
 import api from "./api";
 const token = sessionStorage.getItem("token") || "";
 console.log("Service Token:", token);
 class Service {
-  static get<T>(arg0: string) {
-    throw new Error("Method not implemented.");
-  }
-
-
-  static createQuestion(payload: {
-    set: string;
-    difficult: string;
-    question: string | undefined;
-    mcqOptions: string[] | undefined;
-    multipleQuestion: string[] | undefined;
-    multipleAnswer: string[] | undefined;
-    answer: string | undefined;
-    questionImage: string | undefined;
-  }) {
-    throw new Error("Method not implemented.");
-  }
-
-  
   static async fetchUserData() {
     try {
       const response = await api.get("/user", {
@@ -202,7 +182,7 @@ class Service {
       }
     }
   }
-  static async createQuestions(data: any) {  
+  static async createQuestions(data: any) {
     try {
       const response = await api.post("/admin/question/create", data, {
         headers: {
@@ -243,8 +223,6 @@ class Service {
       }
     }
   }
-
-  
 
   static async AddStudentForm(data: RegistrationFormData) {
     try {
@@ -453,5 +431,5 @@ class Service {
       }
     }
   }
-} 
+}
 export default Service;
