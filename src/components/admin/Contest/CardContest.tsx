@@ -1,24 +1,25 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // CardContest.tsx (The main parent component)
 import React, { useEffect, useState } from "react";
-import ContestShowModal from "./ContestShowModal"; // New Show Modal
 import ContestEditModal from "./ContestEditModal"; // New Edit Modal
 import Service from "../../../config/Service"; // Assuming this is your actual service
+import ShowContest from "./ShowContest";
 // NOTE: JoditEditor is no longer needed here, as it's in ContestEditModal
 
 // --- Interfaces (Kept here for main component context) ---
 interface ContestData {
-  id: string;
-  name: string;
-  duration: string;
-  set: string;
-  rules: string;
+  id?: string;
+  name?: string;
+  duration?: string;
+  set?: string;
+  rules?: string;
   resgistration?: boolean;
-  registration: boolean;
+  registration?: boolean;
   active?: boolean;
-  startDate: string;
-  endDate: string;
-  declared: boolean;
-  participants: string[];
+  startDate?: string;
+  endDate?: string;
+  declared?: boolean;
+  participants?: string[];
   questions?: any[];
 }
 
@@ -59,6 +60,7 @@ const formatForDateTimeInput = (isoString: string | undefined): string => {
 const CardContest: React.FC<CardContestProps> = ({ id }) => {
   const [contestDetails, setContestDetails] =
     useState<ContestDetailsResponse | null>(null);
+
   const [isModalOpen, setIsModalOpen] = useState(false); // Show Modal state
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // Edit Modal state
   const [isSaving, setIsSaving] = useState(false);
@@ -218,8 +220,8 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
       )}
 
       {/* RENDER SHOW MODAL */}
-      {isModalOpen && contestDetails?.contest && (
-        <ContestShowModal details={contestDetails} onClose={toggleShowQues} />
+      {isModalOpen && contestDetails && (
+        <ShowContest contestDetails={contestDetails} onClose={toggleShowQues} />
       )}
     </div>
   );

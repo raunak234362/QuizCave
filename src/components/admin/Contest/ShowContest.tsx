@@ -10,8 +10,7 @@ import {
 import type { ContestData } from "../../Interfaces";
 
 interface ShowContestProps {
-  // Assuming ContestData in /Interfaces/index is updated
-  // to match the API data you provided.
+
   contestDetails: ContestData;
   setView: (view: "card" | "show" | "edit") => void;
 }
@@ -35,6 +34,9 @@ const DetailItem = ({ icon, label, children }: DetailItemProps) => (
 );
 
 const ShowContest = ({ contestDetails, setView }: ShowContestProps) => {
+  console.log('====================================');
+  console.log(contestDetails);
+  console.log('====================================');
   // Helper to format dates and times
   const formatDateTime = (isoString: string) => {
     return new Date(isoString).toLocaleString("en-US", {
@@ -71,10 +73,10 @@ const ShowContest = ({ contestDetails, setView }: ShowContestProps) => {
             </button>
           </div>
           <h1 className="text-3xl font-bold text-gray-800">
-            {contestDetails.name}
+            {contestDetails?.name}
           </h1>
           <p className="text-lg text-gray-500">
-            Contest Set: {contestDetails.set}
+            Contest Set: {contestDetails?.set}
           </p>
         </div>
         {/* Main Grid */}
@@ -170,12 +172,12 @@ const ShowContest = ({ contestDetails, setView }: ShowContestProps) => {
                 >
                   {formatDateTime(contestDetails.createdAt)}
                 </DetailItem>
-                <DetailItem
+                {/* <DetailItem
                   icon={<Info className="w-4 h-4" />}
                   label="Last Updated"
                 >
-                  {/* {formatDateTime(contestDetails.updatedAt)} */}
-                </DetailItem>
+                  {formatDateTime(contestDetails.updatedAt)}
+                </DetailItem> */}
               </div>
             </div>
           </div>
