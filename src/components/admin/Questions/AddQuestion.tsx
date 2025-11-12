@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable react/prop-types */
-import { useState, type ChangeEvent, type FormEvent } from "react";
-import type { Question } from "../../Interfaces/index";
+import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
+import type { ContestData, Question } from "../../Interfaces/index";
 import Service from "../../../config/Service";
 
 interface AddQuestionProps {
@@ -14,6 +14,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
   refreshQuestions,
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
+const [contest, setContest] = useState<any[]>([]);
 
   const handleAddQuestion = () => {
     setQuestions((prev) => [
@@ -22,6 +23,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
         type: "",
         set: "",
         difficult: "",
+        name: "",
         questionId: {
           question: "",
           mcqOptions: [],
@@ -34,14 +36,41 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
     ]);
   };
 
+
+
+    const fetchContestData = async () => {
+      const response = await Service.fetchContestData();
+      const normalized = response?.map((item: ContestData) => ({
+        ...item,
+        id: item._id,
+      }));
+      setContest(normalized);
+      console.log(normalized);
+    };
+    useEffect(() => {
+      fetchContestData();
+    }, []);
+  
+
+
   const handleQuestionChange = (
     index: number,
-    field: keyof Question["questionId"] | "set" | "difficult" | "type",
+    field:
+      | keyof Question["questionId"]
+      | "set"
+      | "difficult"
+      | "type"
+      | "name",
     value: string | string[] | File
   ) => {
     setQuestions((prev) => {
       const updated = [...prev];
-      if (field === "set" || field === "difficult" || field === "type") {
+      if (
+        field === "set" ||
+        field === "difficult" ||
+        field === "type" ||
+        field === "name"
+      ) {
         updated[index] = {
           ...updated[index],
           [field]: value as string,
@@ -58,6 +87,8 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
       return updated;
     });
   };
+
+
 
   const handleAddOption = (questionIndex: number) => {
     setQuestions((prev) => {
@@ -158,33 +189,34 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
     handleQuestionChange(index, "questionImage", file);
   };
 
-  const handleSubmitForm = async (e: FormEvent) => {
-    e.preventDefault();
-    try {
-      for (const question of questions) {
-        Service.createQuestions({
-          set: question.set,
-          difficult: question.difficult,
-          question: question.questionId.question,
-          mcqOptions: question.questionId.mcqOptions,
-          type: question.type,
-          multipleQuestion: question.questionId.multipleQuestion,
-          multipleAnswer: question.questionId.multipleAnswer,
-          answer: question.questionId.answer,
-          questionImage:
-            question.questionId.questionImage instanceof File
-              ? ""
-              : question.questionId.questionImage,
-        });
-      }
-      alert(`Successfully added ${questions.length} questions`);
-      toggleQues(false);
-      refreshQuestions?.();
-    } catch (error) {
-      console.error("Error submitting questions:", error);
-      alert("Failed to add questions. Please try again.");
-    }
-  };
+ const handleSubmitForm = async (e: FormEvent) => {
+   e.preventDefault();
+   try {
+     for (const question of questions) {
+       await Service.createQuestions({
+         contestId: question.name,
+         set: question.set,
+         difficult: question.difficult,
+         question: question.questionId.question,
+         mcqOptions: question.questionId.mcqOptions,
+         type: question.type,
+         multipleQuestion: question.questionId.multipleQuestion,
+         multipleAnswer: question.questionId.multipleAnswer,
+         answer: question.questionId.answer,
+         questionImage:
+           question.questionId.questionImage instanceof File
+             ? ""
+             : question.questionId.questionImage,
+       });
+     }
+     alert(`Successfully added ${questions.length} questions`);
+     toggleQues(false);
+     refreshQuestions?.();
+   } catch (error) {
+     console.error("Error submitting questions:", error);
+     alert("Failed to add questions. Please try again.");
+   }
+ };
 
   return (
     <div className="absolute z-20 top-0 left-0 w-full h-full overflow-y-auto bg-gray-900 bg-opacity-20 flex items-center justify-center">
@@ -212,6 +244,24 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
                 <option value="long">Long Answer</option>
                 <option value="numerical">Numerical</option>
                 <option value="multiple">Multiple Answers</option>
+              </select>
+
+              {/* Contest Title */}
+              <label className="block mb-2 font-semibold">Contest:</label>
+              <select
+                value={q.name}
+                onChange={(e) =>
+                  handleQuestionChange(index, "name", e.target.value)
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4"
+                required
+              >
+                <option value="">Select Contest</option>
+                {contest.map((item) => (
+                  <option key={item._id} value={item._id}>
+                    {item.name}
+                  </option>
+                ))}
               </select>
 
               {/* Set */}
@@ -374,7 +424,6 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
                         }
                         className="w-full px-3 mt-4 py-2 border border-gray-300 rounded-md"
                         placeholder={`Answer for Sub-Question ${subIndex + 1}`}
-                        
                         required
                       />
                     </div>

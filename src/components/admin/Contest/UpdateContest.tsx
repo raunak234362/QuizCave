@@ -1,21 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import type { ContestData } from "../../Interfaces/index";
-import "react-quill/dist/quill.snow.css"; // Import Quill's snow theme CSS
+import JoditEditor from "jodit-react";
 
-// --- Helper Functions ---
 
-/**
- * Formats an ISO 8601 date string (or Date object) into the format
- * required by <input type="datetime-local"> (YYYY-MM-DDTHH:mm).
- * It converts the date to the user's local timezone.
- */
 const formatIsoToDateTimeLocal = (isoDate: string | Date): string => {
   const d = new Date(isoDate);
-  if (isNaN(d.getTime())) return ""; // Handle invalid dates
-
-  // Manually get local date parts
+  if (isNaN(d.getTime())) return ""; 
   const YYYY = d.getFullYear();
   const MM = String(d.getMonth() + 1).padStart(2, "0");
   const DD = String(d.getDate()).padStart(2, "0");
@@ -25,9 +17,7 @@ const formatIsoToDateTimeLocal = (isoDate: string | Date): string => {
   return `${YYYY}-${MM}-${DD}T${hh}:${mm}`;
 };
 
-/**
- * A reusable FormItem component for consistent layout
- */
+
 const FormItem = ({
   label,
   htmlFor,
@@ -51,18 +41,18 @@ const FormItem = ({
   </div>
 );
 
-// --- Component Props ---
+
 
 interface UpdateContestProps {
   contestDetails: ContestData;
   setView: (view: "card" | "show" | "edit") => void;
-  // You would pass an update function from your API layer
-  // onUpdate: (id: string, data: Partial<ContestData>) => Promise<void>;
+ 
 }
 
 // --- Main Component ---
 
 const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
+  const editor = useRef(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
@@ -73,49 +63,42 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
     reset,
     formState: { errors },
   } = useForm<ContestData>({
-    // defaultValues are set via useEffect to handle async data
+   
   });
 
-  // Pre-populate the form with existing contest details
+
   useEffect(() => {
     if (contestDetails) {
       reset({
         ...contestDetails,
-        // Format dates for the datetime-local input
+    
         startDate: formatIsoToDateTimeLocal(contestDetails.startDate),
         endDate: formatIsoToDateTimeLocal(contestDetails.endDate),
       });
     }
   }, [contestDetails, reset]);
 
-  /**
-   * Handle the form submission
-   */
+  
   const onSubmit: SubmitHandler<ContestData> = async (data) => {
     setIsSubmitting(true);
     setApiError(null);
 
     try {
-      // 1. Re-format dates back to ISO strings for the API
+      
       const payload = {
         ...data,
         startDate: new Date(data.startDate).toISOString(),
         endDate: new Date(data.endDate).toISOString(),
-        // Ensure 'duration' is a number if the input returns a string
+       
         duration: Number(data.duration),
       };
 
       console.log("Submitting payload:", payload);
 
-      // 2. --- API Call ---
-      // Replace with your actual API service call
-      // await onUpdate(contestDetails._id, payload);
-      // Example delay:
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      // 3. On Success
-      // toast.success("Contest updated successfully!");
-      setView("show"); // Go back to the 'show' view after update
+    
+      setView("show"); 
     } catch (err: any) {
       console.error("Failed to update contest:", err);
       setApiError(err.message || "An unknown error occurred.");
@@ -129,7 +112,7 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
       <div className="flex justify-between items-center mb-6 pb-4 border-b">
         <h1 className="text-2xl font-bold text-gray-800">Update Contest</h1>
         <button
-          onClick={() => setView("show")} // Go to "show" view, not "card"
+          onClick={() => setView("show")} 
           type="button"
           className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md font-medium hover:bg-gray-400 transition-colors"
           disabled={isSubmitting}
@@ -276,11 +259,10 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
               name="rules"
               control={control}
               render={({ field }) => (
-                <ReactQuill
-                  theme="snow"
-                  value={field.value}
-                  onChange={field.onChange}
-                  className="bg-white"
+                <JoditEditor
+                  ref={editor}
+                  value={field.value || ''}
+                  onBlur={field.onChange}
                 />
               )}
             />

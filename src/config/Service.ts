@@ -6,7 +6,6 @@ import type {
 } from "../components/Interfaces/index";
 import api from "./api";
 const token = sessionStorage.getItem("token") || "";
-console.log("Service Token:", token);
 class Service {
   static async fetchUserData() {
     try {
@@ -43,7 +42,7 @@ class Service {
       }
     }
   }
-  static async fetchContestDetails({ id }: { id: string }) {
+  static async fetchContestDetails(id: any) {
     try {
       const response = await api.get(`/admin/contest/${id}`, {
         headers: {
@@ -428,6 +427,23 @@ class Service {
         throw new Error("Failed to submit final answers: " + error.message);
       } else {
         throw new Error("Failed to submit final answers");
+      }
+    }
+  }
+  static async createContest(data: any) {
+    try {
+      const response = await api.post("/admin/contest/create", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error("Failed to create contest: " + error.message);
+      } else {
+        throw new Error("Failed to create contest");
       }
     }
   }

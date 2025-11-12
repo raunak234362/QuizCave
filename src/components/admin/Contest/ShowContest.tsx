@@ -34,9 +34,7 @@ const DetailItem = ({ icon, label, children }: DetailItemProps) => (
 );
 
 const ShowContest = ({ contestDetails, setView }: ShowContestProps) => {
-  console.log('====================================');
-  console.log(contestDetails);
-  console.log('====================================');
+
   // Helper to format dates and times
   const formatDateTime = (isoString: string) => {
     return new Date(isoString).toLocaleString("en-US", {
@@ -64,13 +62,13 @@ const ShowContest = ({ contestDetails, setView }: ShowContestProps) => {
               Back
             </button>
             {/* Edit Button (Top Right) */}
-            <button
+            {/* <button
               onClick={() => setView("edit")}
               className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors"
             >
               <Edit className="w-4 h-4 mr-2" />
               Edit
-            </button>
+            </button> */}
           </div>
           <h1 className="text-3xl font-bold text-gray-800">
             {contestDetails?.name}

@@ -1,40 +1,9 @@
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import ContestEditModal from "./ContestEditModal"; 
 import Service from "../../../config/Service"; 
 import ShowContest from "./ShowContest";
-
-interface ContestData {
-  _id: string;
-  createdAt: string;
-  updatedAt: string;
-  createdBy: string;
-  description: string;
-  status: "active" | "inactive" | "completed";
-  passingScore: number;
-  id?: string;
-  name: string;
-  duration: string;
-  set: string;
-  rules: string;
-  resgistration: boolean;
-  registration: boolean;
-  active: boolean;
-  startDate: string;
-  endDate: string;
-  declared: boolean;
-  participants: string[];
-  questions: any[];
-}
-
-interface ContestDetailsResponse {
-  active: boolean;
-  contest: ContestData;
-}
-
-interface CardContestProps {
-  id: string;
-}
+import type { ContestData } from "../../Interfaces";
 
 interface EditFormData {
   name: string;
@@ -60,14 +29,14 @@ const formatForDateTimeInput = (isoString: string | undefined): string => {
 };
 
 
-const CardContest: React.FC<CardContestProps> = ({ id }) => {
-  const [contestDetails, setContestDetails] =
-    useState<ContestDetailsResponse | null>(null);
+const CardContest = ({ id }: any) => {
+  
+  const [contestDetails, setContestDetails] = useState<ContestData | null>();
+  console.log(contestDetails);
 
-  const [isModalOpen, setIsModalOpen] = useState(false); 
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-
 
   const [editFormData, setEditFormData] = useState<EditFormData>({
     name: "",
@@ -80,36 +49,39 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
     endDate: "",
   });
 
-  const initializeEditFormData = (details: ContestDetailsResponse) => {
-    const contest = details.contest;
-    setEditFormData({
-      name: contest.name || "",
-      duration: Number(contest.duration) || 0,
-      set: contest.set || "",
-      rules: contest.rules || "",
-      registration: contest.registration || contest.resgistration || false,
-      active: details.active || false,
-      startDate: formatForDateTimeInput(contest.startDate),
-      endDate: formatForDateTimeInput(contest.endDate),
-    });
-  };
+ const initializeEditFormData = (contest: ContestData) => {
+  setEditFormData({
+    name: contest.name || "",
+    duration: Number(contest.duration) || 0,
+    set: contest.set || "",
+    rules: contest.rules || "",
+    registration: contest.registration || contest.resgistration || false,
+    active: contest.active || false,
+    startDate: formatForDateTimeInput(contest.startDate),
+    endDate: formatForDateTimeInput(contest.endDate),
+  });
+};
+
 
   const fetchContestDetails = async () => {
     try {
-
-      const response: ContestDetailsResponse =
-        await Service.fetchContestDetails({ id });
-      setContestDetails(response);
+      console.log(id);
+      const response = await Service.fetchContestDetails(id);
+      setContestDetails(response.contest)
       initializeEditFormData(response);
     } catch (error) {
       console.error("Error fetching contest details:", error);
       setContestDetails(null);
     }
   };
-
   useEffect(() => {
-    fetchContestDetails();
+    if (id && typeof id === "string" && id.trim() !== "") {
+      fetchContestDetails();
+    } else {
+      console.warn("CardContest mounted without valid ID");
+    }
   }, [id]);
+
 
   const toggleShowQues = () => setIsModalOpen(false);
   const showContest = () => setIsModalOpen(true);
@@ -125,7 +97,6 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
     setIsEditModalOpen(false);
   };
 
-  
   const handleSaveEdit = async (formData: EditFormData) => {
     if (isSaving) return;
     setIsSaving(true);
@@ -138,22 +109,20 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
     };
 
     try {
-     
       const updatedContestData: ContestData =
         await Service.updateContestDetails(id, dataToUpdate);
 
       setContestDetails((prev) => {
         if (!prev) return null;
 
-        const newDetails: ContestDetailsResponse = {
+        const newDetails: ContestData = {
+          
+          ...prev,
+          ...updatedContestData,
           active: updatedContestData.active ?? prev.active,
-          contest: {
-            ...prev.contest,
-            ...updatedContestData,
-          },
+        
         };
 
-        
         initializeEditFormData(newDetails);
 
         return newDetails;
@@ -171,19 +140,19 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
   const renderCardBody = () => (
     <>
       <h2 className="text-2xl font-bold text-gray-800 mb-2">
-        {contestDetails?.contest.name || "Loading..."}
+        {contestDetails?.name || "Loading..."}
       </h2>
       <p className="text-md text-gray-600 mb-1">
         <span className="font-semibold text-gray-700">Set:</span>{" "}
-        {contestDetails?.contest.set || "N/A"}
+        {contestDetails?.set || "N/A"}
       </p>
       <p className="text-md text-gray-600 mb-1">
         <span className="font-semibold text-gray-700">Duration:</span> (
-        {contestDetails?.contest.duration || 0} minutes)
+        {contestDetails?.duration || 0} minutes)
       </p>
       <p className="text-sm text-gray-600 mb-4 pt-2">
         <span className="font-medium text-gray-700">Status:</span>{" "}
-        {contestDetails?.contest.declared ? (
+        {contestDetails?.declared ? (
           <span className="text-green-600 font-bold ml-1">Declared</span>
         ) : (
           <span className="text-yellow-600 font-bold ml-1">Not Declared</span>
@@ -224,7 +193,7 @@ const CardContest: React.FC<CardContestProps> = ({ id }) => {
       {/* RENDER SHOW MODAL */}
       {isModalOpen && contestDetails && (
         <ShowContest
-          contestDetails={contestDetails.contest}
+          contestDetails={contestDetails}
           setView={() => setIsModalOpen(false)}
         />
       )}

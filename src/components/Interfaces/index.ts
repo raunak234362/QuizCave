@@ -55,7 +55,16 @@ export interface ContestData {
   passingScore: number;
   resgistration?: boolean;
 }
-
+export interface ContestDataForm {
+  title: string;
+  set: string;
+  instructions: string;
+  duration: string;
+  startDate: string;
+  endDate: string;
+  contestId:string;
+  active?: boolean;
+}
 export interface ContestResultData {
   _id: string;
   name: string;
@@ -157,6 +166,7 @@ export interface Question {
   type: "mcq" | "descriptive" | "multiple" | string;
   set: string;
   difficult: string;
+  name?: string;
   _id?: string;
   answer?: string[];
   questionId: {
