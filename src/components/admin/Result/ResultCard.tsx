@@ -95,7 +95,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
             <button
               type="button"
               onClick={handleDeclareClick}
-              className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+              className="w-full bg-teal-600 text-white py-2 rounded-md font-medium hover:bg-teal-700 transition-colors"
             >
               Declare
             </button>
@@ -103,7 +103,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
             <button
               type="button"
               onClick={handleShowResults}
-              className="w-full bg-blue-600 text-white py-2 rounded-md font-medium hover:bg-blue-700 transition-colors"
+              className="w-full bg-teal-600 text-white py-2 rounded-md font-medium hover:bg-teal-700 transition-colors"
             >
               Show the results
             </button>

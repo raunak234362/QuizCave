@@ -1,13 +1,12 @@
-// ContestEditModal.tsx
 import React, { useState, useEffect } from "react";
 import JoditEditor from "jodit-react";
-import ContestInputField from "./ContestInputField"; // Assuming path is correct
+import ContestInputField from "./ContestInputField";
 
 interface EditFormData {
   name: string;
   duration: number;
   set: string;
-  rules: string; // Jodit/HTML content
+  rules: string;
   registration: boolean;
   active: boolean;
   startDate: string;
@@ -24,7 +23,6 @@ interface ContestEditModalProps {
 const joditConfig = {
   minHeight: 300,
   placeholder: "Enter contest rules (supports rich text)...",
-  // ... other jodit configs from your original component
 };
 
 const ContestEditModal: React.FC<ContestEditModalProps> = ({
@@ -36,7 +34,6 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
   const [editFormData, setEditFormData] =
     useState<EditFormData>(initialFormData);
 
-  // Update local state if initialFormData changes (e.g., when modal reopens)
   useEffect(() => {
     setEditFormData(initialFormData);
   }, [initialFormData]);
@@ -50,16 +47,12 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
     const checked =
       type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
 
-    setEditFormData(
-      (prev) =>
-        ({
-          ...prev,
-          [name]: type === "checkbox" ? checked : value,
-        } as EditFormData)
-    );
+    setEditFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
-  // Handler for Jodit Editor
   const handleRulesChange = (newHtmlValue: string) => {
     setEditFormData((prev) => ({
       ...prev,
@@ -71,7 +64,6 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
     onSave(editFormData);
   };
 
-  // Custom render function moved to reusable component, simplifying the modal body
   const renderInputField = (
     label: string,
     name: keyof EditFormData,
@@ -87,24 +79,26 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900 bg-opacity-80 flex items-center justify-center p-4">
-      <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto p-8 rounded-xl shadow-2xl relative transform transition-all duration-300">
-        {/* Modal Header */}
-        <div className="flex justify-between items-center sticky top-0 bg-white z-10 py-2 border-b-2 mb-6">
-          <h3 className="text-3xl font-extrabold text-gray-800">
-            ✏️ Edit Contest: {editFormData.name}
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-teal-950/50 backdrop-blur-sm p-4">
+      {/* Modal Container */}
+      <div className="bg-white w-full max-w-5xl max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl border border-teal-100 p-8 relative transform transition-all duration-300">
+        {/* Header */}
+        <div className="flex justify-between items-center sticky top-0 bg-white z-10 py-3 border-b border-teal-200 mb-6">
+          <h3 className="text-3xl font-extrabold text-teal-700">
+             Edit Contest: {editFormData.name}
           </h3>
           <button
             onClick={onClose}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md"
+            className="bg-teal-100 text-teal-700 font-semibold py-2 px-4 rounded-lg shadow-sm hover:bg-teal-200 transition-all"
             disabled={isSaving}
           >
             Cancel
           </button>
         </div>
 
+        {/* Content */}
         <div className="space-y-6">
-          {/* Grid Layout for Main Fields */}
+          {/* Grid Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {renderInputField("Contest Name", "name")}
             {renderInputField("Set", "set")}
@@ -113,33 +107,35 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
             {renderInputField("End Time", "endDate", "datetime-local")}
           </div>
 
-          {/* Checkboxes Group */}
-          <div className="flex flex-wrap gap-x-8 gap-y-4 pt-2 border-t border-gray-200">
+          {/* Toggles */}
+          <div className="flex flex-wrap gap-x-8 gap-y-4 pt-4 border-t border-teal-100">
             {renderInputField("Registration Open", "registration", "checkbox")}
             {renderInputField("Contest Active", "active", "checkbox")}
           </div>
 
-          {/* Rules Jodit Editor */}
+          {/* Rules Editor */}
           <div className="space-y-2">
             <label
-              className="block text-sm font-semibold text-gray-700"
+              className="block text-sm font-semibold text-teal-700"
               htmlFor="rules"
             >
-              Contest Rules (HTML Content):
+              Contest Rules (Rich Text)
             </label>
-            <JoditEditor
-              value={editFormData.rules}
-              onBlur={handleRulesChange}
-              onChange={handleRulesChange}
-              config={joditConfig}
-            />
+            <div className="border border-teal-200 rounded-lg overflow-hidden">
+              <JoditEditor
+                value={editFormData.rules}
+                onBlur={handleRulesChange}
+                onChange={handleRulesChange}
+                config={joditConfig}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Modal Footer (Save Button) */}
-        <div className="mt-8 pt-6 border-t border-gray-200 flex justify-end">
+        {/* Footer */}
+        <div className="mt-8 pt-6 border-t border-teal-100 flex justify-end">
           <button
-            className="bg-green-600 text-white py-2 px-6 rounded-lg font-bold shadow-md hover:bg-green-700 transition-colors disabled:opacity-50"
+            className="bg-teal-600 text-white py-2 px-6 rounded-lg font-bold shadow-md hover:bg-teal-700 transition-all disabled:opacity-50"
             onClick={handleInternalSave}
             disabled={isSaving}
           >

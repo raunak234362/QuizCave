@@ -24,7 +24,6 @@ const AllQuestion: React.FC = () => {
     try {
       const response = await Service.fetchAllQuestions();
       setQuestions(response);
-      console.log("Fetched questions:", response);
     } catch (error) {
       console.error("Error fetching all questions:", error);
     }
@@ -65,10 +64,7 @@ const AllQuestion: React.FC = () => {
   const handleEditFormSubmit = async () => {
     if (popupRowIndex === null) return;
     const questionToUpdate = questions[popupRowIndex];
-    if (!questionToUpdate || !questionToUpdate._id) {
-      console.error("Question or question ID not found for update.");
-      return;
-    }
+    if (!questionToUpdate || !questionToUpdate._id) return;
 
     try {
       await Service.UpdateQuestionById({
@@ -88,10 +84,7 @@ const AllQuestion: React.FC = () => {
 
   const handleDeleteQuestion = async (index: number) => {
     const questionToDelete = questions[index];
-    if (!questionToDelete || !questionToDelete._id) {
-      console.error("Question or question ID not found for delete.");
-      return;
-    }
+    if (!questionToDelete || !questionToDelete._id) return;
 
     try {
       await Service.deleteQuestionById({ questionId: questionToDelete._id });
@@ -105,13 +98,13 @@ const AllQuestion: React.FC = () => {
   const getDifficultyBgColor = (difficulty: string) => {
     switch (difficulty) {
       case "easy":
-        return "bg-green-500";
+        return "bg-teal-200 text-teal-900";
       case "medium":
-        return "bg-yellow-400";
+        return "bg-teal-400 text-white";
       case "hard":
-        return "bg-red-400";
+        return "bg-teal-600 text-white";
       default:
-        return "bg-gray-300";
+        return "bg-gray-200 text-gray-700";
     }
   };
 
@@ -124,22 +117,24 @@ const AllQuestion: React.FC = () => {
   });
 
   return (
-    <div>
-      <div className="flex flex-row w-full gap-10 p-5">
+    <div className="p-8 min-h-screen bg-gradient-to-br from-teal-50 to-white">
+      {/* Top Summary Cards */}
+      <div className="flex gap-8 mb-10">
+        {/* Set A */}
         <div
-          className="flex flex-col w-1/4 gap-3 p-5 py-20 bg-white shadow-lg rounded-xl relative"
+          className="relative w-1/3 bg-white/80 backdrop-blur-lg border border-teal-100 shadow-md rounded-2xl p-6 transition-all duration-300 hover:shadow-xl"
           onMouseEnter={() => setShowSetA(true)}
           onMouseLeave={() => setShowSetA(false)}
         >
-          <h1 className="text-2xl font-bold text-center text-gray-600">
-            No. Of Questions in Set-A
+          <h1 className="text-xl font-semibold text-teal-700 text-center mb-2">
+            Set A (Technical)
           </h1>
-          <p className="mx-auto text-3xl font-bold text-gray-800">
+          <p className="text-4xl font-bold text-center text-gray-800">
             {questions.filter((item) => item.set === "A").length}
           </p>
           {showSetA && (
-            <div className="absolute left-0 top-full mt-2 w-40 text-lg bg-white p-5 rounded-xl shadow-lg">
-              <p className="text-green-600">
+            <div className="absolute left-0 top-full mt-3 w-48 bg-white border border-teal-100 rounded-xl shadow-lg p-4 text-gray-700 text-sm">
+              <p className="text-teal-700 font-medium">
                 Easy:{" "}
                 {
                   questions.filter(
@@ -147,7 +142,7 @@ const AllQuestion: React.FC = () => {
                   ).length
                 }
               </p>
-              <p className="text-yellow-600">
+              <p className="text-teal-600 font-medium">
                 Medium:{" "}
                 {
                   questions.filter(
@@ -155,7 +150,7 @@ const AllQuestion: React.FC = () => {
                   ).length
                 }
               </p>
-              <p className="text-red-600">
+              <p className="text-teal-800 font-medium">
                 Hard:{" "}
                 {
                   questions.filter(
@@ -167,20 +162,21 @@ const AllQuestion: React.FC = () => {
           )}
         </div>
 
+        {/* Set B */}
         <div
-          className="flex flex-col w-1/4 gap-3 p-5 py-20 bg-white shadow-lg rounded-xl relative"
+          className="relative w-1/3 bg-white/80 backdrop-blur-lg border border-teal-100 shadow-md rounded-2xl p-6 transition-all duration-300 hover:shadow-xl"
           onMouseEnter={() => setShowSetB(true)}
           onMouseLeave={() => setShowSetB(false)}
         >
-          <h1 className="text-2xl font-bold text-center text-gray-600">
-            No. Of Questions in Set-B
+          <h1 className="text-xl font-semibold text-teal-700 text-center mb-2">
+            Set B (Non-Technical)
           </h1>
-          <p className="mx-auto text-3xl font-bold text-gray-800">
+          <p className="text-4xl font-bold text-center text-gray-800">
             {questions.filter((item) => item.set === "B").length}
           </p>
           {showSetB && (
-            <div className="absolute left-0 top-full mt-2 w-40 text-lg bg-white p-5 rounded-xl shadow-lg">
-              <p className="text-green-600">
+            <div className="absolute left-0 top-full mt-3 w-48 bg-white border border-teal-100 rounded-xl shadow-lg p-4 text-gray-700 text-sm">
+              <p className="text-teal-700 font-medium">
                 Easy:{" "}
                 {
                   questions.filter(
@@ -188,7 +184,7 @@ const AllQuestion: React.FC = () => {
                   ).length
                 }
               </p>
-              <p className="text-yellow-600">
+              <p className="text-teal-600 font-medium">
                 Medium:{" "}
                 {
                   questions.filter(
@@ -196,7 +192,7 @@ const AllQuestion: React.FC = () => {
                   ).length
                 }
               </p>
-              <p className="text-red-600">
+              <p className="text-teal-800 font-medium">
                 Hard:{" "}
                 {
                   questions.filter(
@@ -208,14 +204,13 @@ const AllQuestion: React.FC = () => {
           )}
         </div>
 
-        <div className="flex flex-col items-center w-1/4 gap-5 p-5 py-20 bg-white shadow-lg rounded-xl">
-          <h1 className="text-2xl font-bold text-center text-gray-600">
-            Add New Question
-          </h1>
-          <CgAdd className="mx-auto text-2xl text-green-500" />
+        {/* Add Question */}
+        <div className="w-1/3 bg-teal-600 text-white rounded-2xl p-8 shadow-md hover:shadow-lg flex flex-col items-center justify-center transition-all">
+          <CgAdd className="text-4xl mb-3" />
+          <h1 className="text-xl font-semibold mb-3">Add New Question</h1>
           <button
             onClick={() => setShowAddPopup(true)}
-            className="w-1/2 h-10 px-4 py-2 text-white bg-green-500 rounded-lg hover:bg-green-700"
+            className="bg-white text-teal-700 font-semibold px-6 py-2 rounded-lg hover:bg-teal-100 transition-all"
           >
             Add
           </button>
@@ -228,94 +223,94 @@ const AllQuestion: React.FC = () => {
         </div>
       </div>
 
-      <div className="p-5 h-[50vh] m-5 bg-white shadow-xl rounded-xl">
-        
-        <div className="flex gap-5 p-5">
-          
-          <select
-            
-            value={difficultyFilter}
-            onChange={(e) => setDifficultyFilter(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">All Difficulties</option>
-            <option value="easy">Easy</option>
-            <option value="medium">Medium</option>
-            <option value="hard">Hard</option>
-          </select>
-          <select
-            value={setFilter}
-            onChange={(e) => setSetFilter(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">All Sets</option>
-            <option value="A">Technical</option>
-            <option value="B">Non-Technical</option>
-          </select>
-          <select
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="p-2 border rounded"
-          >
-            <option value="">All Types</option>
-            <option value="mcq">Multiple Choice</option>
-            <option value="short">Short Answer</option>
-            <option value="long">Long Answer</option>
-            <option value="numerical">Numerical</option>
-            <option value="multiple">Multiple Answer</option>
-          </select>
-        </div>
+      {/* Filters */}
+      <div className="flex gap-6 bg-white/80 backdrop-blur-lg p-4 rounded-xl border border-teal-100 mb-6 shadow-md">
+        <select
+          value={difficultyFilter}
+          onChange={(e) => setDifficultyFilter(e.target.value)}
+          className="p-2 border border-teal-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
+        >
+          <option value="">All Difficulties</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
 
-        <div className="h-[35vh] overflow-y-auto w-full p-5 rounded-lg">
-          <table className="w-full text-center border-collapse table-auto rounded-xl">
-            <thead>
-              <tr className="bg-gray-200">
-                <th>S.No</th>
-                <th>Question</th>
-                <th>Type</th>
-                <th>Set</th>
-                <th>Difficulty</th>
-                <th>Option</th>
+        <select
+          value={setFilter}
+          onChange={(e) => setSetFilter(e.target.value)}
+          className="p-2 border border-teal-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
+        >
+          <option value="">All Sets</option>
+          <option value="A">Technical</option>
+          <option value="B">Non-Technical</option>
+        </select>
+
+        <select
+          value={typeFilter}
+          onChange={(e) => setTypeFilter(e.target.value)}
+          className="p-2 border border-teal-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-400"
+        >
+          <option value="">All Types</option>
+          <option value="mcq">Multiple Choice</option>
+          <option value="short">Short Answer</option>
+          <option value="long">Long Answer</option>
+          <option value="numerical">Numerical</option>
+          <option value="multiple">Multiple Answer</option>
+        </select>
+      </div>
+
+      {/* Table */}
+      <div className="bg-white/90 backdrop-blur-lg border border-teal-100 rounded-2xl shadow-lg overflow-hidden">
+        <div className="overflow-y-auto max-h-[60vh]">
+          <table className="w-full text-left border-collapse">
+            <thead className="bg-teal-600 text-white">
+              <tr>
+                <th className="p-4">#</th>
+                <th className="p-4">Question</th>
+                <th className="p-4">Type</th>
+                <th className="p-4">Set</th>
+                <th className="p-4">Difficulty</th>
+                <th className="p-4 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredData.map((item, index) => (
                 <tr
                   key={item._id ?? index}
-                  className="text-xl bg-gray-100 hover:bg-gray-200"
+                  className={`transition-all hover:bg-teal-50 ${
+                    index % 2 === 0 ? "bg-white" : "bg-teal-50/40"
+                  }`}
                 >
-                  <td className="border">{index + 1}</td>
-                  <td className="text-left border w-[40%]">
-                    {item?.question}
-                    {(typeof item?.question === "string" || item.question) &&
-                      (typeof item.question === "string"
-                        ? item.question
-                        : item.question
-                      ).split(" ").length > 30 &&
-                      "..."}
-                  </td>
-                  <td className="border">{item.type}</td>
-                  <td className="border">{item.set}</td>
-                  <td>
-                    <div
-                      className={`mx-auto flex justify-center items-center rounded-lg w-24 h-8 ${getDifficultyBgColor(
+                  <td className="p-4">{index + 1}</td>
+                  <td className="p-4 text-gray-700">{item?.question}</td>
+                  <td className="p-4 capitalize text-gray-700">{item.type}</td>
+                  <td className="p-4 text-gray-700">{item.set}</td>
+                  <td className="p-4">
+                    <span
+                      className={`px-3 py-1 rounded-lg text-sm font-semibold ${getDifficultyBgColor(
                         item.difficult
                       )}`}
                     >
                       {item.difficult}
-                    </div>
+                    </span>
                   </td>
-                  <td className="border">
+                  <td className="p-4 text-center">
                     <button
                       onClick={() => toggleEditQuestion(index)}
-                      className="px-2 py-3 text-white bg-blue-600 rounded hover:bg-green-500"
+                      className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded-lg font-semibold"
                     >
                       Modify
                     </button>
+
                     {popupVisible && popupRowIndex === index && (
-                      <div className="absolute right-0 bottom-5 z-50 w-[500px] bg-white rounded-lg shadow-lg p-2">
-                        <div className="flex flex-col w-full p-2">
-                          <label className="mb-2 font-bold text-gray-700">
+                      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-2xl shadow-xl p-6 w-[450px] border border-teal-100">
+                          <h3 className="text-2xl font-bold text-teal-700 mb-4">
+                            Edit Question
+                          </h3>
+
+                          <label className="block text-gray-700 font-semibold mb-2">
                             Question
                           </label>
                           <input
@@ -323,52 +318,56 @@ const AllQuestion: React.FC = () => {
                             name="question"
                             value={editFormState.question}
                             onChange={handleEditFormChange}
-                            className="w-full py-2 border border-gray-300 rounded-md"
+                            className="w-full border border-teal-200 rounded-lg p-2 mb-4"
                           />
-                          <label className="mt-2 mb-2 f ont-bold text-gray-700">
+
+                          <label className="block text-gray-700 font-semibold mb-2">
                             Set
                           </label>
                           <select
                             name="set"
                             value={editFormState.set}
                             onChange={handleEditFormChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full border border-teal-200 rounded-lg p-2 mb-4"
                           >
                             <option value="">Select Set</option>
                             <option value="A">Technical</option>
                             <option value="B">Non-Technical</option>
                           </select>
-                          <label className="mt-2 mb-2 font-bold text-gray-700">
+
+                          <label className="block text-gray-700 font-semibold mb-2">
                             Difficulty
                           </label>
                           <select
                             name="difficulty"
                             value={editFormState.difficulty}
                             onChange={handleEditFormChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full border border-teal-200 rounded-lg p-2 mb-6"
                           >
                             <option value="">Select Difficulty</option>
                             <option value="easy">Easy</option>
                             <option value="medium">Medium</option>
                             <option value="hard">Hard</option>
                           </select>
-                          <div className="flex flex-row w-full gap-5 mt-4">
+
+                          <div className="flex gap-4">
                             <button
                               onClick={handleEditFormSubmit}
-                              className="w-2/3 px-4 py-2 font-bold text-white bg-green-500 rounded hover:bg-green-700"
+                              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-bold"
                             >
                               Update
                             </button>
                             <button
                               onClick={() => setPopupVisible(false)}
-                              className="w-1/3 px-4 py-2 font-bold text-white bg-red-300 rounded hover:bg-red-500"
+                              className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg font-bold"
                             >
                               Cancel
                             </button>
                           </div>
+
                           <button
                             onClick={() => handleDeleteQuestion(index)}
-                            className="w-full px-4 py-2 mt-5 font-bold text-white bg-red-500 rounded hover:bg-red-700"
+                            className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold mt-4"
                           >
                             Delete
                           </button>

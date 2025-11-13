@@ -1,7 +1,6 @@
-
 import { useEffect, useState } from "react";
-import ContestEditModal from "./ContestEditModal"; 
-import Service from "../../../config/Service"; 
+import ContestEditModal from "./ContestEditModal";
+import Service from "../../../config/Service";
 import ShowContest from "./ShowContest";
 import type { ContestData } from "../../Interfaces";
 
@@ -28,15 +27,14 @@ const formatForDateTimeInput = (isoString: string | undefined): string => {
   return `${datePart}T${timePart}`;
 };
 
-
 const CardContest = ({ id }: any) => {
-  
-  const [contestDetails, setContestDetails] = useState<ContestData | null>();
-  console.log(contestDetails);
-
+  const [contestDetails, setContestDetails] = useState<ContestData | null>(
+    null
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isFetched, setIsFetched] = useState(false); // ✅ prevents refetch flicker
 
   const [editFormData, setEditFormData] = useState<EditFormData>({
     name: "",
@@ -49,53 +47,48 @@ const CardContest = ({ id }: any) => {
     endDate: "",
   });
 
- const initializeEditFormData = (contest: ContestData) => {
-  setEditFormData({
-    name: contest.name || "",
-    duration: Number(contest.duration) || 0,
-    set: contest.set || "",
-    rules: contest.rules || "",
-    registration: contest.registration || contest.resgistration || false,
-    active: contest.active || false,
-    startDate: formatForDateTimeInput(contest.startDate),
-    endDate: formatForDateTimeInput(contest.endDate),
-  });
-};
-
+  const initializeEditFormData = (contest: ContestData) => {
+    setEditFormData({
+      name: contest.name || "",
+      duration: Number(contest.duration) || 0,
+      set: contest.set || "",
+      rules: contest.rules || "",
+      registration: contest.registration || contest.resgistration || false,
+      active: contest.active || false,
+      startDate: formatForDateTimeInput(contest.startDate),
+      endDate: formatForDateTimeInput(contest.endDate),
+    });
+  };
 
   const fetchContestDetails = async () => {
+    if (isFetched) return; // ✅ already fetched, skip to prevent flicker
     try {
-      console.log(id);
       const response = await Service.fetchContestDetails(id);
-      setContestDetails(response.contest)
-      initializeEditFormData(response);
+      if (response?.contest) {
+        setContestDetails(response.contest);
+        initializeEditFormData(response.contest);
+        setIsFetched(true); // ✅ mark as fetched
+      }
     } catch (error) {
       console.error("Error fetching contest details:", error);
       setContestDetails(null);
     }
   };
+
   useEffect(() => {
     if (id && typeof id === "string" && id.trim() !== "") {
       fetchContestDetails();
     } else {
       console.warn("CardContest mounted without valid ID");
     }
-  }, [id]);
-
-
-  const toggleShowQues = () => setIsModalOpen(false);
-  const showContest = () => setIsModalOpen(true);
+  }, [id]); // ✅ only runs once per id
 
   const handleOpenEditModal = () => {
-    if (contestDetails) {
-      initializeEditFormData(contestDetails);
-    }
+    if (contestDetails) initializeEditFormData(contestDetails);
     setIsEditModalOpen(true);
   };
 
-  const handleCloseEditModal = () => {
-    setIsEditModalOpen(false);
-  };
+  const handleCloseEditModal = () => setIsEditModalOpen(false);
 
   const handleSaveEdit = async (formData: EditFormData) => {
     if (isSaving) return;
@@ -114,17 +107,12 @@ const CardContest = ({ id }: any) => {
 
       setContestDetails((prev) => {
         if (!prev) return null;
-
         const newDetails: ContestData = {
-          
           ...prev,
           ...updatedContestData,
           active: updatedContestData.active ?? prev.active,
-        
         };
-
         initializeEditFormData(newDetails);
-
         return newDetails;
       });
 
@@ -167,30 +155,30 @@ const CardContest = ({ id }: any) => {
 
       <div className="flex flex-row items-center gap-3 mt-4 border-t pt-4">
         <button
-          className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition-colors"
-          onClick={showContest}
+          className="w-full bg-teal-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition-colors"
+          onClick={() => setIsModalOpen(true)}
         >
           Show Details
         </button>
         <button
-          className="w-full bg-orange-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-orange-700 transition-colors"
+          className="w-full bg-teal-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-orange-700 transition-colors"
           onClick={handleOpenEditModal}
         >
           Edit All Fields
         </button>
       </div>
 
-      {/* RENDER EDIT MODAL */}
+      {/* EDIT MODAL */}
       {isEditModalOpen && (
         <ContestEditModal
           initialFormData={editFormData}
           isSaving={isSaving}
-          onSave={handleSaveEdit} // Pass the save handler
+          onSave={handleSaveEdit}
           onClose={handleCloseEditModal}
         />
       )}
 
-      {/* RENDER SHOW MODAL */}
+      {/* SHOW MODAL */}
       {isModalOpen && contestDetails && (
         <ShowContest
           contestDetails={contestDetails}
