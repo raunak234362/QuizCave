@@ -202,7 +202,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
                     <div>
                       <img
                         src={`${import.meta.env.VITE_IMG_URL}/${
-                          result?.userId?.profile || "default-profile.png"
+                          result?.userId?.profilePic || "default-profile.png"
                         }`}
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-4"
