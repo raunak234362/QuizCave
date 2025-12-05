@@ -1,9 +1,9 @@
 import React from "react";
-import type { registrationFormData } from "../../Interfaces/index";
+import type { RegistrationFormData } from "../../Interfaces/index";
 import { MdSchool, MdCalendarToday, MdGrade, MdFileCopy } from "react-icons/md";
 
 interface CollegeDetailsProps {
-  formData: registrationFormData;
+  formData: RegistrationFormData;
 }
 
 const CollegeDetails: React.FC<CollegeDetailsProps> = ({ formData }) => {

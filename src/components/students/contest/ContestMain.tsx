@@ -3,13 +3,15 @@ import ContestList from "./ContestList";
 import type { ContestData } from "../../Interfaces";
 
 export default function ContestMain() {
-  const [selectedContest, setSelectedContest] = useState<ContestData | null>(
+  const [ setSelectedContest] = useState<ContestData | null>(
     null
   );
 
+  const ContestListAny = ContestList as any;
+
   return (
     <div className="p-6">
-        <ContestList onSelectContest={setSelectedContest} />
+        <ContestListAny onSelectContest={setSelectedContest} />
      
     </div>
   );

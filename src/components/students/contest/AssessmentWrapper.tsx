@@ -17,7 +17,9 @@ const mockContest: ContestData = {
     status: "active",
     createdBy: "",
     createdAt: "",
-    rules: ""
+    rules: "",
+    questions: [],
+    participants: []
 };
 
 const mockResultDetails: ResultDetails = {

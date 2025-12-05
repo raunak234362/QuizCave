@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ResultCardProps, ResultDetails, UserToken } from "../../Interfaces/index";
+import type { ResultCardProps, ResultDetails} from "../../Interfaces/index";
 import Service from "../../../config/Service";
 import DataDownload from "./DataDownload";
 
