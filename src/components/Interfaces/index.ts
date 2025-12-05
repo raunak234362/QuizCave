@@ -30,7 +30,7 @@ export interface UserData {
   college?: string;
   role: "admin" | "user" | string;
   designation: string;
-  profile: string | File;
+  profilePic: string | File;
   marksheet: [];
 }
 
