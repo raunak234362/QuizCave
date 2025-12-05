@@ -54,6 +54,7 @@ export interface ContestData {
   rules: string;
   passingScore: number;
   resgistration?: boolean;
+  attempted?: boolean;
 }
 export interface ContestDataForm {
   title: string;

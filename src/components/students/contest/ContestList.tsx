@@ -25,11 +25,15 @@ const ContestList = () => {
       <h1 className="text-2xl font-bold text-center">Available Contests</h1>
       <div className="flex flex-row flex-wrap justify-center mt-5 gap-5">
         {contests.map((contest) => (
-          <ContestCard
+          <div
             key={String(contest._id)}
-            contest={contest}
             onClick={() => console.log("Contest clicked:", contest._id)}
-          />
+            className="cursor-pointer"
+          >
+            <ContestCard
+              contest={contest}
+            />
+          </div>
         ))}
       </div>
     </div>

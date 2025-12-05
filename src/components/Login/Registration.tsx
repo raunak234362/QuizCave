@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import Service from "../../config/Service";
-import type { RegistrationFormData, Address } from "../Interfaces/index";
+import type { RegistrationFormData } from "../Interfaces/index";
 import Logo from "../../assets/logo.png";
 
 const Registration: React.FC = () => {
@@ -11,7 +11,7 @@ const Registration: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState:{},
   } = useForm<RegistrationFormData>();
   const navigate = useNavigate();
   // const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -19,12 +19,9 @@ const Registration: React.FC = () => {
   const [isSameAddress, setIsSameAddress] = useState<boolean>(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [resumeName, setResumeName] = useState<string | null>(null);
-  const [marksheetName, setMarksheetName] = useState<string>("");
-  const watchProfile = watch("profile");
-  const watchResume = watch("resume");
-  const watchMarksheet = watch("marksheet");
-  const watchPermAddress = watch("permAddress");
- 
+
+  
+
   const courseSemesterMap: Record<string, string[]> = {
     "BE/BTECH": ["Semester-7", "Semester-8", "Passout"],
     BCA: ["Semester-5", "Semester-6", "Passout"],
@@ -76,8 +73,6 @@ const Registration: React.FC = () => {
 
    const onSubmit = async (data : RegistrationFormData) => {
      console.log("Form Data Submitted:", data);
-     const permanentAddress= {}
-     const responseData = {...data};
      try {
        const response = await Service.AddStudentForm(data);
        console.log("Registration Response:", response);

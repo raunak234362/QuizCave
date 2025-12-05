@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import Service from "../../../config/Service";
 import CardContest from "./CardContest";
 import type { ContestData } from "../../Interfaces";
-import ContestResult from "./ContestResult";
 import AddContest from "./AddContest";
 
 const Contest = () => {

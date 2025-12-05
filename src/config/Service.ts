@@ -292,23 +292,17 @@ class Service {
       }
     }
   }
-  static async studentContestAttempt({ id }: { id: ContestData["_id"] }) {
-    try {
-      const response = await api.post(`/contest/attempt/${id}/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(
-          "Failed to fetch student contest result: " + error.message
-        );
-      }
-    }
+static async studentContestAttempt({ id }: { id: ContestData["_id"] }) {
+  try {
+    const response = await api.post(`/contest/attempt/${id}/`);
+    console.log("Student Contest Attempt Response:", response.data);
+    return response.data;
+  } catch (error: any) {
+    console.log("Contest attempt error:", error.response?.data);
+    throw error; // <-- important to keep backend status
   }
+}
+
   static async studentContestResultAll() {
     try {
       const response = await api.get("/result/all", {

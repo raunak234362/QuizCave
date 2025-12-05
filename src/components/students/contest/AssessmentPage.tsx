@@ -32,7 +32,7 @@ const AssessmentPage = ({
     [key: string]: string;
   }>({});
   const [submitting, setSubmitting] = useState(false);
-  const [tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [, setTabSwitchCount] = useState(0);
   const maxTabSwitches = 1;
 
   // Use a ref to hold a stable reference to the submission logic
@@ -82,6 +82,49 @@ const AssessmentPage = ({
       alert("You have reached the end of the exam.");
     }
   };
+  useEffect(() => {
+  // Disable Right Click
+  const disableRightClick = (e: MouseEvent) => e.preventDefault();
+  document.addEventListener("contextmenu", disableRightClick);
+
+  // Disable Inspect Keys
+  const disableKeys = (e: KeyboardEvent) => {
+    if (
+      e.key === "F12" ||
+      (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) ||
+      (e.ctrlKey && e.key === "U")
+    ) {
+      e.preventDefault();
+      alert("Inspection tools are disabled during assessment.");
+    }
+  };
+  window.addEventListener("keydown", disableKeys);
+
+  return () => {
+    document.removeEventListener("contextmenu", disableRightClick);
+    window.removeEventListener("keydown", disableKeys);
+  };
+}, []);
+useEffect(() => {
+  let checkInterval: any;
+
+  const detectDevTools = () => {
+    const threshold = 160;
+    const widthDiff = window.outerWidth - window.innerWidth > threshold;
+    const heightDiff = window.outerHeight - window.innerHeight > threshold;
+
+    if (widthDiff || heightDiff) {
+      alert("⚠️ Developer tools detected! Submitting assessment...");
+      performFinalSubmitRef.current();
+    }
+  };
+
+  checkInterval = setInterval(detectDevTools, 1000);
+
+  return () => clearInterval(checkInterval);
+}, []);
+
+
 
   const handleSaveAnswer = (
     qid: string,
@@ -116,34 +159,79 @@ const AssessmentPage = ({
   }, []);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // Use the functional update to get the latest state
-        setTabSwitchCount((prevCount) => {
-          const newCount = prevCount + 1;
-          if (newCount > maxTabSwitches) {
-            alert(
-              "⚠️ Maximum tab switches exceeded. Submitting your assessment automatically."
-            );
-            performFinalSubmitRef.current(); // Use the ref to call the function
-          } else {
-            alert(
-              `⚠️ Warning! You have ${
-                maxTabSwitches - newCount
-              } warnings remaining. Switching tabs is not allowed.`
-            );
-          }
-          return newCount;
-        });
-      }
-    };
+  const handleFullscreenExit = () => {
+    if (!document.fullscreenElement) {
+      alert("⚠️ You exited fullscreen. Submitting the test.");
+      performFinalSubmitRef.current();
+    }
+  };
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+  document.addEventListener("fullscreenchange", handleFullscreenExit);
 
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, []); // Empty dependency array ensures the effect runs only once
+  return () => document.removeEventListener("fullscreenchange", handleFullscreenExit);
+}, []);
+
+
+  // useEffect(() => {
+  //   const handleVisibilityChange = () => {
+  //     if (document.hidden) {
+  //       // Use the functional update to get the latest state
+  //       setTabSwitchCount((prevCount) => {
+  //         const newCount = prevCount + 1;
+  //         if (newCount > maxTabSwitches) {
+  //           alert(
+  //             "⚠️ Maximum tab switches exceeded. Submitting your assessment automatically."
+  //           );
+  //           performFinalSubmitRef.current(); // Use the ref to call the function
+  //         } else {
+  //           alert(
+  //             `⚠️ Warning! You have ${
+  //               maxTabSwitches - newCount
+  //             } warnings remaining. Switching tabs is not allowed.`
+  //           );
+  //         }
+  //         return newCount;
+  //       });
+  //     }
+  //   };
+
+  //   document.addEventListener("visibilitychange", handleVisibilityChange);
+
+  //   return () => {
+  //     document.removeEventListener("visibilitychange", handleVisibilityChange);
+  //   };
+  // }, []); // Empty dependency array ensures the effect runs only once
+
+useEffect(() => {
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      setTabSwitchCount((prev) => {
+        if (prev + 1 > maxTabSwitches) {
+          alert("🚨 Tab switching limit exceeded. Auto-submitting test.");
+          performFinalSubmitRef.current();
+        } else {
+          alert(`⚠️ Switching tabs is not allowed. Remaining: ${maxTabSwitches - prev - 1}`);
+        }
+        return prev + 1;
+      });
+    }
+  };
+
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+  return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+}, []);
+
+
+useEffect(() => {
+  const warnBeforeUnload = (e: BeforeUnloadEvent) => {
+    e.preventDefault();
+    e.returnValue = "";
+  };
+  window.addEventListener("beforeunload", warnBeforeUnload);
+
+  return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+}, []);
+
 
   if (!contest || !resultDetails || !questionDetails) {
     return (
