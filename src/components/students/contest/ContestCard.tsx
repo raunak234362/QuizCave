@@ -32,7 +32,6 @@ const ContestCard = ({ contest }: Props) => {
       //Hit the api to check weather the user has already attempted the contest
       const response = await Service.studentContestAttempt({
         id: contestID,
-        token: token as unknown as UserToken,
       });
       console.log("Contest attempt response:", response);
 

@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface UserResponse {
   name: string;
   email: string;
   phone: string;
   userId: string;
-  role: "admin" | "user" | string; 
+  role: "admin" | "user" | string;
   designation: string;
   profile: string | File;
   accessToken: string;
@@ -34,6 +35,7 @@ export interface UserData {
 }
 
 export interface ContestData {
+  questions: any;
   _id: string;
   name: string;
   description: string;
@@ -51,8 +53,18 @@ export interface ContestData {
   createdAt: string;
   rules: string;
   passingScore: number;
+  resgistration?: boolean;
 }
-
+export interface ContestDataForm {
+  title: string;
+  set: string;
+  instructions: string;
+  duration: string;
+  startDate: string;
+  endDate: string;
+  contestId:string;
+  active?: boolean;
+}
 export interface ContestResultData {
   _id: string;
   name: string;
@@ -105,68 +117,6 @@ export interface Address {
   zip?: string;
 }
 
-// Define interface for form data
-// export interface RegistrationFormData {
-//   profile: string | File;
-//   resume: string | File;
-//   marksheet: string | File;
-//   name: string;
-//   email: string;
-//   phone: string;
-//   altPhone: string;
-//   password: string;
-//   dob: Date;
-//   studentId: string;
-//   gender: string;
-//   fatherName: string;
-//   motherName: string;
-//   currentSemester: number;
-//   branch: string;
-//   course: string; 
-//   college: string;
-//   cgpa: number;
-//   passingYear: number;
-//   backlog: number;
-//   permAddress: Address;
-//   currAddress: Address;
-// }
-
-// // Utility function to convert FormData to RegistrationFormData
-// export function formDataToRegistrationFormData(formData: FormData): RegistrationFormData {
-//   return {
-//     profile: formData.get("profilePic") as string | File,
-//     resume: formData.get("resume") as string | File,
-//     marksheet: formData.get("marksheet") as string | File,
-//     name: formData.get("name") as string,
-//     email: formData.get("email") as string,
-//     phone: formData.get("phone") as string,
-//     altPhone: formData.get("altPhone") as string,
-//     password: formData.get("password") as string,
-//     dob: new Date(formData.get("dob") as string),
-//     studentId: formData.get("studentId") as string,
-//     gender: formData.get("gender") as string,
-//     fatherName: formData.get("fatherName") as string,
-//     motherName: formData.get("motherName") as string,
-//     currentSemester: Number(formData.get("currentSemester") ?? 0),
-//     branch: formData.get("branch") as string,
-//     course: formData.get("course") as string,
-//     college: formData.get("college") as string,
-//     cgpa: Number(formData.get("cgpa")),
-//     passingYear: Number(formData.get("passingYear")),
-//     backlog: Number(formData.get("backlog")),
-//     permAddress: JSON.parse(formData.get("permAddress") as string),
-//     currAddress: JSON.parse(formData.get("currAddress") as string),
-//   };
-// }
-
-// // Helper to wrap registrationFormData in an object with 'data' property
-// // export function wrapRegistrationFormData(formData: FormData): { data: registrationFormData } {
-// //   return { data: formDataToRegistrationFormData(formData) };
-// // }
-
-
-
-// Interfaces.ts
 export interface RegistrationFormData {
   profile: File | null;
   resume: File | null;
@@ -192,34 +142,6 @@ export interface RegistrationFormData {
   currAddress: Address; // JSON string
 }
 
-// Utility function to convert FormData to RegistrationFormData
-// export function formDataToRegistrationFormData(formData: FormData): RegistrationFormData {
-//   return {
-//     profile: formData.get("profilePic") as File | null,
-//     resume: formData.get("resume") as File | null,
-//     marksheet: formData.get("marksheet") as File | null,
-//     name: formData.get("name") as string,
-//     email: formData.get("email") as string,
-//     phone: formData.get("phone") as string,
-//     altPhone: formData.get("altPhone") as string | undefined,
-//     password: formData.get("password") as string,
-//     dob: formData.get("dob") as string,
-//     studentId: formData.get("studentId") as string,
-//     gender: formData.get("gender") as string,
-//     fatherName: formData.get("fatherName") as string,
-//     motherName: formData.get("motherName") as string,
-//     currentSemester: formData.get("currentSemester") as string,
-//     branch: formData.get("branch") as string,
-//     course: formData.get("course") as string,
-//     college: formData.get("college") as string,
-//     cgpa: formData.get("cgpa") as string,
-//     passingYear: formData.get("passingYear") as string,
-//     backlog: formData.get("backlog") as string,
-//     permAddress: JSON.parse(formData.get("permAddress") as string),
-//     currAddress: JSON.parse(formData.get("currAddress") as string),
-//   };
-// }
-
 export interface Address {
   streetLine1?: string;
   streetLine2?: string;
@@ -229,8 +151,6 @@ export interface Address {
   zip?: string;
 }
 
-
-
 export interface QuestionData {
   _id: string;
   question: string;
@@ -238,16 +158,23 @@ export interface QuestionData {
   multipleQuestion: string[];
   difficult: "easy" | "medium" | "hard" | string;
   type: "mcq" | string;
+  set: string;
 }
 
 export interface Question {
+  question: any;
+  type: "mcq" | "descriptive" | "multiple" | string;
+  set: string;
+  difficult: string;
+  name?: string;
   _id?: string;
   answer?: string[];
   questionId: {
-    question?: string;
+    split(arg0: string): unknown;
+    question?: string | any;
     mcqOptions?: string[];
     multipleQuestion?: string[];
-    questionImage?: string;
+    questionImage?: string | File;
     answer?: string;
     multipleAnswer?: string[];
     difficult?: "easy" | "medium" | "hard" | string;
@@ -259,9 +186,3 @@ export interface AnswerData {
   question: string;
   answer: string[];
 }
-
-// interface PdfCreatorProps {
-//   question?: Question[];
-//   username?: string;
-//   marks?: number;
-// }

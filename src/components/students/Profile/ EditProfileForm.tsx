@@ -1,10 +1,10 @@
 import React, { useState, type ChangeEvent, type FormEvent } from "react";
-import type { registrationFormData, Address } from "../../Interfaces/index";
+import type { RegistrationFormData, Address } from "../../Interfaces/index";
 import { MdSave, MdCancel } from "react-icons/md";
 
 interface EditProfileFormProps {
-  formData: registrationFormData;
-  setFormData: React.Dispatch<React.SetStateAction<registrationFormData>>;
+  formData: RegistrationFormData;
+  setFormData: React.Dispatch<React.SetStateAction<RegistrationFormData>>;
   setIsEditing: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -13,7 +13,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   setFormData,
   setIsEditing,
 }) => {
-  const [editedData, setEditedData] = useState<registrationFormData>(formData);
+  const [editedData, setEditedData] = useState<RegistrationFormData>(formData);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
@@ -32,7 +32,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
     setEditedData((prev) => ({
       ...prev,
       [addressType]: {
-        ...(prev[addressType as keyof registrationFormData] as Address),
+        ...(prev[addressType as keyof RegistrationFormData] as Address),
         [field]: value,
       },
     }));

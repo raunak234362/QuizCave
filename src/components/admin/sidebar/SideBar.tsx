@@ -19,7 +19,7 @@ const SideBar = () => {
           <nav>
             <ul className="flex flex-col gap-5">
               <li>
-                <NavLink
+                {/* <NavLink
                   to="dashboard"
                   className={({ isActive }) =>
                     `flex items-center text-center px-8 py-2 rounded-md ${
@@ -30,7 +30,7 @@ const SideBar = () => {
                   }
                 >
                   Dashboard
-                </NavLink>
+                </NavLink> */}
               </li>
               <li>
                 <NavLink
@@ -44,6 +44,20 @@ const SideBar = () => {
                   }
                 >
                   Contest
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="questions"
+                  className={({ isActive }) =>
+                    `flex items-center text-center px-8 py-2 rounded-md ${
+                      isActive
+                        ? "bg-teal-400 font-semibold text-center text-white"
+                        : "text-gray-300 hover:bg-teal-700 hover:text-white"
+                    }`
+                  }
+                >
+                  Questions
                 </NavLink>
               </li>
               <li>

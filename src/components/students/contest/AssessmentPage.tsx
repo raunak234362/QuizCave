@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // AssessmentPage.tsx
 
 import { useState, useEffect, useRef } from "react";
@@ -39,14 +40,12 @@ const AssessmentPage = ({
     Promise.resolve()
   );
 
-  
   const performFinalSubmit = async () => {
     if (!resultDetails?._id) {
       alert("Missing result ID. Cannot submit.");
       return;
     }
 
-    
     if (submitting) return;
     setSubmitting(true);
 
@@ -54,8 +53,8 @@ const AssessmentPage = ({
       const response = await Service.finalSubmitAnswers({
         resultId: resultDetails._id,
       });
-        console.log("Final submission response:", response);
-        console.log("Submission success:", response.data.success);
+      console.log("Final submission response:", response);
+      console.log("Submission success:", response.data.success);
       if (response.success) {
         setAssessmentComplete(true);
 
