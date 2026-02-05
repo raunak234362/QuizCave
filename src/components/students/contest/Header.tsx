@@ -17,7 +17,7 @@ export const Header = ({ user, contest }: HeaderProps) => {
       <div className="text-black text-3xl font-semibold h-16 flex flex-row items-center">
         {user?.name}
         <img
-          src={`${import.meta.env.VITE_IMG_URL}/${user?.profile}`}
+          src={`${import.meta.env.VITE_IMG_URL}/${user?.profilePic}`}
           alt="user-picture"
           className="h-12 w-12 rounded-[100%] mx-2"
         />

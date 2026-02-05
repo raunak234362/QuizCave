@@ -20,7 +20,7 @@ const Profile: React.FC = () => {
         <div className="flex flex-row items-center text-center gap-5">
           <div>
             <img
-              src={`${import.meta.env.VITE_IMG_URL}/${user?.profile}`}
+              src={`${import.meta.env.VITE_IMG_URL}/${user?.profilePic}`}
               alt="Profile"
               className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-4"
             />
