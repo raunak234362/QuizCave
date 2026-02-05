@@ -1,12 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-// AssessmentPage.tsx
-
 import { useState, useEffect, useRef } from "react";
 import type {
   ContestData,
   QuestionData,
   ResultDetails,
-} from "../../Interfaces/index";
+} from "../../Interfaces";
 import { Question } from "./ContestQuestion";
 import { Counterdown } from "./Counterdown";
 import Service from "../../../config/Service";
@@ -15,7 +13,7 @@ interface Props {
   contest: ContestData | null;
   resultDetails: ResultDetails | null;
   questionDetails: QuestionData[] | null;
-  shuffleQuestions: any;
+  shuffleQuestions: (q: QuestionData[]) => QuestionData[];
   setAssessmentComplete: (completed: boolean) => void;
 }
 
@@ -84,6 +82,7 @@ const AssessmentPage = ({
       alert("You have reached the end of the exam.");
     }
   };
+
   useEffect(() => {
     // 🔒 Disable Right Click
     const disableRightClick = (e: MouseEvent) => {
@@ -212,7 +211,7 @@ const AssessmentPage = ({
 
   const handleFinalSubmit = async () => {
     const confirmSubmit = window.confirm(
-      "Are you sure you want to submit your final answers? You won’t be able to change them afterward.",
+      "Are you sure you want to submit your final answers? You won't be able to change them afterward.",
     );
     if (!confirmSubmit) return;
     performFinalSubmit();

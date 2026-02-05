@@ -13,26 +13,18 @@ const ContestList = () => {
         setContests(data);
       } catch (error) {
         console.error("Error fetching contests:", error);
-      } 
+      }
     };
     fetchContests();
   }, []);
-
-  console.log("Fetched contests:", contests);
 
   return (
     <div className="w-full p-5 mt-5 bg-gray-100 rounded-xl">
       <h1 className="text-2xl font-bold text-center">Available Contests</h1>
       <div className="flex flex-row flex-wrap justify-center mt-5 gap-5">
         {contests.map((contest) => (
-          <div
-            key={String(contest._id)}
-            onClick={() => console.log("Contest clicked:", contest._id)}
-            className="cursor-pointer"
-          >
-            <ContestCard
-              contest={contest}
-            />
+          <div key={String(contest._id)}>
+            <ContestCard contest={contest} />
           </div>
         ))}
       </div>
