@@ -27,23 +27,9 @@ interface Props {
 }
 
 export function Assessment({ contest, resultDetails, questionDetails }: Props) {
-  const [startExam, setStartExamState] = useState(false);
+  const [startExam, setStartExam] = useState(false);
   const [completed, setCompleted] = useState(false);
   const navigate = useNavigate();
-
-  // Wrapper to log state changes
-  const setStartExam = (value: boolean) => {
-    console.log("🔴 setStartExam called with:", value);
-    setStartExamState(value);
-    console.log("🔴 setStartExamState executed");
-  };
-
-  console.log("=== Assessment Component Render ===");
-  console.log("startExam:", startExam);
-  console.log("completed:", completed);
-  console.log("contest:", contest);
-  console.log("resultDetails:", resultDetails);
-  console.log("questionDetails:", questionDetails);
 
   if (completed) {
     return (
@@ -64,24 +50,18 @@ export function Assessment({ contest, resultDetails, questionDetails }: Props) {
     );
   }
 
-  console.log("Rendering main assessment container");
-  console.log("Should show rules:", !startExam);
-  console.log("Should show exam:", startExam);
-
   return (
     <div className="fixed inset-0 bg-white z-[9999]">
       <Header user={resultDetails?.userId} contest={contest?.name} />
 
       {!startExam && (
         <>
-          {console.log("Rendering ContestRules")}
           <ContestRules contest={contest} start={setStartExam} />
         </>
       )}
 
       {startExam && (
         <>
-          {console.log("Rendering AssessmentPage")}
           <AssessmentPage
             contest={contest}
             resultDetails={resultDetails}

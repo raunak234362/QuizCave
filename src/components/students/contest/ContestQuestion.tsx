@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Watermark } from "@hirohe/react-watermark";
 import Service from "../../../config/Service";
+import toast from "react-hot-toast";
 
 export interface QuestionType {
   _id: string;
@@ -22,6 +23,8 @@ interface QuestionProps {
   shuffleQuestions: any;
   answer?: string[];
   onSaveAnswer: (qid: string, value: any, status?: string) => void;
+  isLastQuestion?: boolean;
+  onFinalSubmit?: () => void;
 }
 
 export const Question = ({
@@ -30,21 +33,82 @@ export const Question = ({
   onSaveAnswer,
   resultId,
   handleNextQuestion,
+  isLastQuestion,
+  onFinalSubmit,
 }: QuestionProps) => {
   const [answered, setAnswered] = useState<boolean>(false);
   const [answer, setAnswer] = useState<string[]>([]);
-
+  const [saving, setSaving] = useState<boolean>(false);
 
   const handleSaveNext = async () => {
-    const submitData = { question: Question._id, answer };
-    const response = await Service.AddAnswerById({
-      resultId,
-      submitData
-    });
-    console.log("Answer saved response:", response);
-    if (answered) {
-      handleNextQuestion();
-      onSaveAnswer(Question._id, answer);
+    // Validation: Check if user has answered
+    if (!answered || answer.length === 0 || !answer[0]) {
+      toast.error("Please provide an answer before proceeding.");
+      return;
+    }
+
+    // Prevent duplicate submissions
+    if (saving) {
+      return;
+    }
+
+    setSaving(true);
+    const loadingToast = toast.loading(
+      isLastQuestion ? "Saving final answer..." : "Saving answer...",
+    );
+
+    try {
+      const submitData = { question: Question._id, answer };
+      const response = await Service.AddAnswerById({
+        resultId,
+        submitData,
+      });
+      console.log("Answer saved response:", response);
+
+      // Update local state
+      onSaveAnswer(Question._id, answer, "attempted");
+
+      if (isLastQuestion) {
+        toast.success("All questions answered!", { id: loadingToast });
+        if (onFinalSubmit) {
+          onFinalSubmit();
+        }
+      } else {
+        toast.success("Answer saved!", { id: loadingToast });
+        // Move to next question
+        handleNextQuestion();
+      }
+    } catch (error: any) {
+      console.error("Error saving answer:", error);
+
+      // Check if it's a duplicate answer error
+      if (
+        error.response?.status === 400 &&
+        error.response?.data?.message?.includes("already answered")
+      ) {
+        toast.error(
+          "This question was already answered. Moving to next question.",
+          {
+            id: loadingToast,
+          },
+        );
+        // Still update local state and move to next
+        onSaveAnswer(Question._id, answer, "attempted");
+
+        if (isLastQuestion) {
+          if (onFinalSubmit) {
+            onFinalSubmit();
+          }
+        } else {
+          handleNextQuestion();
+        }
+      } else {
+        toast.error("Failed to save answer. Please try again.", {
+          id: loadingToast,
+        });
+      }
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -61,8 +125,8 @@ export const Question = ({
               {Question.difficult === "easy"
                 ? "1 mark"
                 : Question.difficult === "medium"
-                ? "3 marks"
-                : "5 marks"}
+                  ? "3 marks"
+                  : "5 marks"}
             </span>
           </div>
         )}
@@ -178,10 +242,21 @@ export const Question = ({
 
           <button
             type="button"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-lg shadow"
+            disabled={saving}
+            className={`${
+              saving
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            } text-white font-semibold px-5 py-2 rounded-lg shadow transition-colors`}
             onClick={handleSaveNext}
           >
-            Save & Next
+            {saving
+              ? isLastQuestion
+                ? "Submitting..."
+                : "Saving..."
+              : isLastQuestion
+                ? "Save & Submit"
+                : "Save & Next"}
           </button>
         </div>
       </div>

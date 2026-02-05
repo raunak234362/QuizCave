@@ -6,6 +6,7 @@ import type {
 import { useState } from "react";
 import Service from "../../../config/Service";
 import { Assessment } from "./Assessment";
+import toast from "react-hot-toast";
 
 const ContestCard = ({ contest }: { contest: ContestData }) => {
   const [attempt, setAttempt] = useState(false);
@@ -14,18 +15,27 @@ const ContestCard = ({ contest }: { contest: ContestData }) => {
   const [questionData, setQuestionData] = useState<QuestionData[] | null>(null);
 
   const handleAttendClick = async () => {
+    const loadingToast = toast.loading("Loading assessment...");
+
     try {
       const res = await Service.studentContestAttempt({ id: contest._id });
-
+      console.log(res.data);
+      
       setContestData(res.data.contest);
       setResultData(res.data.result);
       setQuestionData(res.data.questions);
       setAttempt(true);
+
+      toast.success("Assessment loaded successfully!", { id: loadingToast });
     } catch (err: any) {
       if (err.response?.status === 409 || err.response?.status === 500) {
-        alert("⚠️ You have already attempted this assessment.");
+        toast.error("You have already attempted this assessment.", {
+          id: loadingToast,
+        });
       } else {
-        alert("Failed to load assessment.");
+        toast.error("Failed to load assessment. Please try again.", {
+          id: loadingToast,
+        });
       }
     }
   };

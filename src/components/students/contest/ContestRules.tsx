@@ -16,27 +16,18 @@ export const ContestRules = ({ contest, start }: ContestRulesProps) => {
       <button
         className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded"
         onClick={() => {
-          console.log("Start Assessment button clicked");
-          console.log("start function:", start);
-
           const ok = window.confirm(
             "Please read all instructions carefully.\n\nDo you want to start the assessment?",
           );
 
-          if (!ok) {
-            console.log("User cancelled");
-            return;
-          }
+          if (!ok) return;
 
-          console.log("User confirmed, calling start(true)...");
           start(true);
-          console.log("start(true) called successfully");
 
           // Try fullscreen after starting (non-blocking)
           document.documentElement
             .requestFullscreen({ navigationUI: "hide" })
-            .then(() => console.log("Fullscreen activated"))
-            .catch((err) => console.warn("Fullscreen failed:", err));
+            .catch(() => {});
         }}
       >
         Start Assessment

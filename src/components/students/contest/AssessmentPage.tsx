@@ -8,6 +8,7 @@ import type {
 import { Question } from "./ContestQuestion";
 import { Counterdown } from "./Counterdown";
 import Service from "../../../config/Service";
+import toast from "react-hot-toast";
 
 interface Props {
   contest: ContestData | null;
@@ -32,8 +33,8 @@ const AssessmentPage = ({
   const [submitting, setSubmitting] = useState(false);
   const [_tabSwitchCount, setTabSwitchCount] = useState(0);
   const [_fullscreenWarnings, setFullscreenWarnings] = useState(0);
-  const maxTabSwitches = 2; // 2 warnings before auto-submit
-  const maxFullscreenWarnings = 2; // 2 warnings before auto-submit
+  const maxTabSwitches = 1; // 2 warnings before auto-submit
+  const maxFullscreenWarnings = 1; // 2 warnings before auto-submit
 
   // Use a ref to hold a stable reference to the submission logic
   const performFinalSubmitRef = useRef<() => Promise<void>>(() =>
@@ -42,12 +43,14 @@ const AssessmentPage = ({
 
   const performFinalSubmit = async () => {
     if (!resultDetails?._id) {
-      alert("Missing result ID. Cannot submit.");
+      toast.error("Missing result ID. Cannot submit.");
       return;
     }
 
     if (submitting) return;
     setSubmitting(true);
+
+    const loadingToast = toast.loading("Submitting your answers...");
 
     try {
       const response = await Service.finalSubmitAnswers({
@@ -56,15 +59,18 @@ const AssessmentPage = ({
       console.log("Final submission response:", response);
       console.log("Submission success:", response.data.success);
       if (response.success) {
+        toast.success("Assessment submitted successfully! 🎉", {
+          id: loadingToast,
+        });
         setAssessmentComplete(true);
-
-        alert("Submission successful.");
       } else {
-        alert("Submission failed. Please try again.");
+        toast.error("Submission failed. Please try again.", {
+          id: loadingToast,
+        });
       }
     } catch (error) {
       console.error("Submission failed:", error);
-      alert("Submission failed. Please try again.");
+      toast.error("Submission failed. Please try again.", { id: loadingToast });
     } finally {
       setSubmitting(false);
     }
@@ -79,7 +85,7 @@ const AssessmentPage = ({
     if (currentQuestionIndex < (questionDetails?.length ?? 0) - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      alert("You have reached the end of the exam.");
+      toast("You have reached the end of the exam.", { icon: "ℹ️" });
     }
   };
 
@@ -87,7 +93,7 @@ const AssessmentPage = ({
     // 🔒 Disable Right Click
     const disableRightClick = (e: MouseEvent) => {
       e.preventDefault();
-      alert("⚠️ Right-click is disabled during the assessment.");
+      toast.error("Right-click is disabled during the assessment.");
     };
     document.addEventListener("contextmenu", disableRightClick);
 
@@ -105,7 +111,7 @@ const AssessmentPage = ({
           (e.key === "I" || e.key === "C" || e.key === "J"))
       ) {
         e.preventDefault();
-        alert("⚠️ Inspection tools are disabled during assessment.");
+        toast.error("Inspection tools are disabled during assessment.");
         return;
       }
 
@@ -121,7 +127,7 @@ const AssessmentPage = ({
         (e.ctrlKey && e.shiftKey && e.key === "s") // Windows Snip & Sketch
       ) {
         e.preventDefault();
-        alert("🚫 Screenshots are not allowed during the assessment.");
+        toast.error("Screenshots are not allowed during the assessment.");
         return;
       }
 
@@ -135,7 +141,7 @@ const AssessmentPage = ({
         (e.metaKey && (e.key === "v" || e.key === "V"))
       ) {
         e.preventDefault();
-        alert("⚠️ Copy/Paste operations are disabled during assessment.");
+        toast.error("Copy/Paste operations are disabled during assessment.");
         return;
       }
     };
@@ -144,7 +150,7 @@ const AssessmentPage = ({
     // 🔒 Disable Copy/Cut/Paste via Context Menu
     const disableCopyPaste = (e: ClipboardEvent) => {
       e.preventDefault();
-      alert("⚠️ Copy/Paste operations are disabled during assessment.");
+      toast.error("Copy/Paste operations are disabled during assessment.");
     };
     document.addEventListener("copy", disableCopyPaste);
     document.addEventListener("cut", disableCopyPaste);
@@ -184,7 +190,7 @@ const AssessmentPage = ({
       const heightDiff = window.outerHeight - window.innerHeight > threshold;
 
       if (widthDiff || heightDiff) {
-        alert("⚠️ Developer tools detected! Auto-submitting assessment...");
+        toast.error("Developer tools detected! Auto-submitting assessment...");
         performFinalSubmitRef.current();
       }
     };
@@ -209,16 +215,48 @@ const AssessmentPage = ({
     }));
   };
 
-  const handleFinalSubmit = async () => {
-    const confirmSubmit = window.confirm(
-      "Are you sure you want to submit your final answers? You won't be able to change them afterward.",
+  const handleFinalSubmit = () => {
+    toast(
+      (t) => (
+        <div className="flex flex-col gap-2">
+          <p className="font-medium text-gray-800">Submit Assessment?</p>
+          <p className="text-sm text-gray-600">
+            You won't be able to change your answers afterward.
+          </p>
+          <div className="flex gap-2 mt-2">
+            <button
+              className="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 font-medium transition-colors"
+              onClick={() => {
+                toast.dismiss(t.id);
+                performFinalSubmit();
+              }}
+            >
+              Yes, Submit
+            </button>
+            <button
+              className="bg-gray-200 text-gray-800 px-3 py-1.5 rounded text-sm hover:bg-gray-300 font-medium transition-colors"
+              onClick={() => toast.dismiss(t.id)}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ),
+      {
+        duration: 8000,
+        position: "top-center",
+        style: {
+          background: "#fff",
+          color: "#000",
+          border: "1px solid #e5e7eb",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+        },
+      },
     );
-    if (!confirmSubmit) return;
-    performFinalSubmit();
   };
 
   const handleTimeUp = async () => {
-    alert("⏰ Time is up! Submitting your answers...");
+    toast("⏰ Time is up! Submitting your answers...", { icon: "⏰" });
     performFinalSubmit();
   };
 
@@ -241,16 +279,16 @@ const AssessmentPage = ({
           const newCount = prev + 1;
 
           if (newCount > maxFullscreenWarnings) {
-            alert(
+            toast.error(
               "🚨 You exited fullscreen mode too many times! Auto-submitting the test.",
             );
             performFinalSubmitRef.current();
           } else {
             const remainingWarnings = maxFullscreenWarnings - newCount;
-            alert(
-              `⚠️ Warning ${newCount}/${maxFullscreenWarnings}: You exited fullscreen mode! ` +
-                `You have ${remainingWarnings} warning${remainingWarnings !== 1 ? "s" : ""} remaining. ` +
-                `Please return to fullscreen mode immediately.`,
+            toast.error(
+              `Warning ${newCount}/${maxFullscreenWarnings}: You exited fullscreen mode! ` +
+                `You have ${remainingWarnings} warning${remainingWarnings !== 1 ? "s" : ""} remaining.`,
+              { duration: 5000 },
             );
 
             // Try to re-enter fullscreen
@@ -279,13 +317,16 @@ const AssessmentPage = ({
           const newCount = prev + 1;
 
           if (newCount > maxTabSwitches) {
-            alert("🚨 Tab switching limit exceeded! Auto-submitting test.");
+            toast.error(
+              "🚨 Tab switching limit exceeded! Auto-submitting test.",
+            );
             performFinalSubmitRef.current();
           } else {
             const remainingWarnings = maxTabSwitches - newCount;
-            alert(
-              `⚠️ Warning ${newCount}/${maxTabSwitches}: Switching tabs/windows is not allowed! ` +
+            toast.error(
+              `Warning ${newCount}/${maxTabSwitches}: Switching tabs/windows is not allowed! ` +
                 `You have ${remainingWarnings} warning${remainingWarnings !== 1 ? "s" : ""} remaining.`,
+              { duration: 5000 },
             );
           }
 
@@ -367,17 +408,21 @@ const AssessmentPage = ({
               shuffleQuestions={shuffleQuestions}
               handleNextQuestion={handleNextQuestion}
               onSaveAnswer={handleSaveAnswer}
+              isLastQuestion={
+                currentQuestionIndex === questionDetails.length - 1
+              }
+              onFinalSubmit={handleFinalSubmit}
               answer={answers[questionDetails[currentQuestionIndex]._id]}
             />
           )}
         </div>
 
         {/* Right side: Question Panel */}
-        <div className="w-1/4 p-5 border-l bg-white shadow-inner overflow-y-auto flex flex-col">
+        <div className="w-1/4 p-5 border-l bg-white shadow-inner h-[50vh] overflow-y-auto flex flex-col">
           <h3 className="text-lg font-bold mb-4 text-gray-700">
             Question Panel
           </h3>
-          <div className="grid grid-cols-5 gap-3">
+          <div className="grid grid-cols-5 gap-3 h-[40vh] overflow-y-auto">
             {questionDetails.map((q, index) => {
               const status = questionStatuses[q._id];
               let buttonClass =
