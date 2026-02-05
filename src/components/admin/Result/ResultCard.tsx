@@ -302,7 +302,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
                     <div className="flex flex-col items-center gap-2">
                       <img
                         src={`${import.meta.env.VITE_IMG_URL}/${
-                          result?.userId?.profile || "default-profile.png"
+                          result?.userId?.profilePic || "default-profile.png"
                         }`}
                         alt="Profile"
                         className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-sm"
