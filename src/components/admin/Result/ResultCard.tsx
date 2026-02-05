@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { ResultCardProps, ResultDetails} from "../../Interfaces/index";
+import type { ResultCardProps, ResultDetails } from "../../Interfaces/index";
 import Service from "../../../config/Service";
 import DataDownload from "./DataDownload";
 
@@ -11,6 +11,10 @@ const ResultCard = ({ item }: ResultCardProps) => {
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
   const [downloadResultId, setDownloadResultId] = useState<string | null>(null);
+  const [selectedGender, setSelectedGender] = useState<string>("");
+  const [typeSearch, setTypeSearch] = useState<string>("");
+  const [minScore, setMinScore] = useState<string>("");
+  const [maxScore, setMaxScore] = useState<string>("");
 
   const handleDownloadClick = (resultId: string) => {
     console.log("Download clicked for result ID:", resultId);
@@ -45,19 +49,44 @@ const ResultCard = ({ item }: ResultCardProps) => {
     fetchResultDetails(item._id);
   };
 
-  const applyDateFilter = () => {
-    if (!fromDate && !toDate) {
-      setFilteredResults(results);
-      return;
+  const applyFilters = () => {
+    let filtered = [...results];
+
+    // Date Filter
+    if (fromDate || toDate) {
+      const from = fromDate ? new Date(fromDate) : null;
+      const to = toDate ? new Date(toDate) : null;
+      filtered = filtered.filter((result) => {
+        const submitted = new Date(result.sumbittedOn);
+        return (!from || submitted >= from) && (!to || submitted <= to);
+      });
     }
 
-    const from = fromDate ? new Date(fromDate) : null;
-    const to = toDate ? new Date(toDate) : null;
+    // Gender Filter
+    if (selectedGender) {
+      filtered = filtered.filter(
+        (result) => result.userId?.gender?.toLowerCase() === selectedGender.toLowerCase()
+      );
+    }
 
-    const filtered = results.filter((result) => {
-      const submitted = new Date(result.sumbittedOn);
-      return (!from || submitted >= from) && (!to || submitted <= to);
-    });
+    // Type Filter (searching in designation or college)
+    if (typeSearch) {
+      const search = typeSearch.toLowerCase();
+      filtered = filtered.filter(
+        (result) =>
+          result.userId?.designation?.toLowerCase().includes(search) ||
+          result.userId?.college?.toLowerCase().includes(search)
+      );
+    }
+
+    // Score Filter
+    if (minScore !== "" || maxScore !== "") {
+      const min = minScore !== "" ? parseFloat(minScore) : -Infinity;
+      const max = maxScore !== "" ? parseFloat(maxScore) : Infinity;
+      filtered = filtered.filter(
+        (result) => result.totalMarks >= min && result.totalMarks <= max
+      );
+    }
 
     setFilteredResults(filtered);
   };
@@ -126,40 +155,103 @@ const ResultCard = ({ item }: ResultCardProps) => {
               {loading ? "Loading..." : "Result List"}
             </h3>
 
-            {/* Date Filters */}
-            <div className="flex flex-wrap gap-4 mb-4">
+            {/* Filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                   From Date
                 </label>
                 <input
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="mt-1 p-2 border border-gray-300 rounded-md"
-                  placeholder="Select from date"
-                  title="From Date"
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
                   To Date
                 </label>
                 <input
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="mt-1 p-2 border border-gray-300 rounded-md"
-                  placeholder="Select to date"
-                  title="To Date"
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
                 />
               </div>
-              <button
-                onClick={applyDateFilter}
-                className="self-end bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
-              >
-                Apply
-              </button>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Gender
+                </label>
+                <select
+                  value={selectedGender}
+                  onChange={(e) => setSelectedGender(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                >
+                  <option value="">All Genders</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Type (Designation/College)
+                </label>
+                <input
+                  type="text"
+                  value={typeSearch}
+                  onChange={(e) => setTypeSearch(e.target.value)}
+                  placeholder="Search type..."
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Min Score
+                </label>
+                <input
+                  type="number"
+                  value={minScore}
+                  onChange={(e) => setMinScore(e.target.value)}
+                  placeholder="Min"
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1">
+                  Max Score
+                </label>
+                <input
+                  type="number"
+                  value={maxScore}
+                  onChange={(e) => setMaxScore(e.target.value)}
+                  placeholder="Max"
+                  className="w-full p-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+              </div>
+              <div className="sm:col-span-2 lg:col-span-3 flex justify-end gap-2 mt-2">
+                <button
+                  onClick={() => {
+                    setFromDate("");
+                    setToDate("");
+                    setSelectedGender("");
+                    setTypeSearch("");
+                    setMinScore("");
+                    setMaxScore("");
+                    setFilteredResults(results);
+                  }}
+                  className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 text-sm font-medium transition-colors"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={applyFilters}
+                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 text-sm font-medium transition-colors shadow-sm"
+                >
+                  Apply Filters
+                </button>
+              </div>
             </div>
 
             {/* Results */}
@@ -169,15 +261,23 @@ const ResultCard = ({ item }: ResultCardProps) => {
               <div className="space-y-3">
                 {filteredResults.map((result) => (
                   <div
-                  className="flex flex-row justify-between p-3 border border-gray-200 rounded-md shadow-sm bg-gray-50"
+                    className="flex flex-row justify-between p-3 border border-gray-200 rounded-md shadow-sm bg-gray-50"
                   >
                     <div>
                       <p className="text-sm text-gray-700 font-medium">
                         {result.userId?.name}
                       </p>
-                      <p className="text-sm text-gray-600">
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
+                        <p className="text-xs text-gray-500">
+                          <span className="font-semibold text-gray-600">Gender:</span> {result.userId?.gender || "N/A"}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          <span className="font-semibold text-gray-600">Type:</span> {result.userId?.designation || result.userId?.college || "N/A"}
+                        </p>
+                      </div>
+                      <p className="text-sm text-gray-600 mt-2">
                         Marks:{" "}
-                        <span className="font-semibold">
+                        <span className="font-semibold text-blue-600">
                           {result.totalMarks}
                         </span>
                       </p>
@@ -199,25 +299,23 @@ const ResultCard = ({ item }: ResultCardProps) => {
                         {new Date(result.sumbittedOn).toLocaleString()}
                       </p>
                     </div>
-                    <div>
+                    <div className="flex flex-col items-center gap-2">
                       <img
-                        src={`${import.meta.env.VITE_IMG_URL}/${
-                          result?.userId?.profile || "default-profile.png"
-                        }`}
+                        src={`${import.meta.env.VITE_IMG_URL}/${result?.userId?.profile || "default-profile.png"
+                          }`}
                         alt="Profile"
-                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-4"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-blue-100 shadow-sm"
                       />
+                      <button
+                        onClick={() => handleDownloadClick(result.userId.name)}
+                        className="bg-green-600 text-white px-3 py-1.5 rounded-md text-xs font-medium hover:bg-green-700 transition-colors"
+                      >
+                        Download
+                      </button>
                     </div>
-                    {/* Your existing JSX */}
-                    <button
-                      onClick={() => handleDownloadClick(result.userId.name)} // or another unique string id
-                      className="bg-green-600 text-white py-2 rounded-md"
-                    >
-                      Download Results
-                    </button>
 
                     {downloadResultId === result.userId.name && (
-                      
+
                       <DataDownload
                         data={result.answers || []}
                         filename={`results_${item._id}_${result.userId.name}`} // unique filename
@@ -228,13 +326,11 @@ const ResultCard = ({ item }: ResultCardProps) => {
                       />
                     )}
                   </div>
-                  // name	college	course	deparment	phone	email	address-city	total marks
-
                 ))}
               </div>
             ) : (
-              <p className="text-gray-600">
-                No results found for selected dates.
+              <p className="text-gray-600 bg-gray-50 p-8 rounded-lg text-center border border-dashed border-gray-300">
+                No results found matching the selected filters.
               </p>
             )}
           </div>

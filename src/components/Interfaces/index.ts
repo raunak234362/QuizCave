@@ -28,6 +28,7 @@ export interface UserData {
   phone: string;
   userId: string;
   college?: string;
+  gender?: string;
   role: "admin" | "user" | string;
   designation: string;
   profile: string | File;
@@ -63,7 +64,7 @@ export interface ContestDataForm {
   duration: string;
   startDate: string;
   endDate: string;
-  contestId:string;
+  contestId: string;
   active?: boolean;
 }
 export interface ContestResultData {
