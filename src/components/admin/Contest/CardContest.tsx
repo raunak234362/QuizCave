@@ -10,6 +10,7 @@ interface EditFormData {
   set: string;
   rules: string;
   registration: boolean;
+  declared: boolean;
   active: boolean;
   startDate: string;
   endDate: string;
@@ -29,7 +30,7 @@ const formatForDateTimeInput = (isoString: string | undefined): string => {
 
 const CardContest = ({ id }: any) => {
   const [contestDetails, setContestDetails] = useState<ContestData | null>(
-    null
+    null,
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -42,6 +43,7 @@ const CardContest = ({ id }: any) => {
     set: "",
     rules: "",
     registration: false,
+    declared: false,
     active: false,
     startDate: "",
     endDate: "",
@@ -54,6 +56,7 @@ const CardContest = ({ id }: any) => {
       set: contest.set || "",
       rules: contest.rules || "",
       registration: contest.registration || contest.resgistration || false,
+      declared: contest.declared || false,
       active: contest.active || false,
       startDate: formatForDateTimeInput(contest.startDate),
       endDate: formatForDateTimeInput(contest.endDate),
@@ -155,13 +158,27 @@ const CardContest = ({ id }: any) => {
 
       <div className="flex flex-row items-center gap-3 mt-4 border-t pt-4">
         <button
-          className="w-full bg-teal-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-blue-700 transition-colors"
+          className="w-full text-white py-2 rounded-lg font-medium shadow-md transition-colors"
+          style={{ backgroundColor: "#6bbd45" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#5aa839")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#6bbd45")
+          }
           onClick={() => setIsModalOpen(true)}
         >
           Show Details
         </button>
         <button
-          className="w-full bg-teal-600 text-white py-2 rounded-lg font-medium shadow-md hover:bg-orange-700 transition-colors"
+          className="w-full text-white py-2 rounded-lg font-medium shadow-md transition-colors"
+          style={{ backgroundColor: "#6bbd45" }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.backgroundColor = "#5aa839")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.backgroundColor = "#6bbd45")
+          }
           onClick={handleOpenEditModal}
         >
           Edit All Fields

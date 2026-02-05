@@ -11,7 +11,7 @@ const Layout = () => {
   //     setSidebarOpen((prev) => !prev);
   //   }, [setSidebarOpen]);
   return (
-    <div className="flex flex-col w-screen h-screen overflow-hidden md:flex-row bg-linear-to-bl/srgb  from-teal-200 to-indigo-100  ">
+    <div className="flex flex-col w-screen h-screen overflow-hidden md:flex-row bg-[#6bbd45]/20  ">
       <div className="flex flex-col w-full">
         {/* <NotificationReceiver /> */}
 

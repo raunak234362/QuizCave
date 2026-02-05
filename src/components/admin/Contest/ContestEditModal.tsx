@@ -8,6 +8,7 @@ interface EditFormData {
   set: string;
   rules: string;
   registration: boolean;
+  declared: boolean;
   active: boolean;
   startDate: string;
   endDate: string;
@@ -111,6 +112,7 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
           <div className="flex flex-wrap gap-x-8 gap-y-4 pt-4 border-t border-teal-100">
             {renderInputField("Registration Open", "registration", "checkbox")}
             {renderInputField("Contest Active", "active", "checkbox")}
+            {renderInputField("Contest Declared", "declared", "checkbox")}
           </div>
 
           {/* Rules Editor */}

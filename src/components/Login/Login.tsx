@@ -65,33 +65,14 @@ const LoginPage = () => {
           {/* Header */}
           <div className="text-center">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Welcome Back
+              Welcome To QuizCave
             </h2>
             <p className="text-gray-600">Sign in to your account to continue</p>
           </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="mb-6">
-              <label className="mr-4">
-                <input
-                  type="radio"
-                  value="admin"
-                  {...register("role")}
-                  className="mr-2"
-                />
-                Admin
-              </label>
-              <label className="ml-4">
-                <input
-                  type="radio"
-                  value="student"
-                  {...register("role")}
-                  className="mr-2"
-                />
-                Student
-              </label>
-            </div>
+            {/*   */}
             <div className="bg-white/50 p-8 rounded-2xl shadow-xl border border-gray-100">
               {/* Username Field */}
               <div className="space-y-2">

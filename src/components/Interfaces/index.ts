@@ -32,6 +32,7 @@ export interface UserData {
   designation: string;
   profilePic: string | File;
   marksheet: [];
+  gender?: string;
 }
 
 export interface ContestData {
@@ -63,7 +64,7 @@ export interface ContestDataForm {
   duration: string;
   startDate: string;
   endDate: string;
-  contestId:string;
+  contestId: string;
   active?: boolean;
 }
 export interface ContestResultData {
