@@ -32,12 +32,14 @@ const AssessmentPage = ({
     [key: string]: string;
   }>({});
   const [submitting, setSubmitting] = useState(false);
-  const [, setTabSwitchCount] = useState(0);
-  const maxTabSwitches = 1;
+  const [_tabSwitchCount, setTabSwitchCount] = useState(0);
+  const [_fullscreenWarnings, setFullscreenWarnings] = useState(0);
+  const maxTabSwitches = 2; // 2 warnings before auto-submit
+  const maxFullscreenWarnings = 2; // 2 warnings before auto-submit
 
   // Use a ref to hold a stable reference to the submission logic
   const performFinalSubmitRef = useRef<() => Promise<void>>(() =>
-    Promise.resolve()
+    Promise.resolve(),
   );
 
   const performFinalSubmit = async () => {
@@ -83,53 +85,120 @@ const AssessmentPage = ({
     }
   };
   useEffect(() => {
-  // Disable Right Click
-  const disableRightClick = (e: MouseEvent) => e.preventDefault();
-  document.addEventListener("contextmenu", disableRightClick);
-
-  // Disable Inspect Keys
-  const disableKeys = (e: KeyboardEvent) => {
-    if (
-      e.key === "F12" ||
-      (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "C" || e.key === "J")) ||
-      (e.ctrlKey && e.key === "U")
-    ) {
+    // 🔒 Disable Right Click
+    const disableRightClick = (e: MouseEvent) => {
       e.preventDefault();
-      alert("Inspection tools are disabled during assessment.");
-    }
-  };
-  window.addEventListener("keydown", disableKeys);
+      alert("⚠️ Right-click is disabled during the assessment.");
+    };
+    document.addEventListener("contextmenu", disableRightClick);
 
-  return () => {
-    document.removeEventListener("contextmenu", disableRightClick);
-    window.removeEventListener("keydown", disableKeys);
-  };
-}, []);
-useEffect(() => {
-  let checkInterval: any;
+    // 🔒 Disable Keyboard Shortcuts (DevTools, Screenshots, Copy/Paste)
+    const disableKeys = (e: KeyboardEvent) => {
+      // Block DevTools
+      if (
+        e.key === "F12" ||
+        (e.ctrlKey &&
+          e.shiftKey &&
+          (e.key === "I" || e.key === "C" || e.key === "J")) ||
+        (e.ctrlKey && e.key === "U") ||
+        (e.metaKey &&
+          e.altKey &&
+          (e.key === "I" || e.key === "C" || e.key === "J"))
+      ) {
+        e.preventDefault();
+        alert("⚠️ Inspection tools are disabled during assessment.");
+        return;
+      }
 
-  const detectDevTools = () => {
-    const threshold = 160;
-    const widthDiff = window.outerWidth - window.innerWidth > threshold;
-    const heightDiff = window.outerHeight - window.innerHeight > threshold;
+      // Block Screenshots (Windows, Mac, Linux)
+      if (
+        e.key === "PrintScreen" ||
+        (e.metaKey &&
+          e.shiftKey &&
+          (e.key === "3" || e.key === "4" || e.key === "5")) || // Mac
+        (e.ctrlKey && e.key === "PrintScreen") || // Windows
+        (e.shiftKey && e.key === "PrintScreen") || // Some Windows variants
+        (e.metaKey && e.shiftKey && e.key === "s") || // Windows Snipping Tool
+        (e.ctrlKey && e.shiftKey && e.key === "s") // Windows Snip & Sketch
+      ) {
+        e.preventDefault();
+        alert("🚫 Screenshots are not allowed during the assessment.");
+        return;
+      }
 
-    if (widthDiff || heightDiff) {
-      alert("⚠️ Developer tools detected! Submitting assessment...");
-      performFinalSubmitRef.current();
-    }
-  };
+      // Block Copy/Cut/Paste
+      if (
+        (e.ctrlKey && (e.key === "c" || e.key === "C")) ||
+        (e.ctrlKey && (e.key === "x" || e.key === "X")) ||
+        (e.ctrlKey && (e.key === "v" || e.key === "V")) ||
+        (e.metaKey && (e.key === "c" || e.key === "C")) ||
+        (e.metaKey && (e.key === "x" || e.key === "X")) ||
+        (e.metaKey && (e.key === "v" || e.key === "V"))
+      ) {
+        e.preventDefault();
+        alert("⚠️ Copy/Paste operations are disabled during assessment.");
+        return;
+      }
+    };
+    window.addEventListener("keydown", disableKeys);
 
-  checkInterval = setInterval(detectDevTools, 1000);
+    // 🔒 Disable Copy/Cut/Paste via Context Menu
+    const disableCopyPaste = (e: ClipboardEvent) => {
+      e.preventDefault();
+      alert("⚠️ Copy/Paste operations are disabled during assessment.");
+    };
+    document.addEventListener("copy", disableCopyPaste);
+    document.addEventListener("cut", disableCopyPaste);
+    document.addEventListener("paste", disableCopyPaste);
 
-  return () => clearInterval(checkInterval);
-}, []);
+    // 🔒 Prevent drag and drop
+    const preventDragDrop = (e: DragEvent) => {
+      e.preventDefault();
+    };
+    document.addEventListener("dragstart", preventDragDrop);
+    document.addEventListener("drop", preventDragDrop);
 
+    // 🔒 Disable text selection
+    document.body.style.userSelect = "none";
+    document.body.style.webkitUserSelect = "none";
 
+    return () => {
+      document.removeEventListener("contextmenu", disableRightClick);
+      window.removeEventListener("keydown", disableKeys);
+      document.removeEventListener("copy", disableCopyPaste);
+      document.removeEventListener("cut", disableCopyPaste);
+      document.removeEventListener("paste", disableCopyPaste);
+      document.removeEventListener("dragstart", preventDragDrop);
+      document.removeEventListener("drop", preventDragDrop);
+      document.body.style.userSelect = "";
+      document.body.style.webkitUserSelect = "";
+    };
+  }, []);
+
+  // 🔒 Enhanced DevTools Detection
+  useEffect(() => {
+    let checkInterval: any;
+
+    const detectDevTools = () => {
+      const threshold = 160;
+      const widthDiff = window.outerWidth - window.innerWidth > threshold;
+      const heightDiff = window.outerHeight - window.innerHeight > threshold;
+
+      if (widthDiff || heightDiff) {
+        alert("⚠️ Developer tools detected! Auto-submitting assessment...");
+        performFinalSubmitRef.current();
+      }
+    };
+
+    checkInterval = setInterval(detectDevTools, 1000);
+
+    return () => clearInterval(checkInterval);
+  }, []);
 
   const handleSaveAnswer = (
     qid: string,
     value: any,
-    status: string = "attempted"
+    status: string = "attempted",
   ) => {
     setAnswers((prev) => ({
       ...prev,
@@ -143,7 +212,7 @@ useEffect(() => {
 
   const handleFinalSubmit = async () => {
     const confirmSubmit = window.confirm(
-      "Are you sure you want to submit your final answers? You won’t be able to change them afterward."
+      "Are you sure you want to submit your final answers? You won’t be able to change them afterward.",
     );
     if (!confirmSubmit) return;
     performFinalSubmit();
@@ -154,84 +223,93 @@ useEffect(() => {
     performFinalSubmit();
   };
 
+  // 🔒 Request Fullscreen on Mount (backup in case ContestCard fails)
   useEffect(() => {
-    document.documentElement.requestFullscreen?.({ navigationUI: "hide" });
+    if (!document.fullscreenElement) {
+      document.documentElement
+        .requestFullscreen?.({ navigationUI: "hide" })
+        .catch((err) => {
+          console.warn("Fullscreen request failed:", err);
+        });
+    }
   }, []);
 
+  // 🔒 Fullscreen Exit Detection with 2 Warnings
   useEffect(() => {
-  const handleFullscreenExit = () => {
-    if (!document.fullscreenElement) {
-      alert("⚠️ You exited fullscreen. Submitting the test.");
-      performFinalSubmitRef.current();
-    }
-  };
+    const handleFullscreenExit = () => {
+      if (!document.fullscreenElement) {
+        setFullscreenWarnings((prev) => {
+          const newCount = prev + 1;
 
-  document.addEventListener("fullscreenchange", handleFullscreenExit);
+          if (newCount > maxFullscreenWarnings) {
+            alert(
+              "🚨 You exited fullscreen mode too many times! Auto-submitting the test.",
+            );
+            performFinalSubmitRef.current();
+          } else {
+            const remainingWarnings = maxFullscreenWarnings - newCount;
+            alert(
+              `⚠️ Warning ${newCount}/${maxFullscreenWarnings}: You exited fullscreen mode! ` +
+                `You have ${remainingWarnings} warning${remainingWarnings !== 1 ? "s" : ""} remaining. ` +
+                `Please return to fullscreen mode immediately.`,
+            );
 
-  return () => document.removeEventListener("fullscreenchange", handleFullscreenExit);
-}, []);
+            // Try to re-enter fullscreen
+            document.documentElement
+              .requestFullscreen?.({ navigationUI: "hide" })
+              .catch((err) => {
+                console.warn("Failed to re-enter fullscreen:", err);
+              });
+          }
 
+          return newCount;
+        });
+      }
+    };
 
-  // useEffect(() => {
-  //   const handleVisibilityChange = () => {
-  //     if (document.hidden) {
-  //       // Use the functional update to get the latest state
-  //       setTabSwitchCount((prevCount) => {
-  //         const newCount = prevCount + 1;
-  //         if (newCount > maxTabSwitches) {
-  //           alert(
-  //             "⚠️ Maximum tab switches exceeded. Submitting your assessment automatically."
-  //           );
-  //           performFinalSubmitRef.current(); // Use the ref to call the function
-  //         } else {
-  //           alert(
-  //             `⚠️ Warning! You have ${
-  //               maxTabSwitches - newCount
-  //             } warnings remaining. Switching tabs is not allowed.`
-  //           );
-  //         }
-  //         return newCount;
-  //       });
-  //     }
-  //   };
+    document.addEventListener("fullscreenchange", handleFullscreenExit);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenExit);
+  }, []);
 
-  //   document.addEventListener("visibilitychange", handleVisibilityChange);
+  // 🔒 Tab/Window Switching Detection with 2 Warnings
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        setTabSwitchCount((prev) => {
+          const newCount = prev + 1;
 
-  //   return () => {
-  //     document.removeEventListener("visibilitychange", handleVisibilityChange);
-  //   };
-  // }, []); // Empty dependency array ensures the effect runs only once
+          if (newCount > maxTabSwitches) {
+            alert("🚨 Tab switching limit exceeded! Auto-submitting test.");
+            performFinalSubmitRef.current();
+          } else {
+            const remainingWarnings = maxTabSwitches - newCount;
+            alert(
+              `⚠️ Warning ${newCount}/${maxTabSwitches}: Switching tabs/windows is not allowed! ` +
+                `You have ${remainingWarnings} warning${remainingWarnings !== 1 ? "s" : ""} remaining.`,
+            );
+          }
 
-useEffect(() => {
-  const handleVisibilityChange = () => {
-    if (document.hidden) {
-      setTabSwitchCount((prev) => {
-        if (prev + 1 > maxTabSwitches) {
-          alert("🚨 Tab switching limit exceeded. Auto-submitting test.");
-          performFinalSubmitRef.current();
-        } else {
-          alert(`⚠️ Switching tabs is not allowed. Remaining: ${maxTabSwitches - prev - 1}`);
-        }
-        return prev + 1;
-      });
-    }
-  };
+          return newCount;
+        });
+      }
+    };
 
-  document.addEventListener("visibilitychange", handleVisibilityChange);
-  return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-}, []);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () =>
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
+  // 🔒 Prevent Browser Back/Forward and Refresh
+  useEffect(() => {
+    const warnBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", warnBeforeUnload);
 
-useEffect(() => {
-  const warnBeforeUnload = (e: BeforeUnloadEvent) => {
-    e.preventDefault();
-    e.returnValue = "";
-  };
-  window.addEventListener("beforeunload", warnBeforeUnload);
-
-  return () => window.removeEventListener("beforeunload", warnBeforeUnload);
-}, []);
-
+    return () => window.removeEventListener("beforeunload", warnBeforeUnload);
+  }, []);
 
   if (!contest || !resultDetails || !questionDetails) {
     return (
@@ -277,7 +355,7 @@ useEffect(() => {
                   | "multiple"
                   | "mcq",
                 difficult: ["easy", "medium", "hard"].includes(
-                  questionDetails[currentQuestionIndex].difficult
+                  questionDetails[currentQuestionIndex].difficult,
                 )
                   ? (questionDetails[currentQuestionIndex].difficult as
                       | "easy"
@@ -328,8 +406,8 @@ useEffect(() => {
                     status === "attempted"
                       ? "Attempted"
                       : status === "review"
-                      ? "Marked for Review"
-                      : "Unattempted"
+                        ? "Marked for Review"
+                        : "Unattempted"
                   }
                 >
                   {index + 1}

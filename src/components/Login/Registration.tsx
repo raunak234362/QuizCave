@@ -11,7 +11,7 @@ const Registration: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
-    formState:{},
+    formState: {},
   } = useForm<RegistrationFormData>();
   const navigate = useNavigate();
   // const [submissionError, setSubmissionError] = useState<string | null>(null);
@@ -20,29 +20,27 @@ const Registration: React.FC = () => {
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const [resumeName, setResumeName] = useState<string | null>(null);
 
-  
-
   const courseSemesterMap: Record<string, string[]> = {
-    "BE/BTECH": ["Semester-7", "Semester-8", "Passout"],
-    BCA: ["Semester-5", "Semester-6", "Passout"],
-    BBA: ["Semester-5", "Semester-6", "Passout"],
-    BCOM: ["Semester-5", "Semester-6", "Passout"],
-    MBA: ["Semester-3", "Semester-4", "Passout"],
-    MTECH: ["Semester-3", "Semester-4", "Passout"],
-    DIPLOMA: ["Semester-3", "Semester-4", "Passout"],
+    "BE/BTECH": ["Semester-7", "Semester-8", "passout"],
+    BCA: ["Semester-5", "Semester-6", "passout"],
+    BBA: ["Semester-5", "Semester-6", "passout"],
+    BCOM: ["Semester-5", "Semester-6", "passout"],
+    MBA: ["Semester-3", "Semester-4", "passout"],
+    MTECH: ["Semester-3", "Semester-4", "passout"],
+    DIPLOMA: ["Semester-3", "Semester-4", "passout"],
   };
-  
+
   const handleCourseChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCourse = e.target.value;
     setValue("course", selectedCourse);
     setValue("currentSemester", "");
   };
 
-   const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-     const selectedSemester = e.target.value;
-     setValue("currentSemester", selectedSemester);
-   };
-  
+  const handleSemesterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedSemester = e.target.value;
+    setValue("currentSemester", selectedSemester);
+  };
+
   const getSemesters = (): string[] => {
     const selectedCourse = watch("course");
     return courseSemesterMap[selectedCourse] || [];
@@ -50,14 +48,20 @@ const Registration: React.FC = () => {
 
   const handleCheckboxChange = () => {
     setIsSameAddress((prev) => !prev);
-   
+
     if (!isSameAddress) {
       const permAddress = watch("permAddress");
       setValue("currAddress", permAddress);
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: keyof Pick<RegistrationFormData, "profile" | "marksheet" | "resume">) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    fileType: keyof Pick<
+      RegistrationFormData,
+      "profile" | "marksheet" | "resume"
+    >,
+  ) => {
     const file = e.target.files?.[0] || null;
     if (file) {
       if (fileType === "profile") {
@@ -69,26 +73,23 @@ const Registration: React.FC = () => {
     }
   };
 
- 
+  const onSubmit = async (data: RegistrationFormData) => {
+    console.log("Form Data Submitted:", data);
+    try {
+      const response = await Service.AddStudentForm(data);
+      console.log("Registration Response:", response);
 
-   const onSubmit = async (data : RegistrationFormData) => {
-     console.log("Form Data Submitted:", data);
-     try {
-       const response = await Service.AddStudentForm(data);
-       console.log("Registration Response:", response);
+      alert("Registration successful!");
+      navigate("/");
+    } catch (error) {
+      console.error("Error during registration:", error);
+      alert("Registration failed. Please try again.");
+    }
+  };
 
-       alert("Registration successful!");
-       navigate("/");
-     } catch (error) {
-       console.error("Error during registration:", error);
-       alert("Registration failed. Please try again.");
-     }
-   };
- 
   const date = new Date();
 
-
- return (
+  return (
     <div>
       <div className="flex flex-col border 2xl:mx-[20%] lg:mx-[10%] my-3 rounded-lg p-4 bg-white shadow-lg shadow-green-500/50 md:mx-[10%]">
         <div className="flex flex-col">
@@ -97,7 +98,6 @@ const Registration: React.FC = () => {
               profilePreview !== null ? "justify-between" : "justify-center"
             } flex-wrap items-center mx-10 my-5`}
           >
-           
             <img src={Logo} alt="" />
 
             {profilePreview && (
@@ -187,7 +187,7 @@ const Registration: React.FC = () => {
                   type="text"
                   placeholder="Alternative Contact Number"
                   id="altPhone"
-                  {...register("altPhone",)}
+                  {...register("altPhone")}
                 />
               </div>
             </div>
@@ -380,14 +380,14 @@ const Registration: React.FC = () => {
               </div>
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="passingYear" className="text-sm">
-                  Year of Passing
+                  Month & Year of Passing
                 </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
-                  type="number"
-                  min="2000"
-                  max="2025"
-                  placeholder="Passing Year"
+                  type="month"
+                  min="2000-01"
+                  max="2030-12"
+                  placeholder="MM/YYYY"
                   id="passingYear"
                   {...register("passingYear", { required: true })}
                 />
@@ -398,39 +398,39 @@ const Registration: React.FC = () => {
             <div className="flex flex-col gap-6 sm:flex-row sm:gap-5">
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="marksheet" className="text-sm">
-                  Upload Marksheet
+                  Upload Marksheet{" "}
+                  <span className="text-gray-500">(Optional)</span>
                 </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="file"
                   id="marksheet"
-                  required
                   accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileChange(e, "marksheet")}
                 />
               </div>
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="profile" className="text-sm">
-                  Upload Profile Image
+                  Upload Profile Image{" "}
+                  <span className="text-gray-500">(Optional)</span>
                 </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="file"
                   id="profile"
-                  required
                   accept="image/*"
                   onChange={(e) => handleFileChange(e, "profile")}
                 />
               </div>
               <div className="mt-3 w-full sm:w-[375px]">
                 <label htmlFor="resume" className="text-sm">
-                  Upload Resume
+                  Upload Resume{" "}
+                  <span className="text-gray-500">(Optional)</span>
                 </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="file"
                   id="resume"
-                  required
                   accept=".pdf,.doc,.docx"
                   onChange={(e) => handleFileChange(e, "resume")}
                 />
@@ -447,7 +447,9 @@ const Registration: React.FC = () => {
           <div className="flex-row p-5 m-4 rounded-lg bg-green-50">
             <div className="mt-3">
               <p className="text-2xl font-bold text-green-800"></p>
-              <label htmlFor="permanentAddress" className="font-bold">Permanent Address</label>
+              <label htmlFor="permanentAddress" className="font-bold">
+                Permanent Address
+              </label>
               <input
                 className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                 type="text"
@@ -507,7 +509,9 @@ const Registration: React.FC = () => {
             </div>
             {!isSameAddress && (
               <div className="mt-3">
-                <label htmlFor="currentAddress" className="font-bold">Current Address</label>
+                <label htmlFor="currentAddress" className="font-bold">
+                  Current Address
+                </label>
                 <input
                   className="w-full px-4 py-3 leading-tight text-gray-700 border border-gray-300 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-green-500 peer"
                   type="text"
@@ -568,9 +572,5 @@ const Registration: React.FC = () => {
     </div>
   );
 };
-
-
-
- 
 
 export default Registration;
