@@ -33,6 +33,7 @@ const AssessmentPage = ({
   const [submitting, setSubmitting] = useState(false);
   const [_tabSwitchCount, setTabSwitchCount] = useState(0);
   const [_fullscreenWarnings, setFullscreenWarnings] = useState(0);
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
   const maxTabSwitches = 1; // 2 warnings before auto-submit
   const maxFullscreenWarnings = 1; // 2 warnings before auto-submit
 
@@ -216,43 +217,7 @@ const AssessmentPage = ({
   };
 
   const handleFinalSubmit = () => {
-    toast(
-      (t) => (
-        <div className="flex flex-col gap-2">
-          <p className="font-medium text-gray-800">Submit Assessment?</p>
-          <p className="text-sm text-gray-600">
-            You won't be able to change your answers afterward.
-          </p>
-          <div className="flex gap-2 mt-2">
-            <button
-              className="bg-red-600 text-white px-3 py-1.5 rounded text-sm hover:bg-red-700 font-medium transition-colors"
-              onClick={() => {
-                toast.dismiss(t.id);
-                performFinalSubmit();
-              }}
-            >
-              Yes, Submit
-            </button>
-            <button
-              className="bg-gray-200 text-gray-800 px-3 py-1.5 rounded text-sm hover:bg-gray-300 font-medium transition-colors"
-              onClick={() => toast.dismiss(t.id)}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      ),
-      {
-        duration: 8000,
-        position: "top-center",
-        style: {
-          background: "#fff",
-          color: "#000",
-          border: "1px solid #e5e7eb",
-          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
-        },
-      },
-    );
+    setShowSubmitModal(true);
   };
 
   const handleTimeUp = async () => {
@@ -496,6 +461,37 @@ const AssessmentPage = ({
           </div>
         </div>
       </div>
+      {/* 🔹 Final Submit Confirmation Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-96 transform transition-all scale-100 border border-gray-100">
+            <h3 className="text-xl font-bold text-gray-800 mb-2">
+              Submit Assessment?
+            </h3>
+            <p className="text-gray-600 mb-6 leading-relaxed">
+              Are you sure you want to finalize your submission? You won't be able
+              to change your answers afterwards.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowSubmitModal(false)}
+                className="px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 font-semibold transition-colors border border-gray-200"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowSubmitModal(false);
+                  performFinalSubmit();
+                }}
+                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-semibold transition-colors shadow-lg shadow-red-500/30"
+              >
+                Yes, Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
