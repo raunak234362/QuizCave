@@ -40,7 +40,7 @@ export const Counterdown: React.FC<CounterdownProps> = ({
     <div
       className={`countdown font-mono text-2xl p-4 rounded-lg flex justify-center items-center gap-2 ${
         isLessThanTwoMinutes
-          ? "bg-red-600 text-white"
+          ? "bg-red-600 text-black"
           : "bg-gray-800 text-green-300"
       }`}
     >

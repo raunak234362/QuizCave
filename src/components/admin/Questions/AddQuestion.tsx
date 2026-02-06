@@ -14,7 +14,7 @@ const AddQuestion: React.FC<AddQuestionProps> = ({
   refreshQuestions,
 }) => {
   const [questions, setQuestions] = useState<Question[]>([]);
-const [contest, setContest] = useState<any[]>([]);
+  const [contest, setContest] = useState<any[]>([]);
 
   const handleAddQuestion = () => {
     setQuestions((prev) => [
@@ -36,32 +36,23 @@ const [contest, setContest] = useState<any[]>([]);
     ]);
   };
 
-
-
-    const fetchContestData = async () => {
-      const response = await Service.fetchContestData();
-      const normalized = response?.map((item: ContestData) => ({
-        ...item,
-        id: item._id,
-      }));
-      setContest(normalized);
-      console.log(normalized);
-    };
-    useEffect(() => {
-      fetchContestData();
-    }, []);
-  
-
+  const fetchContestData = async () => {
+    const response = await Service.fetchContestData();
+    const normalized = response?.map((item: ContestData) => ({
+      ...item,
+      id: item._id,
+    }));
+    setContest(normalized);
+    console.log(normalized);
+  };
+  useEffect(() => {
+    fetchContestData();
+  }, []);
 
   const handleQuestionChange = (
     index: number,
-    field:
-      | keyof Question["questionId"]
-      | "set"
-      | "difficult"
-      | "type"
-      | "name",
-    value: string | string[] | File
+    field: keyof Question["questionId"] | "set" | "difficult" | "type" | "name",
+    value: string | string[] | File,
   ) => {
     setQuestions((prev) => {
       const updated = [...prev];
@@ -88,8 +79,6 @@ const [contest, setContest] = useState<any[]>([]);
     });
   };
 
-
-
   const handleAddOption = (questionIndex: number) => {
     setQuestions((prev) => {
       const updated = [...prev];
@@ -108,7 +97,7 @@ const [contest, setContest] = useState<any[]>([]);
   const handleOptionChange = (
     questionIndex: number,
     optionIndex: number,
-    value: string
+    value: string,
   ) => {
     setQuestions((prev) => {
       const updated = [...prev];
@@ -148,7 +137,7 @@ const [contest, setContest] = useState<any[]>([]);
     questionIndex: number,
     subIndex: number,
     field: "question" | "answer",
-    value: string
+    value: string,
   ) => {
     setQuestions((prev) => {
       const updated = [...prev];
@@ -181,7 +170,7 @@ const [contest, setContest] = useState<any[]>([]);
 
   const handleImageUpload = (
     e: ChangeEvent<HTMLInputElement>,
-    index: number
+    index: number,
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -189,34 +178,34 @@ const [contest, setContest] = useState<any[]>([]);
     handleQuestionChange(index, "questionImage", file);
   };
 
- const handleSubmitForm = async (e: FormEvent) => {
-   e.preventDefault();
-   try {
-     for (const question of questions) {
-       await Service.createQuestions({
-         contestId: question.name,
-         set: question.set,
-         difficult: question.difficult,
-         question: question.questionId.question,
-         mcqOptions: question.questionId.mcqOptions,
-         type: question.type,
-         multipleQuestion: question.questionId.multipleQuestion,
-         multipleAnswer: question.questionId.multipleAnswer,
-         answer: question.questionId.answer,
-         questionImage:
-           question.questionId.questionImage instanceof File
-             ? ""
-             : question.questionId.questionImage,
-       });
-     }
-     alert(`Successfully added ${questions.length} questions`);
-     toggleQues(false);
-     refreshQuestions?.();
-   } catch (error) {
-     console.error("Error submitting questions:", error);
-     alert("Failed to add questions. Please try again.");
-   }
- };
+  const handleSubmitForm = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      for (const question of questions) {
+        await Service.createQuestions({
+          contestId: question.name,
+          set: question.set,
+          difficult: question.difficult,
+          question: question.questionId.question,
+          mcqOptions: question.questionId.mcqOptions,
+          type: question.type,
+          multipleQuestion: question.questionId.multipleQuestion,
+          multipleAnswer: question.questionId.multipleAnswer,
+          answer: question.questionId.answer,
+          questionImage:
+            question.questionId.questionImage instanceof File
+              ? ""
+              : question.questionId.questionImage,
+        });
+      }
+      alert(`Successfully added ${questions.length} questions`);
+      toggleQues(false);
+      refreshQuestions?.();
+    } catch (error) {
+      console.error("Error submitting questions:", error);
+      alert("Failed to add questions. Please try again.");
+    }
+  };
 
   return (
     <div className="absolute z-20 top-0 left-0 w-full h-full overflow-y-auto bg-gray-900 bg-opacity-20 flex items-center justify-center">
@@ -352,7 +341,7 @@ const [contest, setContest] = useState<any[]>([]);
                             handleOptionChange(
                               index,
                               optionIndex,
-                              e.target.value
+                              e.target.value,
                             )
                           }
                           className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -364,7 +353,7 @@ const [contest, setContest] = useState<any[]>([]);
                     <button
                       type="button"
                       onClick={() => handleAddOption(index)}
-                      className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+                      className="bg-green-500 text-black px-4 py-2 rounded-md hover:bg-green-700 transition"
                     >
                       Add Option
                     </button>
@@ -404,7 +393,7 @@ const [contest, setContest] = useState<any[]>([]);
                             index,
                             subIndex,
                             "question",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         className="w-full px-3 py-2 border border-gray-300 rounded-md"
@@ -419,7 +408,7 @@ const [contest, setContest] = useState<any[]>([]);
                             index,
                             subIndex,
                             "answer",
-                            e.target.value
+                            e.target.value,
                           )
                         }
                         className="w-full px-3 mt-4 py-2 border border-gray-300 rounded-md"
@@ -431,7 +420,7 @@ const [contest, setContest] = useState<any[]>([]);
                   <button
                     type="button"
                     onClick={() => handleAddSubQuestion(index)}
-                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+                    className="bg-green-500 text-black px-4 py-2 rounded-md hover:bg-green-700 transition"
                   >
                     Add Sub-Question
                   </button>
@@ -444,20 +433,20 @@ const [contest, setContest] = useState<any[]>([]);
             <button
               type="button"
               onClick={() => toggleQues(false)}
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition"
+              className="bg-gray-500 text-black px-4 py-2 rounded-md hover:bg-gray-700 transition"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleAddQuestion}
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition"
+              className="bg-green-500 text-black px-4 py-2 rounded-md hover:bg-green-700 transition"
             >
               Add Question
             </button>
             <button
               type="submit"
-              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition"
+              className="bg-blue-500 text-black px-4 py-2 rounded-md hover:bg-blue-700 transition"
             >
               Submit
             </button>

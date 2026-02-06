@@ -31,7 +31,7 @@ const Contest = () => {
         </h1>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="bg-gradient-to-r from-green-500 to-teal-500 text-white px-6 py-2 rounded-lg 
+          className="bg-gradient-to-r from-green-500 to-teal-500 text-black px-6 py-2 rounded-lg 
                      font-semibold shadow-md hover:shadow-lg transition duration-300 ease-in-out 
                      hover:scale-105 hover:from-teal-500 hover:to-green-500"
         >

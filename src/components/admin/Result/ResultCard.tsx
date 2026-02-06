@@ -144,7 +144,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
             <button
               type="button"
               onClick={handleDeclareClick}
-              className="w-full text-white py-2 rounded-md font-medium transition-colors"
+              className="w-full text-black py-2 rounded-md font-medium transition-colors"
               style={{ backgroundColor: "#6bbd45" }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.backgroundColor = "#5aa839")
@@ -159,7 +159,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
             <button
               type="button"
               onClick={handleShowResults}
-              className="w-full text-white py-2 rounded-md font-medium transition-colors"
+              className="w-full text-black py-2 rounded-md font-medium transition-colors"
               style={{ backgroundColor: "#6bbd45" }}
               onMouseEnter={(e) =>
                 (e.currentTarget.style.backgroundColor = "#5aa839")
@@ -310,13 +310,13 @@ const ResultCard = ({ item }: ResultCardProps) => {
               <div className="flex gap-3">
                 <button
                   onClick={applyFilters}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                  className="bg-blue-600 text-black px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
                 >
                   Apply Filters
                 </button>
                 <button
                   onClick={resetFilters}
-                  className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition-colors font-medium"
+                  className="bg-gray-500 text-black px-6 py-2 rounded-md hover:bg-gray-600 transition-colors font-medium"
                 >
                   Reset
                 </button>
@@ -380,7 +380,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
                       />
                       <button
                         onClick={() => handleDownloadClick(result.userId.name)}
-                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                        className="bg-green-600 text-black px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
                       >
                         Download Results
                       </button>

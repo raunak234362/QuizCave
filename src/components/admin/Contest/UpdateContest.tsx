@@ -4,10 +4,9 @@ import type { SubmitHandler } from "react-hook-form";
 import type { ContestData } from "../../Interfaces/index";
 import JoditEditor from "jodit-react";
 
-
 const formatIsoToDateTimeLocal = (isoDate: string | Date): string => {
   const d = new Date(isoDate);
-  if (isNaN(d.getTime())) return ""; 
+  if (isNaN(d.getTime())) return "";
   const YYYY = d.getFullYear();
   const MM = String(d.getMonth() + 1).padStart(2, "0");
   const DD = String(d.getDate()).padStart(2, "0");
@@ -16,7 +15,6 @@ const formatIsoToDateTimeLocal = (isoDate: string | Date): string => {
 
   return `${YYYY}-${MM}-${DD}T${hh}:${mm}`;
 };
-
 
 const FormItem = ({
   label,
@@ -41,12 +39,9 @@ const FormItem = ({
   </div>
 );
 
-
-
 interface UpdateContestProps {
   contestDetails: ContestData;
   setView: (view: "card" | "show" | "edit") => void;
- 
 }
 
 // --- Main Component ---
@@ -62,34 +57,29 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
     control,
     reset,
     formState: { errors },
-  } = useForm<ContestData>({
-   
-  });
-
+  } = useForm<ContestData>({});
 
   useEffect(() => {
     if (contestDetails) {
       reset({
         ...contestDetails,
-    
+
         startDate: formatIsoToDateTimeLocal(contestDetails.startDate),
         endDate: formatIsoToDateTimeLocal(contestDetails.endDate),
       });
     }
   }, [contestDetails, reset]);
 
-  
   const onSubmit: SubmitHandler<ContestData> = async (data) => {
     setIsSubmitting(true);
     setApiError(null);
 
     try {
-      
       const payload = {
         ...data,
         startDate: new Date(data.startDate).toISOString(),
         endDate: new Date(data.endDate).toISOString(),
-       
+
         duration: Number(data.duration),
       };
 
@@ -97,8 +87,7 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
 
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    
-      setView("show"); 
+      setView("show");
     } catch (err: any) {
       console.error("Failed to update contest:", err);
       setApiError(err.message || "An unknown error occurred.");
@@ -112,7 +101,7 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
       <div className="flex justify-between items-center mb-6 pb-4 border-b">
         <h1 className="text-2xl font-bold text-gray-800">Update Contest</h1>
         <button
-          onClick={() => setView("show")} 
+          onClick={() => setView("show")}
           type="button"
           className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md font-medium hover:bg-gray-400 transition-colors"
           disabled={isSubmitting}
@@ -261,7 +250,7 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
               render={({ field }) => (
                 <JoditEditor
                   ref={editor}
-                  value={field.value || ''}
+                  value={field.value || ""}
                   onBlur={field.onChange}
                 />
               )}
@@ -281,7 +270,7 @@ const UpdateContest = ({ contestDetails, setView }: UpdateContestProps) => {
           </button>
           <button
             type="submit"
-            className="bg-blue-600 text-white py-2 px-6 rounded-md font-medium hover:bg-blue-700 transition-colors"
+            className="bg-blue-600 text-black py-2 px-6 rounded-md font-medium hover:bg-blue-700 transition-colors"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Saving..." : "Save Changes"}

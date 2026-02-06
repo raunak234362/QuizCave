@@ -14,7 +14,7 @@ export const ContestRules = ({ contest, start }: ContestRulesProps) => {
       <div className="mb-6">{contest && parse(contest.rules || "")}</div>
 
       <button
-        className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded"
+        className="bg-green-600 hover:bg-green-700 text-black font-bold py-2 px-6 rounded"
         onClick={() => {
           const ok = window.confirm(
             "Please read all instructions carefully.\n\nDo you want to start the assessment?",

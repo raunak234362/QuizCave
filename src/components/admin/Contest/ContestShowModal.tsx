@@ -41,7 +41,7 @@ const ContestShowModal: React.FC<ContestShowModalProps> = ({
           </h3>
           <button
             onClick={onClose}
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-colors shadow-md"
+            className="bg-red-600 hover:bg-red-700 text-black font-bold py-2 px-4 rounded-lg transition-colors shadow-md"
           >
             Close
           </button>

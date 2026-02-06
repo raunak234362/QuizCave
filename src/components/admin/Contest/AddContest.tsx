@@ -184,7 +184,7 @@ const AddContest = ({ onClose, onContestCreated }: AddContestProps) => {
               <button
                 type="button"
                 onClick={handleActiveToggle}
-                className={`px-6 py-2 text-white font-semibold rounded-full shadow-md transition-all duration-300 ${
+                className={`px-6 py-2 text-black font-semibold rounded-full shadow-md transition-all duration-300 ${
                   contestDetails.active
                     ? "bg-green-600 hover:bg-green-700"
                     : "bg-red-600 hover:bg-red-700"
@@ -206,7 +206,7 @@ const AddContest = ({ onClose, onContestCreated }: AddContestProps) => {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-8 py-2 rounded-lg bg-teal-600 text-white font-semibold hover:bg-blue-700 transition-all duration-200 disabled:opacity-70"
+                className="px-8 py-2 rounded-lg bg-teal-600 text-black font-semibold hover:bg-blue-700 transition-all duration-200 disabled:opacity-70"
               >
                 {isSubmitting ? "Submitting..." : "Submit"}
               </button>

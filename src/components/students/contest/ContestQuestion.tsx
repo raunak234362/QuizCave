@@ -234,7 +234,7 @@ export const Question = ({
         <div className="flex gap-4 mt-6">
           <button
             type="button"
-            className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold px-5 py-2 rounded-lg shadow"
+            className="bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-5 py-2 rounded-lg shadow"
             onClick={() => onSaveAnswer(Question._id, answer, "review")}
           >
             Mark for Review
@@ -247,7 +247,7 @@ export const Question = ({
               saving
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-blue-600 hover:bg-blue-700"
-            } text-white font-semibold px-5 py-2 rounded-lg shadow transition-colors`}
+            } text-black font-semibold px-5 py-2 rounded-lg shadow transition-colors`}
             onClick={handleSaveNext}
           >
             {saving

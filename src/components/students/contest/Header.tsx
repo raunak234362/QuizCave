@@ -1,5 +1,4 @@
-
-"use Client"
+"use Client";
 import type { UserData } from "../../Interfaces/index";
 import logo from "../../../assets/logo.png";
 
@@ -9,11 +8,10 @@ interface HeaderProps {
 }
 
 export const Header = ({ user, contest }: HeaderProps) => {
-  
   return (
     <header className="w-full flex flex-row justify-between bg-[#6adb45] h-16 items-center pr-4 cursor-none">
       <img src={logo} alt="" className="bg-white h-16" />
-      <h1 className="text-white text-4xl font-bold">{contest}</h1>
+      <h1 className="text-black text-4xl font-bold">{contest}</h1>
       <div className="text-black text-3xl font-semibold h-16 flex flex-row items-center">
         {user?.name}
         <img

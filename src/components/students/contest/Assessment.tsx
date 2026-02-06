@@ -40,7 +40,7 @@ export function Assessment({ contest, resultDetails, questionDetails }: Props) {
           </h1>
 
           <button
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded"
+            className="mt-4 px-4 py-2 bg-blue-600 text-black rounded"
             onClick={() => navigate("/dashboard/student/profile")}
           >
             Go to Dashboard

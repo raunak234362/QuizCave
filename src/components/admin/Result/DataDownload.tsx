@@ -203,13 +203,18 @@ export default function DataDownload({
               result.questionId !== null &&
               "answer" in result.questionId
                 ? (result.questionId as { answer?: string }).answer || " "
-                : (typeof result.questionId === "object" &&
-                  result.questionId !== null &&
-                  "multipleAnswer" in result.questionId)
-                ? Array.isArray((result.questionId as { multipleAnswer?: string[] }).multipleAnswer)
-                  ? (result.questionId as { multipleAnswer?: string[] }).multipleAnswer?.join(", ") || " "
-                  : " "
-                : " "}
+                : typeof result.questionId === "object" &&
+                    result.questionId !== null &&
+                    "multipleAnswer" in result.questionId
+                  ? Array.isArray(
+                      (result.questionId as { multipleAnswer?: string[] })
+                        .multipleAnswer,
+                    )
+                    ? (
+                        result.questionId as { multipleAnswer?: string[] }
+                      ).multipleAnswer?.join(", ") || " "
+                    : " "
+                  : " "}
             </Text>
             <Text style={{ fontWeight: "bold" }}>Answers: </Text>
             <Text>
@@ -217,8 +222,8 @@ export default function DataDownload({
               typeof result.answer === "number"
                 ? result.answer
                 : result.answer
-                ? JSON.stringify(result.answer)
-                : " "}
+                  ? JSON.stringify(result.answer)
+                  : " "}
             </Text>
           </View>
         ))}
@@ -384,7 +389,7 @@ export default function DataDownload({
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="ml-4 rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700 disabled:bg-gray-400"
+          className="ml-4 rounded bg-blue-600 px-3 py-1 text-black hover:bg-blue-700 disabled:bg-gray-400"
           aria-label="Download data"
         >
           {isDownloading ? "Downloading..." : "Download"}

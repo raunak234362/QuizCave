@@ -42,7 +42,7 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
   const handleFormChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
+    >,
   ) => {
     const { name, value, type } = e.target;
     const checked =
@@ -68,7 +68,7 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
   const renderInputField = (
     label: string,
     name: keyof EditFormData,
-    type: string = "text"
+    type: string = "text",
   ) => (
     <ContestInputField
       label={label}
@@ -86,7 +86,7 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
         {/* Header */}
         <div className="flex justify-between items-center sticky top-0 bg-white z-10 py-3 border-b border-teal-200 mb-6">
           <h3 className="text-3xl font-extrabold text-teal-700">
-             Edit Contest: {editFormData.name}
+            Edit Contest: {editFormData.name}
           </h3>
           <button
             onClick={onClose}
@@ -137,7 +137,7 @@ const ContestEditModal: React.FC<ContestEditModalProps> = ({
         {/* Footer */}
         <div className="mt-8 pt-6 border-t border-teal-100 flex justify-end">
           <button
-            className="bg-teal-600 text-white py-2 px-6 rounded-lg font-bold shadow-md hover:bg-teal-700 transition-all disabled:opacity-50"
+            className="bg-teal-600 text-black py-2 px-6 rounded-lg font-bold shadow-md hover:bg-teal-700 transition-all disabled:opacity-50"
             onClick={handleInternalSave}
             disabled={isSaving}
           >

@@ -395,7 +395,7 @@ const AssessmentPage = ({
 
               if (status === "attempted") {
                 buttonClass =
-                  "bg-green-500 text-white hover:bg-green-600 hover:scale-105 transition-transform duration-200";
+                  "bg-green-500 text-black hover:bg-green-600 hover:scale-105 transition-transform duration-200";
               } else if (status === "review") {
                 buttonClass =
                   "bg-yellow-400 text-black hover:bg-yellow-500 hover:scale-105 transition-transform duration-200";
@@ -403,7 +403,7 @@ const AssessmentPage = ({
 
               if (index === currentQuestionIndex) {
                 buttonClass =
-                  "bg-blue-500 text-white ring-2 ring-blue-300 hover:bg-blue-600 hover:scale-110 transition-transform duration-200";
+                  "bg-blue-500 text-black ring-2 ring-blue-300 hover:bg-blue-600 hover:scale-110 transition-transform duration-200";
               }
 
               return (
@@ -450,7 +450,7 @@ const AssessmentPage = ({
             <button
               onClick={handleFinalSubmit}
               disabled={submitting}
-              className={`w-full py-3 rounded-lg font-bold text-white transition-colors ${
+              className={`w-full py-3 rounded-lg font-bold text-black transition-colors ${
                 submitting
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-red-500 hover:bg-red-600"
@@ -469,8 +469,8 @@ const AssessmentPage = ({
               Submit Assessment?
             </h3>
             <p className="text-gray-600 mb-6 leading-relaxed">
-              Are you sure you want to finalize your submission? You won't be able
-              to change your answers afterwards.
+              Are you sure you want to finalize your submission? You won't be
+              able to change your answers afterwards.
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -484,7 +484,7 @@ const AssessmentPage = ({
                   setShowSubmitModal(false);
                   performFinalSubmit();
                 }}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 font-semibold transition-colors shadow-lg shadow-red-500/30"
+                className="px-4 py-2 rounded-lg bg-red-600 text-black hover:bg-red-700 font-semibold transition-colors shadow-lg shadow-red-500/30"
               >
                 Yes, Submit
               </button>

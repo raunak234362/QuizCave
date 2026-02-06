@@ -20,7 +20,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
   >({});
 
   const handleChange = (
-    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = e.target;
     setEditedData((prev) => ({ ...prev, [name]: value }));
@@ -180,7 +180,6 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
               />
             </div>
           </div>
-
         </div>
         <div className="space-y-4">
           <h3 className="font-semibold text-gray-800">Current Address</h3>
@@ -270,7 +269,7 @@ const EditProfileForm: React.FC<EditProfileFormProps> = ({
           </button>
           <button
             type="submit"
-            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold transition duration-200 flex items-center"
+            className="px-6 py-2 bg-green-600 text-black rounded-lg hover:bg-green-700 font-semibold transition duration-200 flex items-center"
             disabled={isSubmitting}
           >
             {isSubmitting ? "Saving..." : "Save"}

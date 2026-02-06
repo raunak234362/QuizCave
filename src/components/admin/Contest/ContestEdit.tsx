@@ -9,7 +9,7 @@ interface EditContestFormProps {
   onSave: (data: any) => void;
   onCancel: () => void;
 }
-  
+
 const EditContestForm: React.FC<EditContestFormProps> = ({
   defaultValues,
   onSave,
@@ -46,13 +46,13 @@ const EditContestForm: React.FC<EditContestFormProps> = ({
         <button
           type="button"
           onClick={onCancel}
-          className="bg-gray-400 text-white px-3 py-1 rounded-lg"
+          className="bg-gray-400 text-black px-3 py-1 rounded-lg"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600"
+          className="bg-green-500 text-black px-3 py-1 rounded-lg hover:bg-green-600"
         >
           Save
         </button>

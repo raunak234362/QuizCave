@@ -52,7 +52,7 @@ const AllQuestion: React.FC = () => {
   };
 
   const handleEditFormChange = (
-    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    event: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value } = event.target;
     setEditFormState((prev) => ({
@@ -100,9 +100,9 @@ const AllQuestion: React.FC = () => {
       case "easy":
         return "bg-teal-200 text-teal-900";
       case "medium":
-        return "bg-teal-400 text-white";
+        return "bg-teal-400 text-black";
       case "hard":
-        return "bg-teal-600 text-white";
+        return "bg-teal-600 text-black";
       default:
         return "bg-gray-200 text-gray-700";
     }
@@ -138,7 +138,7 @@ const AllQuestion: React.FC = () => {
                 Easy:{" "}
                 {
                   questions.filter(
-                    (item) => item.set === "A" && item.difficult === "easy"
+                    (item) => item.set === "A" && item.difficult === "easy",
                   ).length
                 }
               </p>
@@ -146,7 +146,7 @@ const AllQuestion: React.FC = () => {
                 Medium:{" "}
                 {
                   questions.filter(
-                    (item) => item.set === "A" && item.difficult === "medium"
+                    (item) => item.set === "A" && item.difficult === "medium",
                   ).length
                 }
               </p>
@@ -154,7 +154,7 @@ const AllQuestion: React.FC = () => {
                 Hard:{" "}
                 {
                   questions.filter(
-                    (item) => item.set === "A" && item.difficult === "hard"
+                    (item) => item.set === "A" && item.difficult === "hard",
                   ).length
                 }
               </p>
@@ -180,7 +180,7 @@ const AllQuestion: React.FC = () => {
                 Easy:{" "}
                 {
                   questions.filter(
-                    (item) => item.set === "B" && item.difficult === "easy"
+                    (item) => item.set === "B" && item.difficult === "easy",
                   ).length
                 }
               </p>
@@ -188,7 +188,7 @@ const AllQuestion: React.FC = () => {
                 Medium:{" "}
                 {
                   questions.filter(
-                    (item) => item.set === "B" && item.difficult === "medium"
+                    (item) => item.set === "B" && item.difficult === "medium",
                   ).length
                 }
               </p>
@@ -196,7 +196,7 @@ const AllQuestion: React.FC = () => {
                 Hard:{" "}
                 {
                   questions.filter(
-                    (item) => item.set === "B" && item.difficult === "hard"
+                    (item) => item.set === "B" && item.difficult === "hard",
                   ).length
                 }
               </p>
@@ -205,7 +205,7 @@ const AllQuestion: React.FC = () => {
         </div>
 
         {/* Add Question */}
-        <div className="w-1/3 bg-teal-600 text-white rounded-2xl p-8 shadow-md hover:shadow-lg flex flex-col items-center justify-center transition-all">
+        <div className="w-1/3 bg-teal-600 text-black rounded-2xl p-8 shadow-md hover:shadow-lg flex flex-col items-center justify-center transition-all">
           <CgAdd className="text-4xl mb-3" />
           <h1 className="text-xl font-semibold mb-3">Add New Question</h1>
           <button
@@ -264,7 +264,7 @@ const AllQuestion: React.FC = () => {
       <div className="bg-white/90 backdrop-blur-lg border border-teal-100 rounded-2xl shadow-lg overflow-hidden">
         <div className="overflow-y-auto max-h-[60vh]">
           <table className="w-full text-left border-collapse">
-            <thead className="bg-teal-600 text-white">
+            <thead className="bg-teal-600 text-black">
               <tr>
                 <th className="p-4">#</th>
                 <th className="p-4">Question</th>
@@ -289,7 +289,7 @@ const AllQuestion: React.FC = () => {
                   <td className="p-4">
                     <span
                       className={`px-3 py-1 rounded-lg text-sm font-semibold ${getDifficultyBgColor(
-                        item.difficult
+                        item.difficult,
                       )}`}
                     >
                       {item.difficult}
@@ -298,7 +298,7 @@ const AllQuestion: React.FC = () => {
                   <td className="p-4 text-center">
                     <button
                       onClick={() => toggleEditQuestion(index)}
-                      className="bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded-lg font-semibold"
+                      className="bg-teal-500 hover:bg-teal-600 text-black px-3 py-2 rounded-lg font-semibold"
                     >
                       Modify
                     </button>
@@ -353,7 +353,7 @@ const AllQuestion: React.FC = () => {
                           <div className="flex gap-4">
                             <button
                               onClick={handleEditFormSubmit}
-                              className="flex-1 bg-teal-600 hover:bg-teal-700 text-white py-2 rounded-lg font-bold"
+                              className="flex-1 bg-teal-600 hover:bg-teal-700 text-black py-2 rounded-lg font-bold"
                             >
                               Update
                             </button>
@@ -367,7 +367,7 @@ const AllQuestion: React.FC = () => {
 
                           <button
                             onClick={() => handleDeleteQuestion(index)}
-                            className="w-full bg-red-500 hover:bg-red-600 text-white py-2 rounded-lg font-bold mt-4"
+                            className="w-full bg-red-500 hover:bg-red-600 text-black py-2 rounded-lg font-bold mt-4"
                           >
                             Delete
                           </button>

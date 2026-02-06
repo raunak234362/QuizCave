@@ -561,7 +561,7 @@ const Registration: React.FC = () => {
           </div>
           <div className="flex items-center justify-center">
             <button
-              className="px-4 py-3 text-xl font-bold text-white bg-green-600 rounded-lg shadow-lg hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
+              className="px-4 py-3 text-xl font-bold text-black bg-green-600 rounded-lg shadow-lg hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50"
               type="submit"
             >
               Submit

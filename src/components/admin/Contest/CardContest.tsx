@@ -158,7 +158,7 @@ const CardContest = ({ id }: any) => {
 
       <div className="flex flex-row items-center gap-3 mt-4 border-t pt-4">
         <button
-          className="w-full text-white py-2 rounded-lg font-medium shadow-md transition-colors"
+          className="w-full text-black py-2 rounded-lg font-medium shadow-md transition-colors"
           style={{ backgroundColor: "#6bbd45" }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.backgroundColor = "#5aa839")
@@ -171,7 +171,7 @@ const CardContest = ({ id }: any) => {
           Show Details
         </button>
         <button
-          className="w-full text-white py-2 rounded-lg font-medium shadow-md transition-colors"
+          className="w-full text-black py-2 rounded-lg font-medium shadow-md transition-colors"
           style={{ backgroundColor: "#6bbd45" }}
           onMouseEnter={(e) =>
             (e.currentTarget.style.backgroundColor = "#5aa839")

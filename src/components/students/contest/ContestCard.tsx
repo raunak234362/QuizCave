@@ -20,7 +20,7 @@ const ContestCard = ({ contest }: { contest: ContestData }) => {
     try {
       const res = await Service.studentContestAttempt({ id: contest._id });
       console.log(res.data);
-      
+
       setContestData(res.data.contest);
       setResultData(res.data.result);
       setQuestionData(res.data.questions);
@@ -56,7 +56,7 @@ const ContestCard = ({ contest }: { contest: ContestData }) => {
 
       <button
         onClick={handleAttendClick}
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        className="mt-4 px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700"
       >
         Attend
       </button>

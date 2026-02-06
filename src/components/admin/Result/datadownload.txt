@@ -322,7 +322,7 @@ export default function DataDownload({
         <button
           onClick={handleDownload}
           disabled={isDownloading}
-          className="ml-4 rounded bg-blue-600 px-3 py-1 text-white hover:bg-blue-700 disabled:bg-gray-400"
+          className="ml-4 rounded bg-blue-600 px-3 py-1 text-black hover:bg-blue-700 disabled:bg-gray-400"
           aria-label="Download data"
         >
           {isDownloading ? "Downloading..." : "Download"}
