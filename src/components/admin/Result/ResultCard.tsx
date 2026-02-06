@@ -37,7 +37,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
       const response = await Service.fetchResultDetails({
         id: item._id,
       });
-      const data = response?.data || [];
+      const data = (response?.data || []).filter((r: ResultDetails | null) => r !== null);
       setResults(data);
       setFilteredResults(data);
       setShowModal(true);
@@ -338,7 +338,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
                   >
                     <div className="flex-1">
                       <p className="text-sm text-gray-700 font-medium">
-                        {result.userId?.name}
+                        {result.userId?.name || "Unknown User"}
                       </p>
                       <p className="text-sm text-gray-600">
                         Gender:{" "}
@@ -353,17 +353,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
                         </span>
                       </p>
                       <p className="text-sm text-gray-600">
-                        Time Taken:{" "}
-                        {(() => {
-                          const ms = result.timeTaken;
-                          const totalSeconds = Math.floor(ms / 1000);
-                          const hours = Math.floor(totalSeconds / 3600);
-                          const minutes = Math.floor(
-                            (totalSeconds % 3600) / 60,
-                          );
-                          const seconds = totalSeconds % 60;
-                          return `${hours} hr ${minutes} min ${seconds} sec`;
-                        })()}
+                        Time Taken: {((result.timeTaken / 60)/60).toFixed(2)} mins
                       </p>
                       <p className="text-sm text-gray-600">
                         Submitted On:{" "}
@@ -372,28 +362,27 @@ const ResultCard = ({ item }: ResultCardProps) => {
                     </div>
                     <div className="flex flex-col items-center justify-center">
                       <img
-                        src={`${import.meta.env.VITE_IMG_URL}/${
-                          result?.userId?.profilePic || "default-profile.png"
-                        }`}
+                        src={`${import.meta.env.VITE_IMG_URL}/${result?.userId?.profilePic || "default-profile.png"
+                          }`}
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-2"
                       />
                       <button
-                        onClick={() => handleDownloadClick(result.userId.name)}
+                        onClick={() => handleDownloadClick(result._id)}
                         className="bg-green-600 text-black px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
                       >
                         Download Results
                       </button>
                     </div>
 
-                    {downloadResultId === result.userId.name && (
+                    {downloadResultId === result._id && (
                       <DataDownload
                         data={result.answers || []}
-                        filename={`results_${item._id}_${result.userId.name}`}
+                        filename={`results_${item._id}_${result.userId?.name || "Unknown"}`}
                         title="WBT Contest Results"
-                        username={result.userId.name}
+                        username={result.userId?.name || "Unknown"}
                         marks={result.totalMarks}
-                        college={result.userId.college || "N/A"}
+                        college={result.userId?.college || "N/A"}
                       />
                     )}
                   </div>

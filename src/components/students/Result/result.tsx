@@ -44,7 +44,7 @@ export default function ResultPage({ id, token }: ResultPageProps) {
           Submitted on: {new Date(result.sumbittedOn).toLocaleString()}
         </p>
         <p className="text-gray-600">
-          Time Taken: {(result.timeTaken / 1000 / 60).toFixed(2)} mins
+          Time Taken: {(result.timeTaken / 3600).toFixed(2)} hours
         </p>
         <p className="mt-2 text-lg font-bold">Score: {result.totalMarks}</p>
       </div>
@@ -52,9 +52,9 @@ export default function ResultPage({ id, token }: ResultPageProps) {
       {/* User Info */}
       <div className="bg-white shadow-md rounded-2xl p-5 mb-6">
         <h3 className="text-lg font-semibold mb-2">Student Info</h3>
-        <p>Name: {result.userId.name}</p>
-        <p>Email: {result.userId.email}</p>
-        <p>College: {result.userId.college ?? "N/A"}</p>
+        <p>Name: {result.userId?.name || "Unknown User"}</p>
+        <p>Email: {result.userId?.email || "N/A"}</p>
+        <p>College: {result.userId?.college ?? "N/A"}</p>
       </div>
 
       {/* Answers Breakdown */}
