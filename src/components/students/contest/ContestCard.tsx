@@ -56,7 +56,7 @@ const ContestCard = ({ contest }: { contest: ContestData }) => {
 
       <button
         onClick={handleAttendClick}
-        className="mt-4 px-4 py-2 bg-blue-600 text-black rounded-lg hover:bg-blue-700"
+        className="mt-4 px-4 py-2 bg-blue-600 border shadow-lg text-black rounded-lg hover:bg-blue-700"
       >
         Attend
       </button>

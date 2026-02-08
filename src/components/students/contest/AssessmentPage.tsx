@@ -391,25 +391,25 @@ const AssessmentPage = ({
             {questionDetails.map((q, index) => {
               const status = questionStatuses[q._id];
               let buttonClass =
-                "bg-gray-200 text-black hover:scale-105 transition-transform duration-200";
+                "bg-gray-200 text-black shadow-lg hover:scale-105 transition-transform duration-200";
 
               if (status === "attempted") {
                 buttonClass =
-                  "bg-green-500 text-black hover:bg-green-600 hover:scale-105 transition-transform duration-200";
+                  "bg-green-500 text-black shadow-lg hover:bg-green-600 hover:scale-105 transition-transform duration-200";
               } else if (status === "review") {
                 buttonClass =
-                  "bg-yellow-400 text-black hover:bg-yellow-500 hover:scale-105 transition-transform duration-200";
+                  "bg-yellow-400 text-black shadow-lg hover:bg-yellow-500 hover:scale-105 transition-transform duration-200";
               }
 
               if (index === currentQuestionIndex) {
                 buttonClass =
-                  "bg-blue-500 text-black ring-2 ring-blue-300 hover:bg-blue-600 hover:scale-110 transition-transform duration-200";
+                  "bg-blue-500 text-black shadow-lg ring-2 ring-blue-300 hover:bg-blue-600 hover:scale-110 transition-transform duration-200";
               }
 
               return (
                 <button
                   key={q._id}
-                  className={`p-3 rounded-xl text-sm font-bold border shadow-sm ${buttonClass}`}
+                  className={`p-3 rounded-xl text-sm font-bold text-black border shadow-sm ${buttonClass}`}
                   onClick={() => setCurrentQuestionIndex(index)}
                   title={
                     status === "attempted"
