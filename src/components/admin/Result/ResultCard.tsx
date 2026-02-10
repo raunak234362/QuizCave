@@ -37,7 +37,10 @@ const ResultCard = ({ item }: ResultCardProps) => {
       const response = await Service.fetchResultDetails({
         id: item._id,
       });
-      const data = (response?.data || []).filter((r: ResultDetails | null) => r !== null);
+      const data = (response?.data || []).filter(
+        (r: ResultDetails | null) => r !== null,
+      );
+      console.log("Data:", data);
       setResults(data);
       setFilteredResults(data);
       setShowModal(true);
@@ -59,6 +62,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
     if (fromDate || toDate) {
       const from = fromDate ? new Date(fromDate) : null;
       const to = toDate ? new Date(toDate) : null;
+      if (to) to.setHours(23, 59, 59, 999); // Include entire 'to' day
 
       filtered = filtered.filter((result) => {
         const submitted = new Date(result.sumbittedOn);
@@ -310,13 +314,13 @@ const ResultCard = ({ item }: ResultCardProps) => {
               <div className="flex gap-3">
                 <button
                   onClick={applyFilters}
-                  className="bg-blue-600 text-black px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
+                  className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors font-medium"
                 >
                   Apply Filters
                 </button>
                 <button
                   onClick={resetFilters}
-                  className="bg-gray-500 text-black px-6 py-2 rounded-md hover:bg-gray-600 transition-colors font-medium"
+                  className="bg-gray-500 text-white px-6 py-2 rounded-md hover:bg-gray-600 transition-colors font-medium"
                 >
                   Reset
                 </button>
@@ -353,7 +357,7 @@ const ResultCard = ({ item }: ResultCardProps) => {
                         </span>
                       </p>
                       <p className="text-sm text-gray-600">
-                        Time Taken: {((result.timeTaken / 60)/60).toFixed(2)} mins
+                        Time Taken: {(result.timeTaken / 60).toFixed(2)} mins
                       </p>
                       <p className="text-sm text-gray-600">
                         Submitted On:{" "}
@@ -362,14 +366,15 @@ const ResultCard = ({ item }: ResultCardProps) => {
                     </div>
                     <div className="flex flex-col items-center justify-center">
                       <img
-                        src={`${import.meta.env.VITE_IMG_URL}/${result?.userId?.profilePic || "default-profile.png"
-                          }`}
+                        src={`${import.meta.env.VITE_IMG_URL}/${
+                          result?.userId?.profilePic || "default-profile.png"
+                        }`}
                         alt="Profile"
                         className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-2"
                       />
                       <button
                         onClick={() => handleDownloadClick(result._id)}
-                        className="bg-green-600 text-black px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
                       >
                         Download Results
                       </button>
