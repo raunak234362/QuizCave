@@ -3,228 +3,238 @@
 import { useState } from "react";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
+import type { UserData } from "../../Interfaces/index";
+
 interface Answer {
-  question: string;
-  givenAnswer: string;
-  correctAnswer: string;
-  isCorrect: boolean;
-  // ... add other properties if present
-}
-
-interface User {
-  _id: string;
-  name: string;
-  email?: string;
-  profilePic?: string;
-  phone?: string;
-  altPhone?: string;
-}
-
-interface ContestResult {
-  _id: string;
-  contestId: string;
-  userId: User;
-  declared: boolean;
-  answers: Answer[];
-  totalMarks?: number;
-  timeTaken?: number;
-  sumbittedOn: string;
-  [key: string]: string | number | boolean | object | undefined;
+  _id?: string;
+  questionId: {
+    question?: string;
+    answer?: string;
+    multipleAnswer?: string[];
+  } | string;
+  answer: string | string[];
 }
 
 interface DataDownloadProps {
-  data: ContestResult[];
+  data: Answer[];
   filename?: string;
   title?: string;
-  username?: string;
-  marks?: number;
-  college?: string;
+  user: UserData;
+  marks: number;
 }
 
 const styles = StyleSheet.create({
   page: {
-    padding: 20,
-    fontSize: 10,
-  },
-  section: {
-    marginBottom: 12,
+    padding: 40,
+    fontSize: 9,
+    fontFamily: 'Helvetica',
+    color: '#334155',
   },
   header: {
-    fontSize: 16,
-    marginBottom: 10,
+    fontSize: 22,
+    marginBottom: 20,
     fontWeight: "bold",
+    color: '#1e40af',
+    textAlign: 'center',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
   },
-  subHeader: {
-    fontSize: 12,
-    marginBottom: 6,
-    fontWeight: "bold",
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#1e40af',
+    marginTop: 20,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#cbd5e1',
+    paddingBottom: 4,
+    textTransform: 'uppercase',
+  },
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 5,
+  },
+  gridItem: {
+    width: '33.33%',
+    padding: 5,
+    marginBottom: 10,
+  },
+  label: {
+    fontSize: 8,
+    color: '#64748b',
+    textTransform: 'uppercase',
+    marginBottom: 2,
+    fontWeight: 'bold',
+  },
+  value: {
+    fontSize: 10,
+    color: '#1e293b',
+    fontWeight: 'medium',
+  },
+  addressBox: {
+    width: '50%',
+    padding: 5,
+  },
+  resultSection: {
+    marginTop: 15,
+    padding: 10,
+    backgroundColor: '#f8fafc',
+    borderRadius: 4,
+    borderLeftWidth: 3,
+    borderLeftColor: '#3b82f6',
+    marginBottom: 10,
   },
   questionText: {
-    marginBottom: 2,
-  },
-  answerCorrect: {
-    color: "green",
-  },
-  answerIncorrect: {
-    color: "red",
-  },
-  smallText: {
     fontSize: 10,
-    color: "#666",
+    fontWeight: 'bold',
+    marginBottom: 5,
+    color: '#1e293b',
   },
+  answerBox: {
+    marginLeft: 10,
+    paddingLeft: 10,
+    borderLeftWidth: 1,
+    borderLeftColor: '#e2e8f0',
+  },
+  correctText: {
+    color: '#059669',
+    marginTop: 3,
+  }
 });
 
 export default function DataDownload({
   data,
   filename = "contest-results",
-  title = "WBT Contest Results",
-  username,
+  title = "Comprehensive Performance Report",
+  user,
   marks,
-  college = "N/A",
 }: DataDownloadProps) {
-  const [format, setFormat] = useState<string>("csv");
+  const [format, setFormat] = useState<string>("pdf");
   const [isDownloading, setIsDownloading] = useState(false);
   console.log("DataDownload component rendered with data:", data);
-  //   const formatTime = (ms: number) => {
-  //     const totalSeconds = Math.floor(ms / 1000);
-  //     const hours = Math.floor(totalSeconds / 3600);
-  //     const minutes = Math.floor((totalSeconds % 3600) / 60);
-  //     const seconds = totalSeconds % 60;
-  //     return `${hours}h ${minutes}m ${seconds}s`;
-  //   };
 
-  //   const flattenData = (data: ContestResult[]) => {
-  //     console.log("Flattening data for download", data);
-  //     return data.map((item) => ({
-  //       id: item._id,
-  //       contestId: item.contestId,
-  //       userName: item.userId?.name || "N/A",
-  //       userEmail: item.userId?.email || "N/A",
-  //       userId: item.userId?._id || "N/A",
-  //       declared: item.declared,
-  //       answer: item.answer || "N/A",
-  //       questionId: item.questionId || "N/A",
-  //       totalMarks: item.totalMarks || 0,
-  //       timeTaken: item.timeTaken ? formatTime(item.timeTaken) : "N/A",
-  //       submittedOn: new Date(item.sumbittedOn).toLocaleString(),
-  //       answersCount: item.answers?.length || 0,
-  //       profilePic: item.userId?.profilePic || "N/A",
-  //     }));
-  //   };
 
-  // Download CSV, JSON, Excel remain unchanged...
+  const formatAddress = (addr: any) => {
+    if (!addr) return "N/A";
+    const parts = [
+      addr.streetLine1,
+      addr.streetLine2,
+      addr.city,
+      addr.state,
+      addr.zip,
+      addr.country
+    ].filter(Boolean);
+    return parts.join(", ") || "N/A";
+  };
 
-  //   const downloadCSV = () => {
-  //     const flatData = flattenData(data);
-  //     const headers = Object.keys(flatData[0] || {});
-  //     const csvContent = [
-  //       headers.join(","),
-  //       ...flatData.map((row) =>
-  //         headers
-  //           .map((header) => {
-  //             const value = row[header as keyof typeof row];
-  //             return typeof value === "string" && value.includes(",")
-  //               ? `"${value}"`
-  //               : value;
-  //           })
-  //           .join(",")
-  //       ),
-  //     ].join("\n");
-
-  //     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  //     const link = document.createElement("a");
-  //     link.href = URL.createObjectURL(blob);
-  //     link.download = `${filename}.csv`;
-  //     link.click();
-  //     URL.revokeObjectURL(link.href);
-  //   };
-
-  //   const downloadJSON = () => {
-  //     const jsonContent = JSON.stringify(data, null, 2);
-  //     const blob = new Blob([jsonContent], { type: "application/json" });
-  //     const link = document.createElement("a");
-  //     link.href = URL.createObjectURL(blob);
-  //     link.download = `${filename}.json`;
-  //     link.click();
-  //     URL.revokeObjectURL(link.href);
-  //   };
-
-  //   const downloadExcel = () => {
-  //     const flatData = flattenData(data);
-  //     const headers = Object.keys(flatData[0] || {});
-
-  //     const htmlTable = `
-  //       <table>
-  //         <thead>
-  //           <tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr>
-  //         </thead>
-  //         <tbody>
-  //           ${flatData
-  //             .map(
-  //               (row) =>
-  //                 `<tr>${headers
-  //                   .map((h) => `<td>${row[h as keyof typeof row]}</td>`)
-  //                   .join("")}</tr>`
-  //             )
-  //             .join("")}
-  //         </tbody>
-  //       </table>
-  //     `;
-
-  //     const blob = new Blob([htmlTable], { type: "application/vnd.ms-excel" });
-  //     const link = document.createElement("a");
-  //     link.href = URL.createObjectURL(blob);
-  //     link.download = `${filename}.xls`;
-  //     link.click();
-  //     URL.revokeObjectURL(link.href);
-  //   };
-
-  // PDF document component
   const ContestResultsPDF = () => (
     <Document>
       <Page style={styles.page} size="A4">
-        <Text style={styles.header}>{title}</Text>
-        <Text style={styles.subHeader}>Name- {username}</Text>
-        <Text style={styles.subHeader}>Marks- {marks}/100</Text>
-        <Text style={styles.subHeader}>College- {college}</Text>
+        <Text style={styles.header}>{`${title}`}</Text>
+
+        {/* Personal Details */}
+        <Text style={styles.sectionTitle}>I. Student Profile</Text>
+        <View style={styles.grid}>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Full Name</Text>
+            <Text style={styles.value}>{`${user.name || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Student ID</Text>
+            <Text style={styles.value}>{`${user.studentId || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Email Address</Text>
+            <Text style={styles.value}>{`${user.email || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.value}>{`${user.phone || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Gender</Text>
+            <Text style={styles.value}>{`${user.gender || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Date of Birth</Text>
+            <Text style={styles.value}>{`${user.dob ? new Date(user.dob).toLocaleDateString() : "N/A"}`}</Text>
+          </View>
+        </View>
+
+        {/* Academic Details */}
+        <Text style={styles.sectionTitle}>II. Academic Information</Text>
+        <View style={styles.grid}>
+          <View style={[styles.gridItem, { width: '100%' }]}>
+            <Text style={styles.label}>College Name</Text>
+            <Text style={styles.value}>{`${user.college || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Course</Text>
+            <Text style={styles.value}>{`${user.course || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Branch</Text>
+            <Text style={styles.value}>{`${user.branch || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Current Semester</Text>
+            <Text style={styles.value}>{`${user.currentSemester || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>CGPA / Percentage</Text>
+            <Text style={styles.value}>{`${user.cgpa || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Passing Year</Text>
+            <Text style={styles.value}>{`${user.passingYear || "N/A"}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Active Backlogs</Text>
+            <Text style={styles.value}>{`${user.backlog || "0"}`}</Text>
+          </View>
+        </View>
+
+        {/* Addresses */}
+        <Text style={styles.sectionTitle}>III. Communication Details</Text>
+        <View style={styles.grid}>
+          <View style={styles.addressBox}>
+            <Text style={styles.label}>Current Address</Text>
+            <Text style={styles.value}>{`${formatAddress(user.currAddress)}`}</Text>
+          </View>
+          <View style={styles.addressBox}>
+            <Text style={styles.label}>Permanent Address</Text>
+            <Text style={styles.value}>{`${formatAddress(user.permAddress)}`}</Text>
+          </View>
+        </View>
+
+        {/* Contest Performance */}
+        <Text style={styles.sectionTitle}>IV. Contest Performance</Text>
+        <View style={[styles.grid, { backgroundColor: '#eff6ff', padding: 10, borderRadius: 5, marginBottom: 15 }]}>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Total Score</Text>
+            <Text style={[styles.value, { color: '#1d4ed8', fontSize: 14, fontWeight: 'bold' }]}>{`${marks}`}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Completion Status</Text>
+            <Text style={[styles.value, { color: '#059669', fontSize: 10 }]}>SUCCESSFUL</Text>
+          </View>
+        </View>
+
+        <Text style={{ fontSize: 11, fontWeight: 'bold', marginBottom: 10, color: '#4d5562' }}>Detailed Responses:</Text>
+
         {data.map((result, index) => (
-          <View key={result._id} style={styles.section}>
-            <Text>
-              <Text style={{ fontWeight: "bold" }}>Question: {index + 1}-</Text>{" "}
-              {typeof result.questionId === "object" &&
-              result.questionId !== null &&
-              "question" in result.questionId
-                ? (result.questionId as { question?: string }).question || " "
-                : " "}
-            </Text>
-            <Text>
-              <Text style={{ fontWeight: "bold" }}>Correct Answer</Text>{" "}
-              {typeof result.questionId === "object" &&
-              result.questionId !== null &&
-              "answer" in result.questionId
-                ? (result.questionId as { answer?: string }).answer || " "
-                : typeof result.questionId === "object" &&
-                    result.questionId !== null &&
-                    "multipleAnswer" in result.questionId
-                  ? Array.isArray(
-                      (result.questionId as { multipleAnswer?: string[] })
-                        .multipleAnswer,
-                    )
-                    ? (
-                        result.questionId as { multipleAnswer?: string[] }
-                      ).multipleAnswer?.join(", ") || " "
-                    : " "
-                  : " "}
-            </Text>
-            <Text style={{ fontWeight: "bold" }}>Answers: </Text>
-            <Text>
-              {typeof result.answer === "string" ||
-              typeof result.answer === "number"
-                ? result.answer
-                : result.answer
-                  ? JSON.stringify(result.answer)
-                  : " "}
-            </Text>
+          <View key={result._id || index} style={styles.resultSection}>
+            <Text style={styles.questionText}>{`Q${index + 1}. ${typeof result.questionId === "object" ? (result.questionId as any).question : "N/A"}`}</Text>
+            <View style={styles.answerBox}>
+              <Text style={{ fontSize: 9, color: '#64748b' }}>Submitted Answer:</Text>
+              <Text style={styles.value}>{`${Array.isArray(result.answer) ? result.answer.join(", ") : (result.answer || "No response")}`}</Text>
+
+              <Text style={[styles.correctText, { fontSize: 9 }]}>Correct Answer: {`${typeof result.questionId === "object"
+                ? ((result.questionId as any).answer || (result.questionId as any).multipleAnswer?.join(", ") || "N/A")
+                : "N/A"
+                }`}</Text>
+            </View>
           </View>
         ))}
       </Page>

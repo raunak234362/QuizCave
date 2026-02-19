@@ -338,44 +338,115 @@ const ResultCard = ({ item }: ResultCardProps) => {
                 {filteredResults.map((result, index) => (
                   <div
                     key={result._id || `result-${index}`}
-                    className="flex flex-row justify-between p-3 border border-gray-200 rounded-md shadow-sm bg-gray-50"
+                    className="flex flex-col md:flex-row justify-between p-5 border border-gray-100 rounded-xl shadow-sm bg-white hover:shadow-md transition-shadow duration-200"
                   >
-                    <div className="flex-1">
-                      <p className="text-sm text-gray-700 font-medium">
-                        {result.userId?.name || "Unknown User"}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Gender:{" "}
-                        <span className="font-semibold capitalize">
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-3 mb-2">
+                        <h5 className="text-lg font-bold text-gray-900 leading-tight">
+                          {result.userId?.name || "Unknown User"}
+                        </h5>
+                        <span className="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full uppercase">
                           {result.userId?.gender || "N/A"}
                         </span>
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Marks:{" "}
-                        <span className="font-semibold">
-                          {result.totalMarks}
-                        </span>
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Time Taken: {(result.timeTaken / 60).toFixed(2)} mins
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        Submitted On:{" "}
-                        {new Date(result.sumbittedOn).toLocaleString()}
-                      </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-600">
+                        <p>
+                          <span className="text-gray-400 font-medium">Student ID:</span>{" "}
+                          <span className="text-gray-800 font-semibold">{result.userId?.studentId || "N/A"}</span>
+                        </p>
+                        <p>
+                          <span className="text-gray-400 font-medium">Marks:</span>{" "}
+                          <span className="text-green-600 font-bold text-base">{result.totalMarks}</span>
+                        </p>
+                        <p className="sm:col-span-2">
+                          <span className="text-gray-400 font-medium">College:</span>{" "}
+                          <span className="text-gray-800">{result.userId?.college || "N/A"}</span>
+                        </p>
+                        <p className="sm:col-span-2">
+                          <span className="text-gray-400 font-medium">Branch:</span>{" "}
+                          <span className="text-gray-800">{result.userId?.branch || "N/A"}</span>
+                        </p>
+                        <p>
+                          <span className="text-gray-400 font-medium">Time Taken:</span>{" "}
+                          <span className="text-gray-800 font-semibold">
+                            {(() => {
+                              const ms = result.timeTaken;
+                              if (!ms) return "0s";
+                              const totalSeconds = Math.floor(ms / 1000);
+                              const h = Math.floor(totalSeconds / 3600);
+                              const m = Math.floor((totalSeconds % 3600) / 60);
+                              const s = totalSeconds % 60;
+                              return `${h > 0 ? `${h}h ` : ""}${m > 0 ? `${m}m ` : ""}${s}s`;
+                            })()}
+                          </span>
+                        </p>
+                        <p>
+                          <span className="text-gray-400 font-medium">Submitted:</span>{" "}
+                          <span className="text-gray-800 italic">
+                            {new Date(result.sumbittedOn).toLocaleString([], {
+                              dateStyle: 'medium',
+                              timeStyle: 'short'
+                            })}
+                          </span>
+                        </p>
+                      </div>
+
+                      {/* Documents Section */}
+                      <div className="pt-3 border-t border-gray-50 flex flex-wrap gap-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Documents:</span>
+                          {result.userId?.resume ? (
+                            <a
+                              href={`${import.meta.env.VITE_IMG_URL}/${result.userId.resume}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 bg-blue-50 px-2.5 py-1 rounded-md transition-colors"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Resume
+                            </a>
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">No Resume</span>
+                          )}
+
+                          {result.userId?.marksheet && result.userId.marksheet.length > 0 ? (
+                            <a
+                              href={`${import.meta.env.VITE_IMG_URL}/${result.userId.marksheet[0]}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-purple-600 hover:text-purple-700 bg-purple-50 px-2.5 py-1 rounded-md transition-colors"
+                            >
+                              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                              </svg>
+                              Marksheet
+                            </a>
+                          ) : (
+                            <span className="text-xs text-gray-400 italic">No Marksheet</span>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-center justify-center">
-                      <img
-                        src={`${import.meta.env.VITE_IMG_URL}/${
-                          result?.userId?.profilePic || "default-profile.png"
-                        }`}
-                        alt="Profile"
-                        className="w-32 h-32 rounded-full object-cover border-4 border-blue-500 mb-2"
-                      />
+
+                    <div className="mt-4 md:mt-0 flex flex-col items-center md:items-end justify-between gap-4">
+                      <div className="relative group">
+                        <img
+                          src={`${import.meta.env.VITE_IMG_URL}/${result?.userId?.profilePic || "default-profile.png"
+                            }`}
+                          alt="Profile"
+                          className="w-24 h-24 rounded-2xl object-cover ring-4 ring-blue-50 shadow-lg group-hover:scale-105 transition-transform duration-200"
+                        />
+                      </div>
                       <button
                         onClick={() => handleDownloadClick(result._id)}
-                        className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+                        className="w-full md:w-auto bg-[#6bbd45] hover:bg-[#5aa839] text-white px-6 py-2.5 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 font-medium flex items-center justify-center gap-2"
                       >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+                        </svg>
                         Download Results
                       </button>
                     </div>
@@ -383,11 +454,9 @@ const ResultCard = ({ item }: ResultCardProps) => {
                     {downloadResultId === result._id && (
                       <DataDownload
                         data={result.answers || []}
-                        filename={`results_${item._id}_${result.userId?.name || "Unknown"}`}
-                        title="WBT Contest Results"
-                        username={result.userId?.name || "Unknown"}
+                        filename={`comprehensive_report_${result.userId?.name || "student"}`}
+                        user={result.userId}
                         marks={result.totalMarks}
-                        college={result.userId?.college || "N/A"}
                       />
                     )}
                   </div>

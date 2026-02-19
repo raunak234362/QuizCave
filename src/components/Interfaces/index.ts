@@ -31,8 +31,22 @@ export interface UserData {
   role: "admin" | "user" | string;
   designation: string;
   profilePic: string | File;
-  marksheet: [];
+  marksheet: string[];
   gender?: string;
+  studentId?: string;
+  branch?: string;
+  course?: string;
+  passingYear?: string;
+  cgpa?: string | number;
+  resume?: string;
+  dob?: string;
+  altPhone?: string;
+  fatherName?: string;
+  motherName?: string;
+  currentSemester?: string;
+  backlog?: string | number;
+  currAddress?: any;
+  permAddress?: any;
 }
 
 export interface ContestData {
@@ -120,9 +134,9 @@ export interface Address {
 }
 
 export interface RegistrationFormData {
-  profile: File | null;
-  resume: File | null;
-  marksheet: File | null;
+  profile: File | string | null;
+  resume: File | string | null;
+  marksheet: File | string | string[] | null;
   name: string;
   email: string;
   phone: string;
@@ -137,9 +151,9 @@ export interface RegistrationFormData {
   branch: string;
   course: string;
   college: string;
-  cgpa: string; // Changed to string to match form input
+  cgpa: string | number; // Changed to string to match form input
   passingYear: string; // Changed to string to match form input
-  backlog: string; // Changed to string to match form input
+  backlog: string | number; // Changed to string to match form input
   permAddress: Address; // JSON string
   currAddress: Address; // JSON string
 }
