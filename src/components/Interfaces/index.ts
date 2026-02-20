@@ -47,6 +47,9 @@ export interface UserData {
   backlog?: string | number;
   currAddress?: any;
   permAddress?: any;
+  createdAt?: string;
+  updatedAt?: string;
+  __v?: number;
 }
 
 export interface ContestData {

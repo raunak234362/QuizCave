@@ -22,6 +22,8 @@ interface DataDownloadProps {
   title?: string;
   user: UserData;
   marks: number;
+  timeTaken?: number;
+  submittedOn?: string;
 }
 
 const styles = StyleSheet.create({
@@ -132,6 +134,8 @@ export default function DataDownload({
   title = "Comprehensive Performance Report",
   user,
   marks,
+  timeTaken,
+  submittedOn,
 }: DataDownloadProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -195,9 +199,13 @@ export default function DataDownload({
             <Text style={styles.label}>Mother's Name:</Text>
             <Text style={styles.value}>{user.motherName || "N/A"}</Text>
           </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Designation:</Text>
+            <Text style={styles.value}>{user.designation || "N/A"}</Text>
+          </View>
         </View>
 
-        {/* 2. Addresses */}
+        {/* 2. Communication Details */}
         <Text style={styles.sectionTitle}>II. Communication Details</Text>
         <View style={{ marginBottom: 10 }}>
           <View style={styles.addressBlock}>
@@ -213,8 +221,7 @@ export default function DataDownload({
               Permanent Address:
             </Text>
             <Text style={[styles.value, { width: "100%" }]}>
-              {formatAddress(user.permAddress) ===
-              formatAddress(user.currAddress)
+              {formatAddress(user.permAddress) === formatAddress(user.currAddress)
                 ? "Same as Current Address"
                 : formatAddress(user.permAddress)}
             </Text>
@@ -254,15 +261,77 @@ export default function DataDownload({
           </View>
         </View>
 
-        {/* 4. Score Summary */}
-        <View style={styles.scoreBox}>
-          <Text style={{ fontSize: 14, fontWeight: "bold", color: "#1e40af" }}>
-            Total Score: {marks}
-          </Text>
+        {/* 4. Contact & Documents */}
+        <Text style={styles.sectionTitle}>IV. Documents & Labels</Text>
+        <View style={styles.grid}>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Role:</Text>
+            <Text style={styles.value}>{user.role || "N/A"}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>User Reference:</Text>
+            <Text style={styles.value}>{user.userId || "N/A"}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Resume:</Text>
+            <Text style={styles.value}>{user.resume ? "Available" : "Not Provided"}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Marksheet:</Text>
+            <Text style={styles.value}>
+              {user.marksheet && user.marksheet.length > 0
+                ? `${user.marksheet.length} File(s)`
+                : "Not Provided"}
+            </Text>
+          </View>
         </View>
 
-        {/* 5. Detailed Answers */}
-        <Text style={styles.sectionTitle}>IV. Detailed Responses</Text>
+        {/* 5. System Metadata */}
+        <Text style={styles.sectionTitle}>V. System Metadata</Text>
+        <View style={styles.grid}>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Database ID:</Text>
+            <Text style={styles.value}>{user._id || "N/A"}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Version (__v):</Text>
+            <Text style={styles.value}>{user.__v !== undefined ? user.__v : "0"}</Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Created At:</Text>
+            <Text style={styles.value}>
+              {user.createdAt ? new Date(user.createdAt).toLocaleString() : "N/A"}
+            </Text>
+          </View>
+          <View style={styles.gridItem}>
+            <Text style={styles.label}>Updated At:</Text>
+            <Text style={styles.value}>
+              {user.updatedAt ? new Date(user.updatedAt).toLocaleString() : "N/A"}
+            </Text>
+          </View>
+        </View>
+
+        {/* 6. Performance Summary */}
+        <View style={styles.scoreBox}>
+          <Text style={{ fontSize: 14, fontWeight: "bold", color: "#1e40af", marginBottom: 4 }}>
+            Total Score: {marks}
+          </Text>
+          <View style={{ flexDirection: "row", justifyContent: "center", gap: 20 }}>
+            {timeTaken !== undefined && (
+              <Text style={{ fontSize: 9, color: "#475569" }}>
+                Time Taken: {Math.floor(timeTaken / 60000)}m {Math.floor((timeTaken % 60000) / 1000)}s
+              </Text>
+            )}
+            {submittedOn && (
+              <Text style={{ fontSize: 9, color: "#475569" }}>
+                Submitted: {new Date(submittedOn).toLocaleString()}
+              </Text>
+            )}
+          </View>
+        </View>
+
+        {/* 7. Detailed Answers */}
+        <Text style={styles.sectionTitle}>VI. Detailed Responses</Text>
         {data.map((res, idx) => (
           <View key={idx} style={styles.questionContainer}>
             <Text style={styles.questionText}>
@@ -275,9 +344,7 @@ export default function DataDownload({
             <View style={styles.answerRow}>
               <Text style={styles.answerLabel}>Your Answer:</Text>
               <Text style={[styles.answerValue, styles.userAnswer]}>
-                {Array.isArray(res.answer)
-                  ? res.answer.join(", ")
-                  : res.answer || "No Answer"}
+                {Array.isArray(res.answer) ? res.answer.join(", ") : res.answer || "No Answer"}
               </Text>
             </View>
 
@@ -345,12 +412,7 @@ export default function DataDownload({
             : "bg-blue-600 hover:bg-blue-700 shadow-sm"
         }`}
       >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
+        <svg fill="none" className="w-4 h-4" stroke="currentColor" viewBox="0 0 24 24">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
